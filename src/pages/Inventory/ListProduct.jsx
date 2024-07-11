@@ -34,9 +34,9 @@ const formsFieldsArray = [
     placeholder: "Enter product unit",
   },
   {
-    name: "expiry_date",
+    name: "nearest_expiry_date",
     label: "Expiry Date",
-    placeholder: "Enter product expiry date",
+    placeholder: "DD-MM-YYYY",
   },
   {
     name: "threshold_value",
