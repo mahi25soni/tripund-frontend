@@ -13,10 +13,13 @@ const Login = () => {
     const userData = { email, password };
     console.log('User Data:', userData);
     try {
-      const res = await axios.post('/api/auth/login', userData);
+      const res = await axios.post('/auth/login', userData);
       const token = res.data.token;
       console.log('Token:', token); 
       localStorage.setItem('token', token);
+      if(res?.data?.store_id) {
+        localStorage.setItem('store_id', res?.data?.store_id);
+      }
       navigate('/dashboard');
     } catch (err) {
       console.error('Login Error:', err); 

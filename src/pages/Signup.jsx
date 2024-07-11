@@ -21,7 +21,7 @@ const SignUp = () => {
     console.log('User Data:', userData); 
 
     try {
-      const res = await axios.post('/api/auth/register', userData);
+      const res = await axios.post('/auth/register', userData);
       const token = res.data.token;
       console.log('Token:', token); 
       localStorage.setItem('token', token);      
