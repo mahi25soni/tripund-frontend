@@ -42,7 +42,7 @@ const QRCodeGenerator = () => {
                         headers: { Authorization: `Bearer ${token}` }
                     };
                     console.log('Fetching store ID...');
-                    const response = await axios.get('/api/store/storeId', config);
+                    const response = await axios.get('http://localhost:5000/api/store/storeId', config);
                     console.log('Store ID response:', response.data.store._id);
                     setStoreId(response.data.store._id);
                     setStoreName(response.data.store.storeName);
@@ -74,7 +74,7 @@ const QRCodeGenerator = () => {
                     headers: { Authorization: `Bearer ${token}` }
                 };
                 console.log('Fetching QR code URL for storeId:', storeId);
-                const response = await axios.get(`/api/qrcode/generate-qr/${storeId}`, config);
+                const response = await axios.get(`http://localhost:5000/api/qrcode/generate-qr/${storeId}`, config);
                 console.log('QR Code URL response:', response.data);
 
                 if (!response.data.qrCodeUrl) {

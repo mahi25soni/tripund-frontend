@@ -10,13 +10,13 @@ const token = localStorage.getItem('token');
 
 const Dashboard = () => {
   return (
-    <DashboardLayout>
+   <div>
       <DashbComp/>
       <PurchaseComp/>
       
       {/* <QRCodeGenerator/> */}
-    </DashboardLayout>
-    
+   
+    </div>
   );
 };
 

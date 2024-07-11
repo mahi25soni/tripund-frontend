@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import axios from '../../axios'
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 
@@ -17,7 +17,7 @@ const Login = () => {
       const token = res.data.token;
       console.log('Token:', token); 
       localStorage.setItem('token', token);
-      navigate('/');
+      navigate('/dashboard');
     } catch (err) {
       console.error('Login Error:', err); 
       alert('Invalid credentials');

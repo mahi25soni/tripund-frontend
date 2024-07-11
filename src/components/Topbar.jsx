@@ -21,8 +21,10 @@ const TopBar = () => {
           const config = {
             headers: { Authorization: `Bearer ${token}` },
           };
-          const response = await axios.get('/api/auth/user', config);
+          const response = await axios.get('http://localhost:5000/api/auth/user', config);
+          console.log('Userdata: ', response.data);
           setUserName(response.data.name);
+          console.log('Fetched Username:',response.data.name );
         } else {
           navigate('/login'); // Redirect to login if no token
         }

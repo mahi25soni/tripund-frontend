@@ -21,12 +21,13 @@ const Sidebar = () => {
     const fetchLogoUrl = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('/api/store/logo-url', {
+        const response = await axios.get('http://localhost:5000/api/store/logo-url', {
           headers: {
             Authorization: `Bearer ${token}`
           }
         });
         setLogoUrl(response.data.logoUrl);
+        console.log(response.data);
       } catch (error) {
         console.error('Error fetching logo URL:', error);
         setError('Failed to load logo');
@@ -62,7 +63,7 @@ const Sidebar = () => {
 
       {/* Navigation Links */}
       <NavLink
-        to="/"
+        to="/dashboard"
         className={({ isActive }) =>
           `flex items-center px-6 py-3 hover:bg-gray-100 ${isActive ? 'bg-gray-100 text-blue-500' : 'text-black'}`
         }

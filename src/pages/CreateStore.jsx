@@ -36,13 +36,13 @@ const StoreForm = () => {
       data.append(key, formData[key]);
     }
 
-    const token = localStorage.getItem('token'); // Retrieve the token from local storage
+    const token = localStorage.getItem('token'); 
 
     try {
-      const res = await axios.post('/api/store/create', data, {
+      const res = await axios.post('http://localhost:5000/api/store/create', data, {
         headers: {
           'Content-Type': 'multipart/form-data',
-          'Authorization': `Bearer ${token}` // Include the token in the headers
+          'Authorization': `Bearer ${token}` 
         }
       });
       console.log('Store created successfully:', res.data);
