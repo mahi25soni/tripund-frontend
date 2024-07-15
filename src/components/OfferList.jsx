@@ -4,9 +4,12 @@ import { IoAddSharp } from "react-icons/io5";
 import { AddOffer } from "./AddOffer";
 import moment from "moment";
 import { SingleOffer } from "../pages/Offer/SingleOffer";
+import axios from '../../axios.jsx'
 
-export const OfferList = ({ allOffersList, setCurrentSingleOffer }) => {
+export const OfferList = ({ setAllOffersList, allOffersList, setCurrentSingleOffer }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState({});
+  const UserToken = localStorage.getItem("token");
+
 
   const toggleDropdown = (offerId) => {
     setIsDropdownOpen((prevData) => ({
@@ -23,6 +26,18 @@ export const OfferList = ({ allOffersList, setCurrentSingleOffer }) => {
       }
     })
   }
+
+  const handleDeleteOffer = async (offerId) => {
+    console.log("offer id is ", offerId);
+    await axios.delete(`/offer/delete-offer/${offerId}`, {
+      headers : {
+        Authorization : "Bearer " + UserToken
+      }
+    })
+
+    const updatedOffers = allOffersList.filter((offer) => offer?._id !== offerId);
+    setAllOffersList(updatedOffers);
+  }
   return (
     <>
     <div className="flex flex-wrap justify-start gap-5">
@@ -36,13 +51,13 @@ export const OfferList = ({ allOffersList, setCurrentSingleOffer }) => {
               <FiMoreVertical className="h-5 w-5" onClick={() => toggleDropdown(offer?._id)} />
               {isDropdownOpen[offer?._id] && (
                 <div className="absolute right-6 top-2 bg-white shadow-slate-400 shadow-lg flex flex-col items-start gap-1 p-2 rounded-md">
-                  <button className="border-none bg-transparent hover:bg-gray-200 p-1 rounded-md ">
+                  <button className="border-none bg-transparent hover:bg-gray-200 p-1 rounded-md " onClick={() => handleDisableOffer(offer?._id)}>
                     Mark as disable
                   </button>
-                  <button className="border-none bg-transparent hover:bg-gray-200 p-1 rounded-md">
+                  <button className="border-none bg-transparent hover:bg-gray-200 p-1 rounded-md" onClick={() => handleDeleteOffer(offer?._id)}>
                     Delete
                   </button>
-                  <button className="border-none bg-transparent hover:bg-gray-200 p-1 rounded-md ">
+                  <button className="border-none bg-transparent hover:bg-gray-200 p-1 rounded-md " onClick={() => handleEditOffer(offer?._id)}>
                     Edit
                   </button>
                 </div>
@@ -57,7 +72,7 @@ export const OfferList = ({ allOffersList, setCurrentSingleOffer }) => {
               <div>
                 <span className="font-normal mr-1 text-xl">Product </span>
                 <div className="text-orange-500 bg-orange-200 px-2.5 py-1 inline rounded-md font-semibold">
-                  15
+                  {offer?.number_of_products}
                 </div>
               </div>
               <button className="p-1 bg-blue-500 rounded-md" onClick={() => handleOpenOfferData(offer?._id)}>

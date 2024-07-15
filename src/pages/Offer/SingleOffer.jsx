@@ -6,17 +6,15 @@ import { BsQrCodeScan } from "react-icons/bs";
 import axios from "../../../axios.jsx";
 
 export const SingleOffer = ({currentSingleOffer}) => {
-  const [addProductPopUp, setAddProductPopUp] = useState(false);
   const [storeProductList, setStoreProductList] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
 
   const [isChecked, setIsChecked] = useState({});
+  
 
-  const handleCheckboxChange = (product_id) => {
-    setIsChecked((prev) => ({ ...prev, [product_id]: !prev[product_id] }));
-  };
+
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -25,12 +23,14 @@ export const SingleOffer = ({currentSingleOffer}) => {
   };
   const UserToken = localStorage.getItem("token");
 
+  console.log("is checked is ", isChecked);
+
 
 
   useEffect(() => {
     (async () => {
       const { data } = await axios.get(
-        `/storedata/get-store-inventory/${currentPage}`,
+        `/offer/get-all-products-of-offer/${currentSingleOffer?._id}/${currentPage}`,
         {
           headers: {
             Authorization: `Bearer ${UserToken}`,
@@ -40,10 +40,40 @@ export const SingleOffer = ({currentSingleOffer}) => {
 
       console.log("data from ", data);
 
-      setStoreProductList(data?.data?.entire_inventory);
-      setTotalPages(data?. data?.total_pages);
+      data?.data?.entireList?.map((item) => {
+        isChecked[item?._id] = item?.discount;
+      })
+
+      console.log("total pages are ", data?.data?.total_pages)
+      setStoreProductList(data?.data?.entireList);
+      setTotalPages(data?.data?.total_pages);
     })();
   }, [currentPage]);
+
+  const handleCheckboxChange = (product_id) => {
+    setIsChecked((prev) => ({ ...prev, [product_id]: !prev[product_id] }));
+  };
+
+  const handleAddTickedProduct = async () => {
+    const selectedProducts = [];
+    Object.keys(isChecked).map((key) => {
+      if(isChecked[key]) {
+        selectedProducts.push({
+          productId : key,
+          offerId : currentSingleOffer?._id,
+          discount_value : currentSingleOffer?.offer_discount,
+        })
+    }})
+
+
+    const {data} = await axios.post("/offer/add-product-to-offer", selectedProducts, {
+      headers : {
+        Authorization : "Bearer " + UserToken
+      }
+    })
+
+    console.log("The response is  ", data)
+  }
 
   console.log("The current offer is ", currentSingleOffer)
   return (
@@ -61,7 +91,7 @@ export const SingleOffer = ({currentSingleOffer}) => {
             </div>
             <div className="flex flex-col justify-between gap-2  items-center">
               <div className="text-orange-500 bg-orange-200 px-2.5 py-1 inline rounded-md font-bold">
-                15
+                {currentSingleOffer?.number_of_products}
               </div>
               <p>Products</p>
             </div>
@@ -96,7 +126,7 @@ export const SingleOffer = ({currentSingleOffer}) => {
               <button className="px-4 py-2.5  border-2 rounded hover:bg-blue-700 hover:text-white hover:border-blue-700">
                 Filters
               </button>
-              <button className="px-4 py-2.5  border-2 rounded hover:bg-blue-700 hover:text-white hover:border-blue-700">
+              <button className="px-4 py-2.5  border-2 rounded hover:bg-blue-700 hover:text-white hover:border-blue-700" onClick={handleAddTickedProduct}>
                 Apply Offer
               </button>
             </div>
@@ -161,7 +191,7 @@ export const SingleOffer = ({currentSingleOffer}) => {
             >
               Previous
             </button>
-            <p className="text-sm font-normal">Page {currentPage} of 10</p>
+            <p className="text-sm font-normal">Page {currentPage} of {totalPages}</p>
             <button
               className="border-2 border-gray-400 rounded py-2 px-4"
               disabled={currentPage == totalPages ? true : false}

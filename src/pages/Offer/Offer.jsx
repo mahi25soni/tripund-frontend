@@ -46,7 +46,8 @@ export const Offer = () => {
               className="h-[120px]"
               firstChildClasses="h-full"
             ></CardWrapper>
-            <OfferList allOffersList={allOffersList} setCurrentSingleOffer={setCurrentSingleOffer}></OfferList>
+            <OfferList allOffersList={allOffersList} setCurrentSingleOffer={setCurrentSingleOffer}
+            setAllOffersList = {setAllOffersList}></OfferList>
           </div>
           {addOfferPopUp && (
             <AddOffer
