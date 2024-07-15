@@ -14,6 +14,8 @@ import Category from "./pages/Category/Category";
 import Layout from "./components/Layout"; // Adjust the import path as needed
 import { InventoryViewAll } from "./pages/Inventory/InventoryViewAll";
 import { ListProduct } from "./pages/Inventory/ListProduct";
+import { Offer } from "./pages/Offer/Offer";
+import { SingleOffer } from "./pages/Offer/SingleOffer";
 
 const App = () => {
   return (
@@ -57,6 +59,15 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <ListProduct />
+              </ProtectedRoute>
+            }
+          />
+
+<Route
+            path="/offers"
+            element={
+              <ProtectedRoute>
+                <Offer/>
               </ProtectedRoute>
             }
           />

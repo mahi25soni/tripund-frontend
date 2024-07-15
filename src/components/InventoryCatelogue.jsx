@@ -4,59 +4,10 @@ import axios from "../../axios.jsx";
 import moment from "moment";
 
 export const InventoryCatelogue = () => {
-  const sampleData = [
-    {
-      product: "Apple",
-      buyingPrice: "$2.00",
-      quality: "High",
-      thresholdValue: "10",
-      expiryDate: "2024-07-15",
-      availability: "In Stock",
-    },
-    {
-      product: "Banana",
-      buyingPrice: "$1.50",
-      quality: "Medium",
-      thresholdValue: "20",
-      expiryDate: "2024-06-30",
-      availability: "In Stock",
-    },
-    {
-      product: "Carrot",
-      buyingPrice: "$0.80",
-      quality: "High",
-      thresholdValue: "15",
-      expiryDate: "2024-07-10",
-      availability: "In Stock",
-    },
-    {
-      product: "Detergent",
-      buyingPrice: "$5.00",
-      quality: "High",
-      thresholdValue: "5",
-      expiryDate: "2025-01-01",
-      availability: "Out of Stock",
-    },
-    {
-      product: "Eggs",
-      buyingPrice: "$3.00",
-      quality: "Medium",
-      thresholdValue: "30",
-      expiryDate: "2024-06-25",
-      availability: "In Stock",
-    },
-    {
-      product: "Flour",
-      buyingPrice: "$4.00",
-      quality: "High",
-      thresholdValue: "20",
-      expiryDate: "2024-08-01",
-      availability: "In Stock",
-    },
-  ];
-
   const [addProductPopUp, setAddProductPopUp] = useState(false);
   const [storeProductList, setStoreProductList] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   const UserToken = localStorage.getItem("token");
 
@@ -64,17 +15,21 @@ export const InventoryCatelogue = () => {
 
   useEffect(() => {
     (async () => {
-      const { data } = await axios.get("/storedata/get-store-inventory/", {
-        headers: {
-          Authorization: `Bearer ${UserToken}`,
-        },
-      });
+      const { data } = await axios.get(
+        `/storedata/get-store-inventory/${currentPage}`,
+        {
+          headers: {
+            Authorization: `Bearer ${UserToken}`,
+          },
+        }
+      );
 
       console.log("data from ", data);
 
-      setStoreProductList(data?.data);
+      setStoreProductList(data?.data?.entire_inventory);
+      setTotalPages(data?.data?.total_pages)
     })();
-  }, []);
+  }, [currentPage]);
 
   return (
     <>
@@ -102,7 +57,8 @@ export const InventoryCatelogue = () => {
             <h6 className="w-1/2 py-1">Products</h6>
             <h6 className="w-1/2 py-1">Buying Price</h6>
             <h6 className="w-1/2 py-1">Quantity</h6>
-            <h6 className="w-1/2 py-1">Threhold Value</h6>
+            <h6 className="w-1/2 py-1">Units</h6>
+            <h6 className="w-1/2 py-1">Threshold Value</h6>
             <h6 className="w-1/2 py-1">Expiry Date</h6>
             <h6 className="w-1/2 py-1">Availability</h6>
           </div>
@@ -116,30 +72,50 @@ export const InventoryCatelogue = () => {
                 <p className="w-1/2 py-1">{item?.product_name}</p>
                 <p className="w-1/2 py-1">{item?.product_mrp}</p>
                 <p className="w-1/2 py-1">{item?.product_quantity}</p>
+                <p className="w-1/2 py-1">{item?.units}</p>
+
                 <p className="w-1/2 py-1">{item?.threshold_value}</p>
                 <p className="w-1/2 py-1">
                   {moment(item?.nearest_expiry_date).format("DD/MM/YYYY")}
                 </p>
-                <p className="w-1/2 py-1">{item?.availability}</p>
+                <p className="w-1/2 py-1">
+                  {item?.units > item?.threshold_value ? (
+                    <span className="font-bold text-green-600">In-Stock</span>
+                  ) : (
+                    <span className="font-bold text-red-600">Out of stock</span>
+                  )}
+                </p>
               </div>
             );
           })}
         </div>
 
         <div className="flex justify-between items-center">
-          <button className="border-2 border-gray-400 rounded py-2 px-4">
+          <button
+            className="border-2 border-gray-400 rounded py-2 px-4"
+            disabled={currentPage == 1 ? true : false}
+            onClick={() => {
+              setCurrentPage(currentPage - 1);
+            }}
+          >
             Previous
           </button>
-          <p className="text-sm font-normal">Page 1 of 10</p>
-          <button className="border-2 border-gray-400 rounded py-2 px-4">
+          <p className="text-sm font-normal">Page {currentPage} of 10</p>
+          <button
+            className="border-2 border-gray-400 rounded py-2 px-4"
+            disabled={currentPage == totalPages ? true : false}
+            onClick={() => {
+              setCurrentPage(currentPage + 1);
+            }}
+          >
             Next
           </button>
         </div>
       </div>
       {addProductPopUp && (
-        <ListProduct 
-        setStoreProductList={setStoreProductList}
-        setAddProductPopUp = {setAddProductPopUp}
+        <ListProduct
+          setStoreProductList={setStoreProductList}
+          setAddProductPopUp={setAddProductPopUp}
         ></ListProduct>
       )}
     </>
