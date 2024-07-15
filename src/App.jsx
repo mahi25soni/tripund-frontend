@@ -10,11 +10,12 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoutes";
 import StoreForm from "./pages/CreateStore";
-import Category from "./pages/Category/Category";
-import Layout from "./components/Layout"; // Adjust the import path as needed
+import Category from "./pages/Category";
+import Layout from "./components/Layout";
 import { InventoryViewAll } from "./pages/Inventory/InventoryViewAll";
 import { ListProduct } from "./pages/Inventory/ListProduct";
 import { Offer } from "./pages/Offer/Offer";
+import Reports from "./pages/Reports";
 
 const App = () => {
   return (
@@ -62,11 +63,20 @@ const App = () => {
             }
           />
 
-<Route
+        <Route
             path="/offers"
             element={
               <ProtectedRoute>
                 <Offer/>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/reports"
+            element={
+              <ProtectedRoute>
+                <Reports/>
               </ProtectedRoute>
             }
           />

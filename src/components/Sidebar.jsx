@@ -10,6 +10,8 @@ import { TfiHelpAlt } from "react-icons/tfi";
 import { AiOutlineEye, AiOutlinePlus, AiOutlineUnorderedList } from "react-icons/ai";
 import tripund from '../images/tripund.jpeg';
 import { MdOutlineCategory } from "react-icons/md";
+import { BsGraphUpArrow } from "react-icons/bs";
+import { IoPieChartOutline } from "react-icons/io5";
 
 const Sidebar = () => {
   const [logoUrl, setLogoUrl] = useState('');
@@ -144,6 +146,16 @@ const Sidebar = () => {
       >
         <PiSealPercent className="mr-4" />
         Offers
+      </NavLink>
+
+      <NavLink
+        to="/reports"
+        className={({ isActive }) =>
+          `flex items-center px-6 py-3 hover:bg-gray-100 ${isActive ? 'bg-gray-100 text-blue-500' : 'text-black'}`
+        }
+      >
+        <IoPieChartOutline className="mr-4" />
+        Reports
       </NavLink>
 
       <NavLink
