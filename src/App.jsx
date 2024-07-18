@@ -16,6 +16,7 @@ import { InventoryViewAll } from "./pages/Inventory/InventoryViewAll";
 import { ListProduct } from "./pages/Inventory/ListProduct";
 import { Offer } from "./pages/Offer/Offer";
 import { SingleOffer } from "./pages/Offer/SingleOffer";
+import { Orders } from "./pages/Order/Orders";
 
 const App = () => {
   return (
@@ -72,6 +73,14 @@ const App = () => {
             }
           />
 
+            <Route
+            path="/orders"
+            element={
+              <ProtectedRoute>
+                <Orders></Orders>
+              </ProtectedRoute>
+            }
+            />
           {/* Default redirect to signup if no match */}
           {/* <Route path="*" element={<Navigate to="/signup" />} /> */}
         </Routes>

@@ -29,14 +29,19 @@ export const OfferList = ({ setAllOffersList, allOffersList, setCurrentSingleOff
 
   const handleDeleteOffer = async (offerId) => {
     console.log("offer id is ", offerId);
-    await axios.delete(`/offer/delete-offer/${offerId}`, {
+    const {data} = await axios.delete(`/offer/delete-offer/${offerId}`, {
       headers : {
         Authorization : "Bearer " + UserToken
       }
     })
 
-    const updatedOffers = allOffersList.filter((offer) => offer?._id !== offerId);
-    setAllOffersList(updatedOffers);
+    if(data?.success) {
+      const updatedOffers = allOffersList.filter((offer) => offer?._id !== offerId);
+      setAllOffersList(updatedOffers);
+    }
+    else {
+      setIsDropdownOpen({offerId : false});
+    }
   }
   return (
     <>

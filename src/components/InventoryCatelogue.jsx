@@ -11,7 +11,6 @@ export const InventoryCatelogue = () => {
 
   const UserToken = localStorage.getItem("token");
 
-  console.log("insdie out ", UserToken);
 
   useEffect(() => {
     (async () => {
@@ -23,8 +22,6 @@ export const InventoryCatelogue = () => {
           },
         }
       );
-
-      console.log("data from ", data);
 
       setStoreProductList(data?.data?.entire_inventory);
       setTotalPages(data?.data?.total_pages)
