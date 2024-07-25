@@ -53,17 +53,21 @@ const AddCategory = ({ categories, setCategories }) => {
           Add Category
         </button>
       </div>
-      <div className="border p-4 rounded">
-        <ul className="mb-4">
+      <div className="border p-4 rounded ">
+        <div className="mb-4 grid grid-cols-2 gap-2">
           {categories.map((category, index) => (
-            <li key={index} className="border-b py-2 flex items-center gap-4">
-              {category.name}
-              {category.categoryImg && (
+            <div key={index} className="border-b py-2 flex items-center gap-4 bg-slate-100">
+            <div className='bg-white rounded'>
+            {category.categoryImg && (
                 <img src={category.categoryImg} alt={category.name} className="w-12 h-12 object-cover" />
               )}
-            </li>
+            </div>
+            <div>
+              {category.name}
+            </div>
+            </div>
           ))}
-        </ul>
+        </div>
       </div>
 
       <Transition appear show={isOpen} as={Fragment}>
