@@ -207,3 +207,5 @@ export const SingleOffer = ({currentSingleOffer}) => {
     </>
   );
 };
+
+export default SingleOffer;

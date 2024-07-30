@@ -57,7 +57,7 @@ const TopBar = () => {
   };
 
   return (
-    <div className="h-16 w-5/6 bg-white flex items-center justify-between px-6 shadow-md fixed top-0 left-64 z-50">
+    <div className="h-16 w-5/6 bg-white flex items-center justify-between px-6 shadow-md fixed top-0 left-64 z-10">
       <div className="flex items-center">
         <form onSubmit={handleSearch} className="relative">
           <input

@@ -15,16 +15,19 @@ import Layout from "./components/Layout";
 import { InventoryViewAll } from "./pages/Inventory/InventoryViewAll";
 import { ListProduct } from "./pages/Inventory/ListProduct";
 import { Offer } from "./pages/Offer/Offer";
-import Reports from "./pages/Reports";
 
 import { SingleOffer } from "./pages/Offer/SingleOffer";
 import { Orders } from "./pages/Order/Orders";
+import Reports from './pages/Reports';
+import { StoreProvider, useStore } from './components/Context/StoreContext';
 
 const App = () => {
   return (
     <Router>
       <Layout>
-        <Routes>
+
+        <StoreProvider>
+          <Routes>
           {/* Public Routes */}
           <Route path="/signup" element={<SignUp />} />
           <Route path="/login" element={<Login />} />
@@ -74,6 +77,16 @@ const App = () => {
               </ProtectedRoute>
             }
           />
+          
+
+            <Route
+            path="/orders"
+            element={
+              <ProtectedRoute>
+                <Orders></Orders>
+              </ProtectedRoute>
+            }
+            />
 
           <Route
             path="/reports"
@@ -95,6 +108,7 @@ const App = () => {
           {/* Default redirect to signup if no match */}
           {/* <Route path="*" element={<Navigate to="/signup" />} /> */}
         </Routes>
+        </StoreProvider>
       </Layout>
     </Router>
   );

@@ -5,7 +5,7 @@ import DashboardLayout from './DashboardLayout';
 const Layout = ({ children }) => {
   const location = useLocation();
   
-  const noLayoutPaths = ['/signup', '/login', '/createStore'];
+  const noLayoutPaths = ['/Signup', '/login', '/createStore'];
 
   const shouldRenderLayout = !noLayoutPaths.includes(location.pathname);
   
