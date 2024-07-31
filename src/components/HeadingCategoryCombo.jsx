@@ -118,7 +118,7 @@ const HeadingCategoryCombo = () => {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
-      });
+      }); 
       alert('Selected combinations deleted successfully.');
       setSelectedCombinations([]); // Clear selection
       fetchCombinations(); // Refresh the list
@@ -159,7 +159,7 @@ const HeadingCategoryCombo = () => {
               onChange={() => toggleSelectCombination(combo._id)}
               className="absolute top-2 right-2"
             />
-            <h3 className="text-lg font-semibold mb-2">{combo.headingId.heading}</h3>
+            <h3 className="text-lg font-semibold mb-2">{combo.headingId?.heading}</h3>
             <div className="text-sm text-gray-600">
               {combo.categoryIds.map((category) => (
                 <div key={category._id} className='bg-white p-2 rounded shadow-md border border-gray-200'>

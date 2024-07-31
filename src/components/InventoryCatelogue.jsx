@@ -10,7 +10,7 @@ export const InventoryCatelogue = () => {
   const [totalPages, setTotalPages] = useState(1);
 
   const UserToken = localStorage.getItem("token");
-
+ 
 
   useEffect(() => {
     (async () => {
