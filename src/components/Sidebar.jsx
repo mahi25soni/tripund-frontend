@@ -95,7 +95,7 @@ const Sidebar = () => {
               <AiOutlineEye className="mr-4" />
               View All
             </NavLink>
-            <NavLink
+            {/* <NavLink
               to="/inventory/create-category"
               className={({ isActive }) =>
                 `block flex items-center px-6 py-2 hover:bg-gray-100 ${isActive ? 'bg-gray-100 text-blue-500' : 'text-black'}`
@@ -103,7 +103,7 @@ const Sidebar = () => {
             >
               <AiOutlinePlus className="mr-4" />
               Create Category
-            </NavLink>
+            </NavLink> */}
             <NavLink
               to="/inventory/list-product"
               className={({ isActive }) =>

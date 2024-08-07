@@ -15,19 +15,14 @@ import Layout from "./components/Layout";
 import { InventoryViewAll } from "./pages/Inventory/InventoryViewAll";
 import { ListProduct } from "./pages/Inventory/ListProduct";
 import { Offer } from "./pages/Offer/Offer";
-
-import { SingleOffer } from "./pages/Offer/SingleOffer";
-import { Orders } from "./pages/Order/Orders";
-import Reports from './pages/Reports';
-import { StoreProvider, useStore } from './components/Context/StoreContext';
+import Reports from "./pages/Reports";
+import ProductDetails from "./components/ProductDetails";
 
 const App = () => {
   return (
     <Router>
       <Layout>
-
-        <StoreProvider>
-          <Routes>
+        <Routes>
           {/* Public Routes */}
           <Route path="/signup" element={<SignUp />} />
           <Route path="/login" element={<Login />} />
@@ -61,6 +56,15 @@ const App = () => {
           />
 
           <Route
+            path="/inventory/product/:productId"
+            element={
+              <ProtectedRoute>
+                <ProductDetails />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
             path="/inventory/list-product"
             element={
               <ProtectedRoute>
@@ -69,46 +73,27 @@ const App = () => {
             }
           />
 
-        <Route
+          <Route
             path="/offers"
             element={
               <ProtectedRoute>
-                <Offer/>
+                <Offer />
               </ProtectedRoute>
             }
           />
-          
-
-            <Route
-            path="/orders"
-            element={
-              <ProtectedRoute>
-                <Orders></Orders>
-              </ProtectedRoute>
-            }
-            />
 
           <Route
             path="/reports"
             element={
               <ProtectedRoute>
-                <Reports/>
+                <Reports />
               </ProtectedRoute>
             }
           />
 
-            <Route
-            path="/orders"
-            element={
-              <ProtectedRoute>
-                <Orders></Orders>
-              </ProtectedRoute>
-            }
-            />
           {/* Default redirect to signup if no match */}
           {/* <Route path="*" element={<Navigate to="/signup" />} /> */}
         </Routes>
-        </StoreProvider>
       </Layout>
     </Router>
   );

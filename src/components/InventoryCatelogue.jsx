@@ -1,32 +1,40 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { ListProduct } from "../pages/Inventory/ListProduct";
 import axios from "../../axios.jsx";
 import moment from "moment";
 
 export const InventoryCatelogue = () => {
-  const [addProductPopUp, setAddProductPopUp] = useState(false);
   const [storeProductList, setStoreProductList] = useState([]);
+  const [addProductPopUp, setAddProductPopUp] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-
+  const navigate = useNavigate();
   const UserToken = localStorage.getItem("token");
- 
 
   useEffect(() => {
     (async () => {
-      const { data } = await axios.get(
-        `/storedata/get-store-inventory/${currentPage}`,
-        {
-          headers: {
-            Authorization: `Bearer ${UserToken}`,
-          },
-        }
-      );
+      try {
+        const { data } = await axios.get(
+          `/storedata/get-store-inventory/${currentPage}`,
+          {
+            headers: {
+              Authorization: `Bearer ${UserToken}`,
+            },
+          }
+        );
 
-      setStoreProductList(data?.data?.entire_inventory);
-      setTotalPages(data?.data?.total_pages)
+        setStoreProductList(data?.data?.entire_inventory);
+        setTotalPages(data?.data?.total_pages);
+      } catch (error) {
+        console.error("Error fetching inventory:", error);
+      }
     })();
-  }, [currentPage]);
+  }, [currentPage, UserToken]);
+
+  const handleProductClick = (productId) => {
+    navigate(`/inventory/product/${productId}`);
+  };
 
   return (
     <>
@@ -50,7 +58,7 @@ export const InventoryCatelogue = () => {
         </div>
 
         <div className="my-4">
-          <div className="flex items-center justify-between border-b-2 text-center font-medium text-sm text-gray-400  p-1">
+          <div className="flex items-center justify-between border-b-2 text-center font-medium text-sm text-gray-400 p-1">
             <h6 className="w-1/2 py-1">Products</h6>
             <h6 className="w-1/2 py-1">Buying Price</h6>
             <h6 className="w-1/2 py-1">Quantity</h6>
@@ -60,47 +68,45 @@ export const InventoryCatelogue = () => {
             <h6 className="w-1/2 py-1">Availability</h6>
           </div>
 
-          {storeProductList?.map((item, index) => {
-            return (
-              <div
-                key={index}
-                className="flex items-center justify-between border-b-2 text-center font-medium p-1"
-              >
-                <p className="w-1/2 py-1">{item?.product_name}</p>
-                <p className="w-1/2 py-1">{item?.product_mrp}</p>
-                <p className="w-1/2 py-1">{item?.product_quantity}</p>
-                <p className="w-1/2 py-1">{item?.units}</p>
-
-                <p className="w-1/2 py-1">{item?.threshold_value}</p>
-                <p className="w-1/2 py-1">
-                  {moment(item?.nearest_expiry_date).format("DD/MM/YYYY")}
-                </p>
-                <p className="w-1/2 py-1">
-                  {item?.units > item?.threshold_value ? (
-                    <span className="font-bold text-green-600">In-Stock</span>
-                  ) : (
-                    <span className="font-bold text-red-600">Out of stock</span>
-                  )}
-                </p>
-              </div>
-            );
-          })}
+          {storeProductList?.map((item, index) => (
+            <div
+              key={index}
+              className="flex items-center justify-between border-b-2 text-center font-medium p-1 cursor-pointer"
+              onClick={() => handleProductClick(item._id)}
+            >
+              <p className="w-1/2 py-1">{item?.product_name}</p>
+              <p className="w-1/2 py-1">{item?.product_mrp}</p>
+              <p className="w-1/2 py-1">{item?.product_quantity}</p>
+              <p className="w-1/2 py-1">{item?.units}</p>
+              <p className="w-1/2 py-1">{item?.threshold_value}</p>
+              <p className="w-1/2 py-1">
+                {moment(item?.nearest_expiry_date).format("DD/MM/YYYY")}
+              </p>
+              <p className="w-1/2 py-1">
+                {item?.units > item?.threshold_value ? (
+                  <span className="font-bold text-green-600">In-Stock</span>
+                ) : (
+                  <span className="font-bold text-red-600">Out of stock</span>
+                )}
+              </p>
+            </div>
+          ))}
         </div>
 
         <div className="flex justify-between items-center">
           <button
             className="border-2 border-gray-400 rounded py-2 px-4"
-            disabled={currentPage == 1 ? true : false}
+            disabled={currentPage === 1}
             onClick={() => {
               setCurrentPage(currentPage - 1);
             }}
           >
             Previous
           </button>
-          <p className="text-sm font-normal">Page {currentPage} of 10</p>
+          <p className="text-sm font-normal">Page {currentPage} of {totalPages}</p>
           <button
             className="border-2 border-gray-400 rounded py-2 px-4"
-            disabled={currentPage == totalPages ? true : false}
+            disabled={currentPage === totalPages}
             onClick={() => {
               setCurrentPage(currentPage + 1);
             }}
@@ -109,15 +115,15 @@ export const InventoryCatelogue = () => {
           </button>
         </div>
       </div>
+
       {addProductPopUp && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-        <div className="bg-white p-8 rounded-lg ">
-
-        <ListProduct
-          setStoreProductList={setStoreProductList}
-          setAddProductPopUp={setAddProductPopUp}
-        ></ListProduct>
-        </div>
+          <div className="bg-white p-8 rounded-lg">
+            <ListProduct
+              setStoreProductList={setStoreProductList}
+              setAddProductPopUp={setAddProductPopUp}
+            />
+          </div>
         </div>
       )}
     </>
