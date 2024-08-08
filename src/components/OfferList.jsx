@@ -48,7 +48,7 @@ export const OfferList = ({ setAllOffersList, allOffersList, setCurrentSingleOff
     <div className="flex flex-wrap justify-start gap-5">
       {allOffersList?.map((offer) => {
         return (
-          <div className="h-64 w-64 px-5  flex flex-col justify-evenly bg-white">
+          <div className="h-64 w-80 px-5  flex flex-col justify-evenly bg-white">
             <div className="flex justify-between items-center relative">
               <div className="text-green-500 bg-green-200 font-bold text-xl p-2 rounded-md">
                 {offer?.offer_discount}%
