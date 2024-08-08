@@ -91,7 +91,7 @@ const HeadingCategoryCombo = () => {
       });
 
       setCombinations(combinationsResponse.data);
-      console.log(combinationsResponse.data)
+      console.log(combinationsResponse.data);
     } catch (error) {
       console.error('Error fetching combinations:', error);
     }
@@ -113,26 +113,29 @@ const HeadingCategoryCombo = () => {
     const token = localStorage.getItem('token');
     try {
       await axios.delete('http://localhost:5000/api/store/deleteCombo', {
-        data: { combinationIds: selectedCombinations }, // Send IDs to delete
+        data: { combinationIds: selectedCombinations },
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
-      }); 
+      });
       alert('Selected combinations deleted successfully.');
-      setSelectedCombinations([]); // Clear selection
-      fetchCombinations(); // Refresh the list
+      setSelectedCombinations([]);
+      fetchCombinations();
     } catch (error) {
       console.error('Error deleting combinations:', error);
       alert('Failed to delete combinations.');
     }
   };
-  
+
+  const handleCancel = () => {
+    setIsOpen(false);
+  };
 
   return (
     <div className="p-4 bg-white rounded shadow-lg">
       <div className="flex justify-between items-center mb-4">
-        <h2 className='text-lg font-semibold'>Create Header and Category Combination</h2>
+        <h2 className="text-lg font-semibold">Create Header and Category Combination</h2>
         <div>
           <button
             onClick={() => setIsOpen(true)}
@@ -162,7 +165,7 @@ const HeadingCategoryCombo = () => {
             <h3 className="text-lg font-semibold mb-2">{combo.headingId?.heading}</h3>
             <div className="text-sm text-gray-600">
               {combo.categoryIds.map((category) => (
-                <div key={category._id} className='bg-white p-2 rounded shadow-md border border-gray-200'>
+                <div key={category._id} className="bg-white p-2 rounded shadow-md border border-gray-200">
                   <h3 className="text-lg font-semibold mb-2">{category.name}</h3>
                 </div>
               ))}
@@ -171,15 +174,14 @@ const HeadingCategoryCombo = () => {
         ))}
       </div>
 
-      <Dialog open={isOpen} onClose={() => setIsOpen(false)} className="fixed inset-0 z-50 flex items-center justify-center">
-        <div className="fixed inset-0 bg-black bg-opacity-50" />
-        <div className="bg-white rounded-lg overflow-hidden shadow-xl max-w-md w-full p-6 relative z-10">
+      <Dialog open={isOpen} onClose={handleCancel} className="fixed inset-0 z-50 flex items-center justify-center w-full h-full">
+        <div className="fixed inset-0 bg-black bg-opacity-50" onClick={handleCancel} />
+        <div className="bg-white rounded-lg overflow-hidden shadow-xl max-w-6xl w-full h-96 p-6 relative z-10">
           <Dialog.Title className="text-lg font-medium leading-6 text-gray-900">
             Select Heading and Categories
           </Dialog.Title>
           <hr className="my-4" />
           <div className="mt-2">
-            {/* Heading Selection */}
             <div className="mb-4">
               <h3 className="text-lg font-semibold mb-2">Select Heading</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -187,7 +189,7 @@ const HeadingCategoryCombo = () => {
                   <div
                     key={heading._id}
                     onClick={() => handleHeadingClick(heading._id)}
-                    className={`cursor-pointer p-2 rounded border text-black ${selectedHeading === heading._id ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+                    className={`cursor-pointer text-center h-12 p-2 rounded border text-lg text-black ${selectedHeading === heading._id ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
                   >
                     {heading.heading}
                   </div>
@@ -195,7 +197,6 @@ const HeadingCategoryCombo = () => {
               </div>
             </div>
 
-            {/* Category Selection */}
             <div className="mb-4">
               <h3 className="text-lg font-semibold mb-2">Select Categories</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -203,7 +204,7 @@ const HeadingCategoryCombo = () => {
                   <div
                     key={category._id}
                     onClick={() => handleCategoryClick(category._id)}
-                    className={`cursor-pointer p-2 rounded border ${selectedCategories.includes(category._id) ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+                    className={`cursor-pointer text-lg h-12 text-center p-2 rounded border ${selectedCategories.includes(category._id) ? 'bg-green-500 text-white' : 'bg-gray-200'}`}
                   >
                     {category.name}
                   </div>
@@ -211,13 +212,20 @@ const HeadingCategoryCombo = () => {
               </div>
             </div>
 
-            <div className="flex justify-end">
+            <div className="flex justify-end gap-2 mt-10">
               <button
                 onClick={handleSubmit}
                 className={`px-4 py-2 ${loading ? 'bg-gray-400' : 'bg-blue-500'} text-white rounded`}
                 disabled={loading || !selectedHeading || selectedCategories.length === 0}
               >
                 {loading ? 'Saving...' : 'Save Combination'}
+              </button>
+
+              <button
+                onClick={handleCancel}
+                className="px-4 py-2 bg-gray-500 text-white rounded"
+              >
+                Cancel
               </button>
             </div>
           </div>
