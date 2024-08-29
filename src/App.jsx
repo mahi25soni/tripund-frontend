@@ -81,8 +81,7 @@ const App = () => {
             }
           />
 
-          {/* Default redirect to signup if no match */}
-          {/* <Route path="*" element={<Navigate to="/signup" />} /> */}
+          
         </Routes>
       </Layout>
     </Router>
