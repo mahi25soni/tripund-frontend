@@ -1,10 +1,9 @@
-import React from "react";
+import React from 'react';
 import {
   BrowserRouter as Router,
   Routes,
   Route,
-  Navigate,
-} from "react-router-dom";
+} from 'react-router-dom';
 import SignUp from "./pages/Signup";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
@@ -16,6 +15,8 @@ import { InventoryViewAll } from "./pages/Inventory/InventoryViewAll";
 import { ListProduct } from "./pages/Inventory/ListProduct";
 import { Offer } from "./pages/Offer/Offer";
 import Reports from "./pages/Reports";
+import StoresPage from "./pages/Store/StoresPage"
+import StoreDetailsPage from './pages/store/StoreDetailsPage';
 
 const App = () => {
   return (
@@ -44,7 +45,6 @@ const App = () => {
               </ProtectedRoute>
             }
           />
-
           <Route
             path="/inventory/view-all"
             element={
@@ -53,7 +53,6 @@ const App = () => {
               </ProtectedRoute>
             }
           />
-
           <Route
             path="/inventory/list-product"
             element={
@@ -62,26 +61,38 @@ const App = () => {
               </ProtectedRoute>
             }
           />
-
-        <Route
+          <Route
             path="/offers"
             element={
               <ProtectedRoute>
-                <Offer/>
+                <Offer />
               </ProtectedRoute>
             }
           />
-
           <Route
             path="/reports"
             element={
               <ProtectedRoute>
-                <Reports/>
+                <Reports />
               </ProtectedRoute>
             }
           />
-
-          
+          <Route
+            path="/stores"
+            element={
+              <ProtectedRoute>
+                <StoresPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/store/:id"
+            element={
+              <ProtectedRoute>
+                <StoreDetailsPage />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </Layout>
     </Router>

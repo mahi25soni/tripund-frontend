@@ -149,6 +149,27 @@ const Sidebar = () => {
       </NavLink>
 
       <NavLink
+        to="/stores"
+        className={({ isActive }) =>
+          `flex items-center px-6 py-3 hover:bg-gray-100 ${isActive ? 'bg-gray-100 text-blue-500' : 'text-black'}`
+        }
+      >
+        <PiSealPercent className="mr-4" />
+       Store
+      </NavLink>
+
+
+      <NavLink
+        to="/Email"
+        className={({ isActive }) =>
+          `flex items-center px-6 py-3 hover:bg-gray-100 ${isActive ? 'bg-gray-100 text-blue-500' : 'text-black'}`
+        }
+      >
+        <PiSealPercent className="mr-4" />
+       Email
+      </NavLink>
+
+      <NavLink
         to="/reports"
         className={({ isActive }) =>
           `flex items-center px-6 py-3 hover:bg-gray-100 ${isActive ? 'bg-gray-100 text-blue-500' : 'text-black'}`
