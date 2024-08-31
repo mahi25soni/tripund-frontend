@@ -5,12 +5,13 @@ import DashboardLayout from './DashboardLayout';
 const Layout = ({ children }) => {
   const location = useLocation();
   
-  const noLayoutPaths = ['/Signup', '/login', '/createStore'];
+  const noLayoutPaths = ['/Signup', '/login', '/createStore', '/forgot-password'];
 
-  const shouldRenderLayout = !noLayoutPaths.includes(location.pathname);
+  const isDynamicResetPasswordPath = location.pathname.startsWith('/reset-password/');
+
+  const shouldRenderLayout = !noLayoutPaths.includes(location.pathname) && !isDynamicResetPasswordPath; 
   
   return shouldRenderLayout ? <DashboardLayout>{children}</DashboardLayout> : <>{children}</>;
-
 };
 
 export default Layout;

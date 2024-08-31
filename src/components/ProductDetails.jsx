@@ -1,8 +1,7 @@
-// src/pages/Inventory/ProductDetails.jsx
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "../../axios.jsx";
-import moment from "moment";
+import Spinner from "./Spinner.jsx";
 
 const ProductDetails = () => {
   const { productId } = useParams();
@@ -12,7 +11,7 @@ const ProductDetails = () => {
   useEffect(() => {
     (async () => {
       try {
-        const { data } = await axios.get(
+        const response = await axios.get(
           `/storedata/get-store-product-by-id/${productId}`,
           {
             headers: {
@@ -20,7 +19,7 @@ const ProductDetails = () => {
             },
           }
         );
-        setProduct(data?.data);
+        setProduct(response?.data.data);
       } catch (error) {
         console.error("Failed to fetch product details:", error);
       }
@@ -28,15 +27,15 @@ const ProductDetails = () => {
   }, [productId, UserToken]);
 
   if (!product) {
-    return <div>Loading...</div>;
+    return <div className="text-center h-screen text-gray-500"><Spinner/></div>;
   }
 
   return (
-    <div className="bg-white h-[550px] w-full p-4 rounded-lg">
-      <div className="flex flex-col gap-5">
-      <div className="flex flex-row justify-between ">
-        <p className="font-semibold text-xl">{product.product_name}</p>
-        <div>
+    <div className="bg-white h-auto w-full p-6 rounded-lg ">
+      <div className="flex flex-col gap-4">
+        <div className="flex justify-between items-center mb-4">
+          <p className="text-2xl font-bold text-gray-800">{product?.product_name}</p>
+          <div>
           <button
             className="px-4 py-2.5 border-2 rounded hover:bg-blue-700 hover:text-white hover:border-blue-700"
             onClick={() => setAddProductPopUp(!addProductPopUp)}>
@@ -48,43 +47,35 @@ const ProductDetails = () => {
             Download
           </button>
         </div>
-      </div>
-
-      <div>
-        <p>Overview</p>
-      </div>
-
-      </div>
-      
-      <div className="w-full border-2 border-gray-100 mt-2">
-      </div>
-      
-      {/* details section */}
-      <div className="flex flex-row justify-between p-4">
-      {/* left */}
-        <div className="flex flex-col gap-2">
-          <h1 className="font-semibold text-lg text-[#48505E]">Primary Details</h1>
-          <ul className=" leading-5 space-y-4 text-[#858D9D]">
-            <li className="flex flex-row "><div className="w-36">Product Name :</div> <div className="text-[#5D6679]">{product.product_name}</div></li>
-            <li className="flex flex-row "><div className="w-36">Product ID : </div><div className="text-[#5D6679]">{product._id}</div></li>
-            <li className="flex flex-row "><div className="w-36">Product category: </div><div className="text-[#5D6679]">{product.product_name}</div></li>
-            <li className="flex flex-row"><div className="w-36">Expiry Date : </div><div className="text-[#5D6679]">{product.nearest_expiry_date}</div></li>
-            <li className="flex flex-row "><div className="w-36">Threshold Value : </div><div className="text-[#5D6679]">{product.threshold_value}</div></li>
-            <li className="flex flex-row "><div className="w-36">MRP : </div><div className="text-[#5D6679]">{product.product_mrp}</div></li>
-            <li className="flex flex-row "><div className="w-36">Buying Price : </div><div className="text-[#5D6679]">{product.product_buying_price}</div></li>
-            <li className="flex flex-row "><div className="w-36">Selling Price : </div><div className="text-[#5D6679]">{product.product_mrp}</div></li>
-
-          </ul>
         </div>
-        {/* right */}
-        <div className="pr-10">
-          <div><img src={product.product_image_url} className="w-32 h-32 border-dashed border-2 border-[#9D9D9D] object-contain" /></div>
-          <div className="mt-8">
-          <ul className=" leading-5 space-y-3 text-[#858D9D]">
-            <li className="flex flex-row "><div className="w-36">Stock:</div> <div className="text-[#5D6679]">{product.units}</div></li>
-            <li className="flex flex-row"><div className="w-36">Remaining Stock : </div><div className="text-[#5D6679]">{product.units}</div></li>
-            <li className="flex flex-row"><div className="w-36">Threshold Value : </div><div className="text-[#5D6679]">{product.threshold_value}</div></li>
-          </ul>
+
+        {/* <div className="text-lg font-semibold text-gray-700 mb-2">Overview</div> */}
+
+        <div className="w-full border-t border-gray-200 mb-4"></div>
+
+        <div className="flex justify-between">
+          {/* Left Section */}
+          <div className="flex flex-col gap-4">
+            <h1 className="text-xl font-semibold text-gray-800 mb-2">Primary Details</h1>
+            <ul className="space-y-2 text-gray-600">
+              <li className="justify-between "><span className="font-medium text-gray-700">Product Name:</span> <span>{product?.product_name}</span></li>
+              <li className="justify-between"><span className="font-medium text-gray-700">Product ID:</span> <span>{product?._id}</span></li>
+              <li className="justify-between"><span className="font-medium text-gray-700">Expiry Date:</span> <span>{product?.nearest_expiry_date}</span></li>
+              <li className="justify-between"><span className="font-medium text-gray-700">Threshold Value:</span> <span>{product?.threshold_value}</span></li>
+              <li className="justify-between"><span className="font-medium text-gray-700">MRP:</span> <span>{product?.product_mrp}</span></li>
+              <li className="justify-between"><span className="font-medium text-gray-700">Buying Price:</span> <span>{product?.product_buying_price}</span></li>
+              <li className="justify-between"><span className="font-medium text-gray-700">Selling Price:</span> <span>{product?.product_mrp}</span></li>
+            </ul>
+          </div>
+
+          {/* Right Section */}
+          <div className="w-1/3 text-center">
+            <img src={product?.product_image_url} alt="Product" className="w-full h-auto border-2 border-gray-200 rounded-lg shadow-sm object-contain mb-4" />
+            <ul className="space-y-2 text-gray-600">
+              <li className="flex justify-between"><span className="font-medium text-gray-700">Stock:</span> <span>{product?.units}</span></li>
+              <li className="flex justify-between"><span className="font-medium text-gray-700">Remaining Stock:</span> <span>{product?.units}</span></li>
+              <li className="flex justify-between"><span className="font-medium text-gray-700">Threshold Value:</span> <span>{product?.threshold_value}</span></li>
+            </ul>
           </div>
         </div>
       </div>

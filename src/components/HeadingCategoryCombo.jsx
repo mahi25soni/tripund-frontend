@@ -52,22 +52,28 @@ const HeadingCategoryCombo = () => {
         : [...prevSelectedCategories, categoryId]
     );
   };
-
   const handleSubmit = async () => {
     setLoading(true);
-
+  
     const token = localStorage.getItem('token');
     try {
-      await axios.post('http://localhost:5000/api/store/headingCategoryCombo', {
-        headingId: selectedHeading,
-        categoryIds: selectedCategories,
-      }, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+      const response = await axios.post(
+        'http://localhost:5000/api/store/headingCategoryCombo',
+        {
+          headingId: selectedHeading,
+          categoryIds: selectedCategories,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
         }
-      });
-
+      );
+  
+      // Add the newly created combo to the existing combinations state
+      setCombinations((prevCombinations) => [...prevCombinations, response.data]);
+  
       setSelectedHeading('');
       setSelectedCategories([]);
       alert('Combination saved successfully');
@@ -79,6 +85,7 @@ const HeadingCategoryCombo = () => {
       setLoading(false);
     }
   };
+  
 
   const fetchCombinations = async () => {
     try {
@@ -133,9 +140,9 @@ const HeadingCategoryCombo = () => {
   };
 
   return (
-    <div className="p-4 bg-white rounded shadow-lg">
+    <div className="p-4 bg-white rounded ">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-semibold">Create Header and Category Combination</h2>
+        <h2 className="text-lg font-medium">Create Header and Category Combination</h2>
         <div>
           <button
             onClick={() => setIsOpen(true)}
@@ -153,9 +160,9 @@ const HeadingCategoryCombo = () => {
           )}
         </div>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 ">
         {combinations.map((combo) => (
-          <div key={combo._id} className="relative bg-white p-4 rounded shadow-md border border-gray-200">
+          <div key={combo._id} className="relative bg-white p-4 rounded  border border-gray-200">
             <input
               type="checkbox"
               checked={selectedCombinations.includes(combo._id)}
@@ -163,10 +170,12 @@ const HeadingCategoryCombo = () => {
               className="absolute top-2 right-2"
             />
             <h3 className="text-lg font-semibold mb-2">{combo.headingId?.heading}</h3>
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-black w-fit grid grid-cols-2 gap-2">
               {combo.categoryIds.map((category) => (
-                <div key={category._id} className="bg-white p-2 rounded shadow-md border border-gray-200">
-                  <h3 className="text-lg font-semibold mb-2">{category.name}</h3>
+                <div key={category._id} className="flex bg-slate-100 p-2 rounded border border-gray-200">
+                  <h3 className="text-lg font-medium mb-2 leading-none">{category.name}</h3>
+                  <img src={category.categoryImg} alt={category.name} className="w-12 h-12 object-cover rounded-lg" />
+
                 </div>
               ))}
             </div>
@@ -176,7 +185,7 @@ const HeadingCategoryCombo = () => {
 
       <Dialog open={isOpen} onClose={handleCancel} className="fixed inset-0 z-50 flex items-center justify-center w-full h-full">
         <div className="fixed inset-0 bg-black bg-opacity-50" onClick={handleCancel} />
-        <div className="bg-white rounded-lg overflow-hidden shadow-xl max-w-6xl w-full h-96 p-6 relative z-10">
+        <div className="bg-white rounded-lg overflow-hidden shadow-xl max-w-6xl w-full  max-h-[80vh] overflow-y-auto p-6 relative z-10 ">
           <Dialog.Title className="text-lg font-medium leading-6 text-gray-900">
             Select Heading and Categories
           </Dialog.Title>

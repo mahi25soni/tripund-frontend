@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import axios from '../../axios'
+import { FiMail, FiLock } from 'react-icons/fi'; // Importing icons
+import { BsInfoCircle } from 'react-icons/bs'; // Info icon for messages
 
 import { useNavigate } from 'react-router-dom';
 import { Carousel } from 'react-responsive-carousel';
@@ -66,8 +68,15 @@ const SignUp = () => {
           </Carousel>
         </div>
         <div className="w-1/2 bg-blue-100 flex items-center justify-center">
-          <div className="w-3/5 p-8 bg-white rounded shadow-md">
-            <h2 className="text-2xl font-bold mb-4 text-center">Create Acoount</h2>
+          <div className="w-3/5 p-8 bg-white rounded-md shadow-md">
+            {/* <h2 className="text-2xl font-bold mb-4 text-center">Create Acoount</h2> */}
+            <div className="flex items-center justify-center mb-4">
+          <BsInfoCircle className="text-blue-500 mr-2" size={24} />
+          <h2 className="text-2xl font-semibold text-gray-800">Create Account</h2>
+        </div>
+        <p className="text-center text-gray-600 mb-6">
+          Please create your account to continue.
+        </p>
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
                 <label htmlFor="name" className="block text-gray-700">Name:</label>

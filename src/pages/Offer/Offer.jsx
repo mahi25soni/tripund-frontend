@@ -4,6 +4,8 @@ import { AddOffer } from "../../components/AddOffer";
 import CardWrapper from "../../atoms/CardWrapper";
 import axios from "../../../axios.jsx";
 import { SingleOffer } from "./SingleOffer.jsx";
+import Spinner from "../../components/Spinner.jsx";
+
 
 export const Offer = () => {
   const [addOfferPopUp, setAddOfferPopUp] = useState(false);
@@ -41,6 +43,8 @@ export const Offer = () => {
         <SingleOffer currentSingleOffer={currentSingleOffer}></SingleOffer>
       ) : (
         <>
+
+        
           <div className="flex flex-col gap-4">
             <CardWrapper
               header_name={"Offers"}

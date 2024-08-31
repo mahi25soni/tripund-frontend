@@ -138,13 +138,13 @@ const AddHeading = ({ headings, setHeadings }) => {
       <div className="flex justify-between items-center mb-4">
         <h2 className='text-lg font-semibold'>Headings</h2>
         <div className='flex'>
-          <button
+          {/* <button
             onClick={handleDeleteSelected}
             className="px-4 mr-2 py-2 bg-red-500 text-white rounded flex items-center"
             disabled={selectedHeadings.length === 0 || loading}
           >
             <AiOutlineDelete size={20} />
-          </button>
+          </button> */}
           <button
             onClick={() => setIsOpen(true)}
             className="px-4 py-2 bg-blue-500 text-white rounded"
@@ -153,20 +153,20 @@ const AddHeading = ({ headings, setHeadings }) => {
           </button>
         </div>
       </div>
-      <div className="border p-4 rounded h-80 overflow-x-auto">
+      <div className="grid grid-cols-2 border p-4 rounded h-80 overflow-x-auto">
         <ul className="mb-4">
           {headings.map((heading) => (
             <li
               key={heading._id}
-              className="flex items-center justify-between bg-slate-100 mb-2 rounded-md text-lg py-2 px-4 relative group"
+              className="flex items-center font-medium justify-between bg-slate-100 mb-2 rounded-md text-lg py-2 px-4 relative group"
             >
               <div className="flex items-center">
-                <input
+                {/* <input
                   type="checkbox"
                   checked={selectedHeadings.includes(heading._id)}
                   onChange={() => handleCheckboxChange(heading._id)}
                   className="mr-4"
-                />
+                /> */}
                 {editMode === heading._id ? (
                   <input
                     type="text"

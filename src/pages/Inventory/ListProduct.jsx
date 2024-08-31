@@ -1,50 +1,15 @@
 import React, { useState, useEffect } from "react";
 import Input from "../../atoms/Input";
 import axios from "../../../axios.jsx";
-
-const formsFieldsArray = [
-  {
-    name: "product_name",
-    label: "Product Name",
-    placeholder: "Enter product name",
-  },
-  {
-    name: "product_id",
-    label: "Product Id",
-    placeholder: "Enter product id",
-  },
-  {
-    name: "product_mrp",
-    label: "Buying Price",
-    placeholder: "Enter buying price",
-  },
-  {
-    name: "product_quantity",
-    label: "Quantity",
-    placeholder: "Enter product quantity",
-  },
-  {
-    name: "units",
-    label: "Unit",
-    placeholder: "Enter product unit",
-  },
-  {
-    name: "nearest_expiry_date",
-    label: "Expiry Date",
-    placeholder: "DD-MM-YYYY",
-    type:"date"
-  },
-  {
-    name: "threshold_value",
-    label: "Threshold Value",
-    placeholder: "Enter threshold value",
-  },
-];
+import Spinner from "../../components/Spinner"; // Import the Spinner component
+import { toast } from "react-toastify";
 
 export const ListProduct = (props) => {
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(false); // Loading state for spinner
+
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -77,6 +42,7 @@ export const ListProduct = (props) => {
 
   const addProductHandle = async (event) => {
     event.preventDefault();
+    setLoading(true); // Start spinner
     const formData = new FormData(event.target);
     formData.append("product_image", image);
 
@@ -91,24 +57,72 @@ export const ListProduct = (props) => {
         }
       );
 
+      toast.success("Product listed successfully!");
+
       if (props?.setStoreProductList) {
         const { setStoreProductList, setAddProductPopUp } = props;
         setStoreProductList((prevData) => [...prevData, data?.data]);
         setAddProductPopUp(false);
       }
+
+      // Clear fields
+      setImage(null);
+      setImagePreview(null);
+      event.target.reset();
     } catch (error) {
       console.error("Error adding product:", error);
+      toast.error("Failed to list product.");
+    } finally {
+      setLoading(false); // Stop spinner
     }
   };
 
   return (
-    <div className="bg-white h-[620px] px-6 py-6 m-2 rounded-lg w-5/6 absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 border-3">
-      <div className="text-xl font-medium mb-3 text-gray-700">Add Product</div>
+    <div className="bg-white px-4 py-4 m-2 rounded-lg border-3">
+      {loading && <Spinner />} {/* Show spinner while loading */}
+      <div className="text-xl font-medium mb-2 text-gray-700">Add Product</div>
 
-      <form action="" onSubmit={addProductHandle}>
-        <div className="flex flex-row gap-10 w-full justify-between">
-          {/* left side */}
-          <div className="flex flex-col gap-2 w-full">
+      <form onSubmit={addProductHandle}>
+        <div className="flex flex-row gap-8 w-full justify-between">
+          {/* Basic Product Info */}
+          <div className="w-full">
+            <div className="mb-2 w-full">
+              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="product_name">
+                Product Name
+              </label>
+              <Input name="product_name" placeholder="Enter product name" />
+            </div>
+
+            <div className="mb-2">
+              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="product_id">
+                Product Id
+              </label>
+              <Input name="product_id" placeholder="Enter product id" />
+            </div>
+            {/* Category Section */}
+        <div className="mb-2">
+          <label
+            className="block text-gray-700 text-sm font-bold mb-2"
+            htmlFor="product_category">
+            Category
+          </label>
+          <select
+            id="product_category"
+            name="product_category"
+            className="block appearance-none w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline"
+          >
+            <option value="">Select Category</option>
+            {categories.map((category) => (
+              <option key={category._id} value={category._id}>
+                {category.name}
+              </option>
+            ))}
+          </select>
+        </div>
+          </div>
+
+          {/* Image Section */}
+          <div className="w-full">
             <div className="border-2 border-dashed rounded-lg h-64 w-64 border-gray-500 flex justify-center items-center overflow-hidden ml-4">
               {imagePreview ? (
                 <img
@@ -131,8 +145,54 @@ export const ListProduct = (props) => {
                 </div>
               )}
             </div>
+          </div>
+        </div>
 
-            <div className="my-4">
+        <div className="flex flex-row gap-10 w-full justify-between mt-6">
+          {/* Stock Details */}
+          <div className="w-full">
+            <div className="mb-4">
+              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="product_quantity">
+                Quantity
+              </label>
+              <Input name="product_quantity" placeholder="Enter product quantity" />
+            </div>
+
+            <div className="mb-4">
+              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="units">
+                Unit
+              </label>
+              <Input name="units" placeholder="Enter product unit" />
+            </div>
+          </div>
+
+          {/* Pricing Section */}
+          <div className="w-full">
+            <div className="mb-4">
+              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="product_mrp">
+                Buying Price
+              </label>
+              <Input name="product_mrp" placeholder="Enter buying price" />
+            </div>
+
+            <div className="mb-4">
+              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="threshold_value">
+                Threshold Value
+              </label>
+              <Input name="threshold_value" placeholder="Enter threshold value" />
+            </div>
+          </div>
+        </div>
+
+        <div className="mb-6">
+          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="nearest_expiry_date">
+            Expiry Date
+          </label>
+          <Input name="nearest_expiry_date" placeholder="DD-MM-YYYY" type="date" />
+        </div>
+
+        {/* Description */}
+        <div className="mb-6">
           <label
             className="block text-gray-700 text-sm font-bold mb-2"
             htmlFor="description"
@@ -147,48 +207,7 @@ export const ListProduct = (props) => {
           />
         </div>
 
-        
-        <div className="">
-          <label
-            className="block text-gray-700 text-sm font-bold mb-2"
-            htmlFor="category">
-            Category
-          </label>
-          <select
-            id="category"
-            name="category"
-            className="block appearance-none w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline"
-          >
-            <option value="">Select Category</option>
-            {categories.map((category) => (
-              <option key={category._id} value={category._id}>
-                {category.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-          </div>
-
-          {/* right side */}
-          <div>
-          <div className="flex flex-col  mb-4">
-          {formsFieldsArray.map((element) => (
-            <div key={element.name} className="flex flex-row gap-2">
-              <label
-                className="block text-gray-700 text-sm font-bold mb-2 w-16"
-                htmlFor={element.name}
-              >
-                {element.label}
-              </label>
-              <Input name={element.name} placeholder={element.placeholder} />
-            </div>
-          ))}
-        </div>
-          </div>
-        </div>
-
-
+        {/* Buttons */}
         <div className="flex flex-row-reverse gap-3">
           <button
             className="px-4 py-2.5 border-2 rounded bg-blue-700 text-white border-blue-700"

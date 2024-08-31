@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { OverallOrders } from "../../components/OverallOrders";
 import { OrdersList } from "../../components/OrdersList";
-import { OrderDetails } from "./OrderDetails";
+import OrderDetails  from "./OrderDetails";
 
 export const Orders = () => {
   const [openOrderDetails, setOpenOrderDetails] = useState(null);

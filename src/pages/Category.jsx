@@ -61,8 +61,8 @@ const Category = () => {
 
   return (
     <div>
-    <div className="flex flex-col md:flex-row p-4">
-      <div className="w-full md:w-1/2  border-r border-gray-200">
+    <div className="flex flex-col gap-4 md:flex-row ">
+      <div className="w-full md:w-1/2 rounded-lg">
         <AddCategory categories={categories} setCategories={setCategories} />
       </div>
       <div className="w-full md:w-1/2 ">
@@ -70,7 +70,7 @@ const Category = () => {
       </div>
     
     </div>
-    <div className="w-full  p-4">
+    <div className="w-full pt-4">
         <HeadingCategoryCombo/> 
       </div>
     </div>

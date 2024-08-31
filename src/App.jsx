@@ -17,16 +17,31 @@ import { ListProduct } from "./pages/Inventory/ListProduct";
 import { Offer } from "./pages/Offer/Offer";
 import Reports from "./pages/Reports";
 import ProductDetails from "./components/ProductDetails";
+import { Orders } from "./pages/Order/Orders";
+import Settings from "./pages/Settings";
+import SupportPage from "./pages/Support";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import ForgotPassword from "./pages/Password/ForgotPassword";
+import ResetPassword from "./pages/Password/ResetPassword";
+import IconGallery from "./components/IconPack/IconGallery";
 
 const App = () => {
   return (
     <Router>
       <Layout>
+      <ToastContainer position="top-right" autoClose={3000} />
+
         <Routes>
           {/* Public Routes */}
           <Route path="/signup" element={<SignUp />} />
           <Route path="/login" element={<Login />} />
+
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
+
           <Route path="/createStore" element={<StoreForm />} />
+          <Route path="/icon-gallery" element={<IconGallery />} />
 
           {/* Protected Routes */}
           <Route
@@ -74,6 +89,16 @@ const App = () => {
           />
 
           <Route
+            path="/orders"
+            element={
+              <ProtectedRoute>
+                <Orders/>
+              </ProtectedRoute>
+            }
+          />
+
+
+          <Route
             path="/offers"
             element={
               <ProtectedRoute>
@@ -90,6 +115,26 @@ const App = () => {
               </ProtectedRoute>
             }
           />
+
+
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute>
+                <Settings/>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/support"
+            element={
+              <ProtectedRoute>
+                <SupportPage/>
+              </ProtectedRoute>
+            }
+          />
+
 
           {/* Default redirect to signup if no match */}
           {/* <Route path="*" element={<Navigate to="/signup" />} /> */}
