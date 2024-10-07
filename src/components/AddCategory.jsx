@@ -18,37 +18,30 @@ const AddCategory = ({ categories, setCategories }) => {
       const category = categories.find((cat) => cat._id === editMode);
       if (category) {
         setEditedCategory(category.name);
-        setImagePreview(category.categoryImg); // Set existing image URL as preview
+        setImagePreview(category.categoryImg);
+        setCategoryImg(category.categoryImg);
       }
     }
   }, [editMode, categories]);
-
   const handleAddCategory = async () => {
-    if (newCategory.trim() && (categoryImg || imagePreview)) {
+    if (newCategory.trim() && imagePreview) {
       setLoading(true);
   
-      // Debugging log to check form data before sending the request
-      console.log("New Category:", newCategory);
-      console.log("Category Image (File):", categoryImg);
-      console.log("Image Preview (URL):", imagePreview);
+      // Log the data being sent
+      console.log("Sending data:", { name: newCategory.trim(), categoryImg: imagePreview });
   
-      const formData = new FormData();
-      formData.append('name', newCategory.trim());
-  
-      // Check whether to append the file or the image URL
-      if (categoryImg) {
-        formData.append('categoryImg', categoryImg); // For uploaded image files
-      } else if (imagePreview) {
-        formData.append('categoryImg', imagePreview); // For images from the gallery
-      }
+      const data = {
+        name: newCategory.trim(),
+        categoryImg: imagePreview,  // Directly send the URL as a string
+      };
   
       const token = localStorage.getItem('token');
   
       try {
-        const response = await axios.post('/store/addCategory', formData, {
+        const response = await axios.post('/store/addCategory', data, {
           headers: {
-            'Content-Type': 'multipart/form-data',
             'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',  // Use JSON instead of multipart/form-data
           },
         });
   
@@ -66,7 +59,7 @@ const AddCategory = ({ categories, setCategories }) => {
         setLoading(false);
       }
     } else {
-      console.log("Please provide both a category name and an image.");
+      console.log("Please provide both a category name and an icon URL.");
     }
   };
   
@@ -107,9 +100,10 @@ const AddCategory = ({ categories, setCategories }) => {
 
   const handleIconSelect = (url) => {
     setImagePreview(url);
-    setCategoryImg(null); // Clear file input if using URL
+    setCategoryImg(url); // Ensure file input is cleared if using URL
     setIsIconGalleryOpen(false);
   };
+  
 
   return (
     <div className="p-4 bg-white rounded-lg">

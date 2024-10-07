@@ -158,7 +158,7 @@ const Sidebar = () => {
         Reports
       </NavLink>
 
-      <NavLink
+      {/* <NavLink
         to="/user"
         className={({ isActive }) =>
           `flex items-center px-6 py-3 hover:bg-gray-100 ${isActive ? 'bg-gray-100 text-blue-500' : 'text-black'}`
@@ -166,7 +166,7 @@ const Sidebar = () => {
       >
         <FiUser className="mr-4" />
         Users
-      </NavLink>
+      </NavLink> */}
 
       {/* Settings and Support */}
       <div className="flex-1"></div> {/* This will push Settings and Support to the bottom */}

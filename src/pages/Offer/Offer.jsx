@@ -58,10 +58,13 @@ export const Offer = () => {
             setAllOffersList = {setAllOffersList}></OfferList>
           </div>
           {addOfferPopUp && (
+            <div className="fixed inset-0 flex h-screen items-center justify-center bg-black bg-opacity-50 z-50 overflow-auto ">
+
             <AddOffer
               setAddOfferPopUp={setAddOfferPopUp}
               setAllOffersList={setAllOffersList}
             ></AddOffer>
+            </div>
           )}
         </>
       )}

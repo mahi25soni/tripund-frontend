@@ -51,11 +51,14 @@ const TopBar = () => {
               page: 1,
               limit: 10,
             },
-          });          const orderNotifications = response.data.orders.map((order) => {
+          });          
+          
+          const orderNotifications = response.data.orders.map((order) => {
             return `Order #${order.orderId} status: ${order.status}`;
           });
           setNotifications(orderNotifications);
         }
+        
       } catch (error) {
         console.error('Failed to fetch order notifications:', error);
       }
@@ -88,10 +91,10 @@ const TopBar = () => {
   };
 
   return (
-    <div className="h-16 w-5/6 bg-white flex items-center justify-between px-6 shadow-md fixed top-0 left-64 z-10">
+    <div className="h-16 w-5/6 bg-white flex items-center justify-between px-6 shadow fixed top-0 left-64 z-10">
       <div className="flex items-center">
         <form onSubmit={handleSearch} className="relative">
-          <input
+          {/* <input
             type="text"
             placeholder="Search..."
             value={searchQuery}
@@ -100,7 +103,7 @@ const TopBar = () => {
           />
           <button type="submit" className="absolute right-2 top-2 text-gray-500 border-l-2 w-6 pl-1">
             <FiSearch className="mt-1 text-lg" />
-          </button>
+          </button> */}
         </form>
       </div>
 

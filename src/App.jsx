@@ -83,7 +83,16 @@ const App = () => {
             path="/inventory/list-product"
             element={
               <ProtectedRoute>
-                <ListProduct />
+                <ListProduct mode="add" />
+              </ProtectedRoute>
+            }
+          />
+
+        <Route
+            path="/inventory/edit-product/:id"
+            element={
+              <ProtectedRoute>
+                <ListProduct mode="edit" />
               </ProtectedRoute>
             }
           />

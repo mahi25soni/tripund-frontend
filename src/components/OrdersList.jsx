@@ -4,6 +4,8 @@ import { Dialog } from "@headlessui/react";
 import moment from "moment";
 import Spinner from "../components/Spinner"; // Import the Spinner
 import OrderDetails from "../pages/Order/OrderDetails";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export const OrdersList = ({ setOpenOrderDetails }) => {
   const [orders, setOrders] = useState([]);
@@ -94,9 +96,13 @@ export const OrdersList = ({ setOpenOrderDetails }) => {
       )
       .then((response) => {
         console.log("Order status updated:", response.data);
+        toast.success("Status Updated successfully!");
+
       })
       .catch((error) => {
         console.error("Error updating status:", error.message);
+        toast.error("Error while Updating status.Try Again.");
+
         // Revert optimistic UI update on error
         setOrderStatuses((prevStatuses) => ({
           ...prevStatuses,
@@ -140,9 +146,9 @@ export const OrdersList = ({ setOpenOrderDetails }) => {
             </span>
           )}
         </div>
-        <button className="px-4 py-2.5 border-2 rounded hover:bg-blue-700 hover:text-white hover:border-blue-700">
+        {/* <button className="px-4 py-2.5 border-2 rounded hover:bg-blue-700 hover:text-white hover:border-blue-700">
           Filters
-        </button>
+        </button> */}
       </div>
 
       {loading ? (

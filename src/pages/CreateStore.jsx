@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify'; // Import ToastContainer
+import 'react-toastify/dist/ReactToastify.css'; // Import CSS for react-toastify
 import { AiOutlineShop, AiOutlineMail, AiOutlineEnvironment } from 'react-icons/ai'; // Icons for business type, email, and location
 import { FiCamera } from 'react-icons/fi'; // Icon for logo upload
 import MouseImg from '../images/Mouse.png';
 import tripund from '../images/tripund.jpeg';
-import { FiMail, FiLock } from 'react-icons/fi'; // Importing icons
 import { BsInfoCircle } from 'react-icons/bs'; 
-
+import { ClipLoader } from 'react-spinners';
 const StoreForm = () => {
   const [formData, setFormData] = useState({
     logo: null,
@@ -20,6 +20,7 @@ const StoreForm = () => {
   });
 
   const [logoPreview, setLogoPreview] = useState(null);
+  const [loading, setLoading] = useState(false); // Loader state
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -35,6 +36,7 @@ const StoreForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true); // Start loader
 
     const data = new FormData();
     for (const key in formData) {
@@ -54,11 +56,14 @@ const StoreForm = () => {
       navigate('/dashboard');
     } catch (err) {
       toast.error('Error creating store: ' + (err.response?.data || err.message));
+    } finally {
+      setLoading(false); // Stop loader
     }
   };
 
   return (
     <div className="h-screen flex items-center justify-center bg-blue-100">
+      <ToastContainer /> {/* Add ToastContainer here */}
       <div className="w-1/2 bg-white h-screen">
         <div className="w-fit m-auto py-32">
           <img className="w-60 m-auto" src={MouseImg} alt="Mouse" />
@@ -74,13 +79,13 @@ const StoreForm = () => {
       </div>
       <div className="w-1/2 pl-12 bg">
         <div className="bg-white p-8 rounded shadow-md w-full max-w-md ml-20">
-        <div className="flex items-center justify-center mb-4">
-          <BsInfoCircle className="text-blue-500 mr-2" size={24} />
-          <h2 className="text-2xl font-semibold text-gray-800">Create Store!</h2>
-        </div>
-        <p className="text-center text-gray-600 mb-6">
-          Please fill your store details to create your store.
-        </p>
+          <div className="flex items-center justify-center mb-4">
+            <BsInfoCircle className="text-blue-500 mr-2" size={24} />
+            <h2 className="text-2xl font-semibold text-gray-800">Create Store!</h2>
+          </div>
+          <p className="text-center text-gray-600 mb-6">
+            Please fill your store details to create your store.
+          </p>
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
               <div className="flex items-center justify-center w-full">
@@ -189,9 +194,13 @@ const StoreForm = () => {
             </div>
             <button
               type="submit"
-              className="bg-blue-500 w-full text-white py-2 px-4 rounded hover:bg-blue-600"
+              className="bg-blue-500 w-full text-white py-2 px-4 rounded hover:bg-blue-600 relative"
             >
-              Create Store
+              {loading ? (
+                <ClipLoader color="#fff" size={20} />
+              ) : (
+                'Create Store'
+              )}
             </button>
           </form>
         </div>

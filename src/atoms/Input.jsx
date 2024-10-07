@@ -4,6 +4,7 @@ export default function Input({
   name,
   label,
   placeholder,
+  value,
   ...props
 }) {
   return (
@@ -20,8 +21,11 @@ export default function Input({
           name={name}
           id={name}
           autoComplete
-          className="bg-white border-2 border-gray-400 rounded py-2.5 px-3.5 text-gray-900 placeholder:text-gray-400  outline-none w-full "
+          value={value}
+          className="bg-white border border-gray-300 rounded py-3 px-3.5 text-gray-900 placeholder:text-gray-400  outline-none w-full "
           placeholder={placeholder}
+          {...props}
+
         />
       </div>
     </div>

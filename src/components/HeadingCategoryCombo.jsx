@@ -20,8 +20,8 @@ const HeadingCategoryCombo = () => {
         const [headingsResponse, categoriesResponse] = await Promise.all([
           axios.get('http://localhost:5000/api/store/getHeadings', {
             headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'multipart/form-data'
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'multipart/form-data',
             },
           }),
           axios.get('http://localhost:5000/api/store/getCategories', {
@@ -48,13 +48,14 @@ const HeadingCategoryCombo = () => {
   const handleCategoryClick = (categoryId) => {
     setSelectedCategories((prevSelectedCategories) =>
       prevSelectedCategories.includes(categoryId)
-        ? prevSelectedCategories.filter(id => id !== categoryId)
+        ? prevSelectedCategories.filter((id) => id !== categoryId)
         : [...prevSelectedCategories, categoryId]
     );
   };
+
   const handleSubmit = async () => {
     setLoading(true);
-  
+
     const token = localStorage.getItem('token');
     try {
       const response = await axios.post(
@@ -70,10 +71,12 @@ const HeadingCategoryCombo = () => {
           },
         }
       );
-  
-      // Add the newly created combo to the existing combinations state
-      setCombinations((prevCombinations) => [...prevCombinations, response.data]);
-  
+
+      setCombinations((prevCombinations) => [
+        ...prevCombinations,
+        response.data,
+      ]);
+
       setSelectedHeading('');
       setSelectedCategories([]);
       alert('Combination saved successfully');
@@ -85,17 +88,19 @@ const HeadingCategoryCombo = () => {
       setLoading(false);
     }
   };
-  
 
   const fetchCombinations = async () => {
     try {
       const token = localStorage.getItem('token');
 
-      const combinationsResponse = await axios.get('http://localhost:5000/api/store/getCombo', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const combinationsResponse = await axios.get(
+        'http://localhost:5000/api/store/getCombo',
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       setCombinations(combinationsResponse.data);
       console.log(combinationsResponse.data);
@@ -111,7 +116,7 @@ const HeadingCategoryCombo = () => {
   const toggleSelectCombination = (id) => {
     setSelectedCombinations((prevSelectedCombinations) =>
       prevSelectedCombinations.includes(id)
-        ? prevSelectedCombinations.filter(comboId => comboId !== id)
+        ? prevSelectedCombinations.filter((comboId) => comboId !== id)
         : [...prevSelectedCombinations, id]
     );
   };
@@ -122,9 +127,9 @@ const HeadingCategoryCombo = () => {
       await axios.delete('http://localhost:5000/api/store/deleteCombo', {
         data: { combinationIds: selectedCombinations },
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
       });
       alert('Selected combinations deleted successfully.');
       setSelectedCombinations([]);
@@ -140,9 +145,11 @@ const HeadingCategoryCombo = () => {
   };
 
   return (
-    <div className="p-4 bg-white rounded ">
+    <div className="p-4 bg-white rounded">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-medium">Create Header and Category Combination</h2>
+        <h2 className="text-lg font-medium">
+          Create Header and Category Combination
+        </h2>
         <div>
           <button
             onClick={() => setIsOpen(true)}
@@ -160,32 +167,58 @@ const HeadingCategoryCombo = () => {
           )}
         </div>
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 ">
-        {combinations.map((combo) => (
-          <div key={combo._id} className="relative bg-white p-4 rounded  border border-gray-200">
-            <input
-              type="checkbox"
-              checked={selectedCombinations.includes(combo._id)}
-              onChange={() => toggleSelectCombination(combo._id)}
-              className="absolute top-2 right-2"
-            />
-            <h3 className="text-lg font-semibold mb-2">{combo.headingId?.heading}</h3>
-            <div className="text-sm text-black w-fit grid grid-cols-2 gap-2">
-              {combo.categoryIds.map((category) => (
-                <div key={category._id} className="flex bg-slate-100 p-2 rounded border border-gray-200">
-                  <h3 className="text-lg font-medium mb-2 leading-none">{category.name}</h3>
-                  <img src={category.categoryImg} alt={category.name} className="w-12 h-12 object-cover rounded-lg" />
 
-                </div>
-              ))}
+      {/* Display "No combinations" message if no combinations */}
+      {combinations.length === 0 ? (
+        <p>No combinations available.</p>
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 ">
+          {combinations.map((combo) => (
+            <div
+              key={combo._id}
+              className="relative bg-white p-4 rounded border border-gray-200"
+            >
+              <input
+                type="checkbox"
+                checked={selectedCombinations.includes(combo._id)}
+                onChange={() => toggleSelectCombination(combo._id)}
+                className="absolute top-2 right-2"
+              />
+              <h3 className="text-lg font-semibold mb-2">
+                {combo.headingId?.heading}
+              </h3>
+              <div className="text-sm text-black w-fit grid grid-cols-2 gap-2">
+                {combo.categoryIds.map((category) => (
+                  <div
+                    key={category._id}
+                    className="flex bg-slate-100 p-2 rounded border border-gray-200"
+                  >
+                    <h3 className="text-lg font-medium mb-2 leading-none">
+                      {category.name}
+                    </h3>
+                    <img
+                      src={category.categoryImg}
+                      alt={category.name}
+                      className="w-12 h-12 object-cover rounded-lg"
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
-      <Dialog open={isOpen} onClose={handleCancel} className="fixed inset-0 z-50 flex items-center justify-center w-full h-full">
-        <div className="fixed inset-0 bg-black bg-opacity-50" onClick={handleCancel} />
-        <div className="bg-white rounded-lg overflow-hidden shadow-xl max-w-6xl w-full  max-h-[80vh] overflow-y-auto p-6 relative z-10 ">
+      <Dialog
+        open={isOpen}
+        onClose={handleCancel}
+        className="fixed inset-0 z-50 flex items-center justify-center w-full h-full"
+      >
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50"
+          onClick={handleCancel}
+        />
+        <div className="bg-white rounded-lg overflow-hidden shadow-xl max-w-6xl w-full max-h-[80vh] overflow-y-auto p-6 relative z-10">
           <Dialog.Title className="text-lg font-medium leading-6 text-gray-900">
             Select Heading and Categories
           </Dialog.Title>
@@ -193,39 +226,63 @@ const HeadingCategoryCombo = () => {
           <div className="mt-2">
             <div className="mb-4">
               <h3 className="text-lg font-semibold mb-2">Select Heading</h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {headings.map((heading) => (
-                  <div
-                    key={heading._id}
-                    onClick={() => handleHeadingClick(heading._id)}
-                    className={`cursor-pointer text-center h-12 p-2 rounded border text-lg text-black ${selectedHeading === heading._id ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-                  >
-                    {heading.heading}
-                  </div>
-                ))}
-              </div>
+
+              {/* Display "No headings" message if no headings */}
+              {headings.length === 0 ? (
+                <p>No headings available.</p>
+              ) : (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {headings.map((heading) => (
+                    <div
+                      key={heading._id}
+                      onClick={() => handleHeadingClick(heading._id)}
+                      className={`cursor-pointer text-center h-12 p-2 rounded border text-lg text-black ${
+                        selectedHeading === heading._id
+                          ? 'bg-blue-500 text-white'
+                          : 'bg-gray-200'
+                      }`}
+                    >
+                      {heading.heading}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="mb-4">
               <h3 className="text-lg font-semibold mb-2">Select Categories</h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {categories.map((category) => (
-                  <div
-                    key={category._id}
-                    onClick={() => handleCategoryClick(category._id)}
-                    className={`cursor-pointer text-lg h-12 text-center p-2 rounded border ${selectedCategories.includes(category._id) ? 'bg-green-500 text-white' : 'bg-gray-200'}`}
-                  >
-                    {category.name}
-                  </div>
-                ))}
-              </div>
+
+              {/* Display "No categories" message if no categories */}
+              {categories.length === 0 ? (
+                <p>No categories available.</p>
+              ) : (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {categories.map((category) => (
+                    <div
+                      key={category._id}
+                      onClick={() => handleCategoryClick(category._id)}
+                      className={`cursor-pointer text-lg h-12 text-center p-2 rounded border ${
+                        selectedCategories.includes(category._id)
+                          ? 'bg-green-500 text-white'
+                          : 'bg-gray-200'
+                      }`}
+                    >
+                      {category.name}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="flex justify-end gap-2 mt-10">
               <button
                 onClick={handleSubmit}
-                className={`px-4 py-2 ${loading ? 'bg-gray-400' : 'bg-blue-500'} text-white rounded`}
-                disabled={loading || !selectedHeading || selectedCategories.length === 0}
+                className={`px-4 py-2 ${
+                  loading ? 'bg-gray-400' : 'bg-blue-500'
+                } text-white rounded`}
+                disabled={
+                  loading || !selectedHeading || selectedCategories.length === 0
+                }
               >
                 {loading ? 'Saving...' : 'Save Combination'}
               </button>
