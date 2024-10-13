@@ -76,9 +76,10 @@ export const ListProduct = ({ props }) => {
     setLoading(true); // Start spinner
     const formData = new FormData(event.target);
 
-    // Append all images to formData
     images.forEach((image, index) => {
-      if (image) {
+      if (typeof image === "string") {
+        formData.append(`product_image_url_${index}`, image);
+      } else if (image) {
         formData.append(`product_image_${index}`, image);
       }
     });

@@ -56,8 +56,6 @@ const OrderBill = ({ order }) => {
           {/* <img src={store.logo} alt="Store Logo" style={{ height: "50px" }} /> */}
           <div style={{ textAlign: "center" }}>
             <h2 className="text-xl font-semibold" style={{ margin: 0 }}>{store.storeName}</h2>
-            <p style={{ margin: 0 }}>{store.businessType}</p>
-            <p style={{ margin: 0 }}>{store.storeCategory}</p>
             <p style={{ margin: 0 }}>{store.location}</p>
           </div>
         </div>
@@ -68,9 +66,8 @@ const OrderBill = ({ order }) => {
         <h3 style={{ borderBottom: "1px solid #ddd", paddingBottom: "5px" }}>Order Information</h3>
         <div style={{ display: "flex", justifyContent: "space-between" }}>
           <div>
-            <p><strong>Order ID:</strong> {order._id}</p>
+            <p><strong>Order ID:</strong> {order.orderId}</p>
             <p><strong>Order Date:</strong> {new Date(order.createdAt).toLocaleDateString("en-GB")}</p>
-            <p><strong>Status:</strong> {order.status}</p>
           </div>
           <div style={{ textAlign: "right" }}>
             <p><strong>Customer:</strong> {order.userId?.name}</p>
@@ -90,6 +87,8 @@ const OrderBill = ({ order }) => {
               <th style={{ borderBottom: "1px solid #ddd", padding: "8px", textAlign: "center" }}>Quantity</th>
               <th style={{ borderBottom: "1px solid #ddd", padding: "8px", textAlign: "right" }}>Price (Rs)</th>
               <th style={{ borderBottom: "1px solid #ddd", padding: "8px", textAlign: "right" }}>Total (Rs)</th>
+              <th style={{ borderBottom: "1px solid #ddd", padding: "8px", textAlign: "right" }}>GST (Rs)</th>
+
             </tr>
           </thead>
           <tbody>
@@ -107,6 +106,9 @@ const OrderBill = ({ order }) => {
                 <td style={{ borderBottom: "1px solid #ddd", padding: "8px", textAlign: "right" }}>
                   Rs {calculateOrderValue(product.productId?.product_mrp, product.quantity).toFixed(2)}
                 </td>
+                <td style={{ borderBottom: "1px solid #ddd", padding: "8px", textAlign: "right" }}>
+                  Rs {product.gstAmount.toFixed(2)}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -115,7 +117,13 @@ const OrderBill = ({ order }) => {
 
       {/* Total Amount Section */}
       <div style={{ textAlign: "right", marginTop: "20px", paddingTop: "10px", borderTop: "2px solid #333" }}>
-        <h3>Total Amount: Rs {order.totalAmount.toFixed(2)}</h3>
+        <h3>Total Amount: Rs {order.totalBill.toFixed(2)}</h3>
+      </div>
+      <div style={{ textAlign: "right", marginTop: "1px", paddingTop: "4px", }}>
+        <h3>GST Amount: Rs {order.totalGst.toFixed(2)}</h3>
+      </div>
+      <div style={{ textAlign: "right", marginTop: "20px", paddingTop: "10px", borderTop: "2px solid #333" }}>
+        <h3>To pay: Rs {order.finalBillToPay.toFixed(2)}</h3>
       </div>
 
       {/* Footer Section */}

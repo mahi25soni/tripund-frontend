@@ -80,7 +80,7 @@ const OrderDetails = ({ order, onClose }) => {
       <div className="flex justify-evenly bg-gray-100 p-4 mb-2 rounded-lg items-center h-32">
         <div>
           <p className="text-md">Order ID</p>
-          <p className="font-medium">{order._id}</p>
+          <p className="font-medium">{order.orderId}</p>
         </div>
 
         <div>
@@ -95,7 +95,7 @@ const OrderDetails = ({ order, onClose }) => {
 
         <div>
           <p className="text-md">Amount</p>
-          <p className="font-bold">Rs {order.totalAmount}</p>
+          <p className="font-bold">Rs {order.finalBillToPay}</p>
         </div>
 
         <div>
@@ -139,7 +139,7 @@ const OrderDetails = ({ order, onClose }) => {
               </div>
               <div className="flex justify-end items-center text-md font-medium gap-1">
                 <p>Order value</p>
-                <p className="h-[22px] w-[50px] bg-green-200 text-green-500 rounded-md">
+                <p className="h-[22px] w-fit px-2  bg-green-200 text-green-500 rounded-md">
                   Rs {calculateOrderValue(product.productId.product_mrp, product.quantity)}
                 </p>
               </div>

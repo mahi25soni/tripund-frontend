@@ -158,10 +158,11 @@ export const OrdersList = ({ setOpenOrderDetails }) => {
       ) : (
         <div className="my-4">
           <div className="flex items-center justify-between border-b-2 text-left font-medium text-sm text-gray-400 p-1">
+          <h6 className="w-1/2 py-1">Order ID</h6>
+
             <h6 className="w-1/2 py-1">Customer</h6>
             <h6 className="w-1/2 py-1">Order Value</h6>
-            <h6 className="w-1/2 py-1">Order ID</h6>
-            <h6 className="w-1/2 py-1">Receiving Date</h6>
+            <h6 className="w-1/2 py-1">Ordering Date</h6>
             <h6 className="w-1/2 py-1">Status</h6>
             <h6 className="w-1/2 py-1"></h6>
           </div>
@@ -171,9 +172,10 @@ export const OrdersList = ({ setOpenOrderDetails }) => {
               key={order._id}
               className="flex items-center justify-between border-b-2 text-left font-medium p-1"
             >
+                          <p className="w-1/2 py-1">{order.orderId}</p>
+
               <p className="w-1/2 py-1">{order.userId?.name}</p>
-              <p className="w-1/2 py-1">Rs {order.totalAmount}</p>
-              <p className="w-1/2 py-1">{order._id}</p>
+              <p className="w-1/2 py-1">Rs {order.finalBillToPay}</p>
               <p className="w-1/2 py-1">
                 {moment(order.createdAt).format("DD MMM YYYY, h:mm A")}
               </p>
