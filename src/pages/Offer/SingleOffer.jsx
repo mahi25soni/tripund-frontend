@@ -9,25 +9,23 @@ import "react-toastify/dist/ReactToastify.css";
 
 export const SingleOffer = ({ currentSingleOffer, onClose }) => {
   const [storeProductList, setStoreProductList] = useState([]);
-  const [filteredProducts, setFilteredProducts] = useState([]); // To store filtered products
+  const [filteredProducts, setFilteredProducts] = useState([]); 
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [isChecked, setIsChecked] = useState({});
-  const [selectAll, setSelectAll] = useState(false); // To track select all state
-  const [loading, setLoading] = useState(false); // Loader state
-  const navigate = useNavigate(); // Initialize the useNavigate hook
+  const [selectAll, setSelectAll] = useState(false); 
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate(); 
 
   const UserToken = localStorage.getItem("token");
 
-  // Fetch products on page load and page change
   useEffect(() => {
     fetchProducts();
   }, [currentPage, currentSingleOffer]);
 
-  // Function to fetch products from the server
   const fetchProducts = async () => {
-    setLoading(true); // Start loading
+    setLoading(true); 
 
     const { data } = await axios.get(
       `/offer/get-all-products-of-offer/${currentSingleOffer?._id}/${currentPage}`,
@@ -40,7 +38,6 @@ export const SingleOffer = ({ currentSingleOffer, onClose }) => {
 
     const productList = data?.data?.entireList;
 
-    // Set checked state for products
     const checkedState = {};
     productList?.map((item) => {
       checkedState[item?._id] = item?.discount;
@@ -48,12 +45,11 @@ export const SingleOffer = ({ currentSingleOffer, onClose }) => {
 
     setIsChecked(checkedState);
     setStoreProductList(productList);
-    setFilteredProducts(productList); // Set filtered products initially
+    setFilteredProducts(productList); 
     setTotalPages(data?.data?.total_pages);
-    setLoading(false); // End loading
+    setLoading(false); 
   };
 
-  // Search handler to filter products based on each keystroke
   const handleSearch = (e) => {
     setSearchQuery(e.target.value);
     const filtered = storeProductList?.filter((product) =>
@@ -62,12 +58,10 @@ export const SingleOffer = ({ currentSingleOffer, onClose }) => {
     setFilteredProducts(filtered);
   };
 
-  // Handle individual checkbox toggle
   const handleCheckboxChange = (product_id) => {
     setIsChecked((prev) => ({ ...prev, [product_id]: !prev[product_id] }));
   };
 
-  // Handle the "Select All" checkbox
   const handleSelectAll = () => {
     const updatedChecked = {};
     filteredProducts.forEach((product) => {
@@ -77,13 +71,10 @@ export const SingleOffer = ({ currentSingleOffer, onClose }) => {
     setSelectAll(!selectAll); // Toggle select all state
   };
 
-  // Handle applying the selected products
-  // Handle applying the selected products
 const handleAddTickedProduct = async () => {
   const selectedProducts = [];
   const deselectedProducts = [];
 
-  // Distinguish between selected and deselected products
   Object.keys(isChecked).map((key) => {
     if (isChecked[key]) {
       selectedProducts.push({
@@ -109,7 +100,6 @@ const handleAddTickedProduct = async () => {
       });
     }
 
-    // Send deselected products to remove from the offer
     if (deselectedProducts.length > 0) {
       await axios.post("/offer/remove-product-from-offer", deselectedProducts, {
         headers: {

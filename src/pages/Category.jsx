@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import AddCategory from '../components/AddCategory';
 import AddHeading from '../components/AddHeading';
-import axios from 'axios';
+import axios from '../../axios';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate for navigation
 import HeadingCategoryCombo from '../components/HeadingCategoryCombo';
 
@@ -23,7 +23,7 @@ const Category = () => {
           const config = {
             headers: { Authorization: `Bearer ${token}` },
           };
-          const response = await axios.get('http://localhost:5000/api/categories/getCategories', config);
+          const response = await axios.get('/categories/getCategories', config);
           console.log('Category: ', response.data);
           setCategories(response.data);
         } else {
@@ -45,7 +45,7 @@ const Category = () => {
           const config = {
             headers: { Authorization: `Bearer ${token}` },
           };
-          const response = await axios.get('http://localhost:5000/api/categories/getHeadings', config);
+          const response = await axios.get('/categories/getHeadings', config);
           console.log('Headings: ', response.data);
           setHeadings(response.data);
         } else {
@@ -62,15 +62,15 @@ const Category = () => {
   return (
     <div>
     <div className="flex flex-col gap-4 md:flex-row ">
-      <div className="w-full md:w-1/2 rounded-lg">
+      <div className="w-full md:w-1/2 rounded-lg shadow">
         <AddCategory categories={categories} setCategories={setCategories} />
       </div>
-      <div className="w-full md:w-1/2 ">
+      <div className="w-full md:w-1/2 rounded-lg shadow">
         <AddHeading headings={headings} setHeadings={setHeadings} /> {/* Corrected prop name */}
       </div>
     
     </div>
-    <div className="w-full pt-4">
+    <div className="w-full pt-4 rounded-lg shadow">
         <HeadingCategoryCombo/> 
       </div>
     </div>

@@ -10,6 +10,8 @@ const Settings = () => {
     storeName: "",
     location: "",
     email: "",
+    phoneNumber:""
+
   });
   const [editingField, setEditingField] = useState(null);
   const [logoPreview, setLogoPreview] = useState(null); // For image preview
@@ -19,13 +21,13 @@ const Settings = () => {
   useEffect(() => {
     const fetchStoreData = async () => {
       try {
-        const response = await axios.get("/store/storeDetails", {
+        const response = await axios.get("/store/storeId", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        console.log("Fetched Store Data:", response.data.store[0]);
-        setStoreData(response.data.store[0]);
+        console.log("Fetched Store Data:", response.data);
+        setStoreData(response.data.store);
       } catch (error) {
         console.error("Error fetching store data:", error.message);
         console.error("Error Details:", error.response);
@@ -63,6 +65,8 @@ const Settings = () => {
     formData.append("storeName", storeData.storeName);
     formData.append("location", storeData.location);
     formData.append("email", storeData.email);
+    formData.append("phoneNumber", storeData.phoneNumber);
+
 
     try {
       const response = await axios.put("/store/editStore", formData, {
@@ -141,6 +145,7 @@ const Settings = () => {
           {renderField("Store Name", "storeName", storeData.storeName, editingField === "storeName")}
           {renderField("Location", "location", storeData.location, editingField === "location")}
           {renderField("Email", "email", storeData.email, editingField === "email")}
+          {renderField("Phone Number", "phoneNumber", storeData.phoneNumber, editingField === "phoneNumber")}
 
           {editingField && (
             <div className="flex items-center justify-end mt-6">
@@ -162,7 +167,7 @@ const Settings = () => {
         </form>
       </div>
 
-      <div className="bg-white shadow-md rounded-lg p-6 mb-6">
+      {/* <div className="bg-white shadow-md rounded-lg p-6 mb-6">
         <h2 className="text-xl font-semibold mb-4">Section 2</h2>
         <p>Content for section 2 goes here.</p>
       </div>
@@ -170,7 +175,7 @@ const Settings = () => {
       <div className="bg-white shadow-md rounded-lg p-6">
         <h2 className="text-xl font-semibold mb-4">Section 3</h2>
         <p>Content for section 3 goes here.</p>
-      </div>
+      </div> */}
     </div>
   );
 };

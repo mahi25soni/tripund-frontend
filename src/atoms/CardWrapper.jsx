@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function   CardWrapper({
+export default function CardWrapper({
   header_name,
   value,
   button_name,
@@ -8,7 +8,7 @@ export default function   CardWrapper({
   className,
   children,
   firstChildClasses
-}) {
+}) {  
   return (
     <div className={`bg-white p-4 rounded-lg w-full ${className}`}>
       <div className={`flex flex-row justify-between items-center ${firstChildClasses}`}>

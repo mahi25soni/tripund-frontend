@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import axios from 'axios';
+import axios from '../../../axios';
 
 const StoreContext = createContext();
 
@@ -11,7 +11,7 @@ export const StoreProvider = ({ children }) => {
     const fetchStoreId = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:5000/api/store/storeId', {
+        const response = await axios.get('/store/storeId', {
           headers: {
             'Authorization': `Bearer ${token}`
           }

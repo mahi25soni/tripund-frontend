@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import axios from '../../axios';
 import { Dialog } from '@headlessui/react';
 
 const HeadingCategoryCombo = () => {
@@ -18,13 +18,13 @@ const HeadingCategoryCombo = () => {
         const token = localStorage.getItem('token');
 
         const [headingsResponse, categoriesResponse] = await Promise.all([
-          axios.get('http://localhost:5000/api/store/getHeadings', {
+          axios.get('/store/getHeadings', {
             headers: {
               Authorization: `Bearer ${token}`,
               'Content-Type': 'multipart/form-data',
             },
           }),
-          axios.get('http://localhost:5000/api/store/getCategories', {
+          axios.get('/store/getCategories', {
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -59,7 +59,7 @@ const HeadingCategoryCombo = () => {
     const token = localStorage.getItem('token');
     try {
       const response = await axios.post(
-        'http://localhost:5000/api/store/headingCategoryCombo',
+        '/store/headingCategoryCombo',
         {
           headingId: selectedHeading,
           categoryIds: selectedCategories,
@@ -94,7 +94,7 @@ const HeadingCategoryCombo = () => {
       const token = localStorage.getItem('token');
 
       const combinationsResponse = await axios.get(
-        'http://localhost:5000/api/store/getCombo',
+        '/store/getCombo',
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -124,7 +124,7 @@ const HeadingCategoryCombo = () => {
   const handleDeleteSelected = async () => {
     const token = localStorage.getItem('token');
     try {
-      await axios.delete('http://localhost:5000/api/store/deleteCombo', {
+      await axios.delete('/store/deleteCombo', {
         data: { combinationIds: selectedCombinations },
         headers: {
           Authorization: `Bearer ${token}`,
@@ -145,7 +145,7 @@ const HeadingCategoryCombo = () => {
   };
 
   return (
-    <div className="p-4 bg-white rounded">
+    <div className="p-4 bg-white rounded min-h-96">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-medium">
           Create Header and Category Combination
@@ -170,7 +170,7 @@ const HeadingCategoryCombo = () => {
 
       {/* Display "No combinations" message if no combinations */}
       {combinations.length === 0 ? (
-        <p>No combinations available.</p>
+        <p className='text-gray-400 text-center h-full'>No combinations available.</p>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 ">
           {combinations.map((combo) => (
@@ -210,93 +210,94 @@ const HeadingCategoryCombo = () => {
       )}
 
       <Dialog
-        open={isOpen}
-        onClose={handleCancel}
-        className="fixed inset-0 z-50 flex items-center justify-center w-full h-full"
-      >
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50"
-          onClick={handleCancel}
-        />
-        <div className="bg-white rounded-lg overflow-hidden shadow-xl max-w-6xl w-full max-h-[80vh] overflow-y-auto p-6 relative z-10">
-          <Dialog.Title className="text-lg font-medium leading-6 text-gray-900">
-            Select Heading and Categories
-          </Dialog.Title>
-          <hr className="my-4" />
-          <div className="mt-2">
+  open={isOpen}
+  onClose={handleCancel}
+  className="fixed inset-0 z-50 flex items-center justify-center w-full h-full"
+>
+  <div
+    className="fixed inset-0 bg-black bg-opacity-50"
+    onClick={handleCancel}
+  />
+  <div className="bg-white rounded-lg overflow-hidden shadow-xl max-w-6xl w-full max-h-[80vh] overflow-y-auto p-6 relative z-10">
+    <Dialog.Title className="text-lg font-medium leading-6 text-gray-900">
+      Select Heading and Categories
+    </Dialog.Title>
+    <hr className="my-4" />
+    <div className="mt-2">
+      {/* Show message if no data available */}
+      {headings.length === 0 && categories.length === 0 ? (
+        <p className="text-center text-gray-700">No data available.</p>
+      ) : (
+        <>
+          {/* Show "Select Heading" only if headings are available */}
+          {headings.length > 0 && (
             <div className="mb-4">
               <h3 className="text-lg font-semibold mb-2">Select Heading</h3>
-
-              {/* Display "No headings" message if no headings */}
-              {headings.length === 0 ? (
-                <p>No headings available.</p>
-              ) : (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {headings.map((heading) => (
-                    <div
-                      key={heading._id}
-                      onClick={() => handleHeadingClick(heading._id)}
-                      className={`cursor-pointer text-center h-12 p-2 rounded border text-lg text-black ${
-                        selectedHeading === heading._id
-                          ? 'bg-blue-500 text-white'
-                          : 'bg-gray-200'
-                      }`}
-                    >
-                      {heading.heading}
-                    </div>
-                  ))}
-                </div>
-              )}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {headings.map((heading) => (
+                  <div
+                    key={heading._id}
+                    onClick={() => handleHeadingClick(heading._id)}
+                    className={`cursor-pointer text-center h-12 p-2 rounded border text-lg text-black ${
+                      selectedHeading === heading._id
+                        ? "bg-blue-500 text-white"
+                        : "bg-gray-200"
+                    }`}
+                  >
+                    {heading.heading}
+                  </div>
+                ))}
+              </div>
             </div>
+          )}
 
+          {/* Show "Select Categories" only if categories are available */}
+          {categories.length > 0 && (
             <div className="mb-4">
               <h3 className="text-lg font-semibold mb-2">Select Categories</h3>
-
-              {/* Display "No categories" message if no categories */}
-              {categories.length === 0 ? (
-                <p>No categories available.</p>
-              ) : (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {categories.map((category) => (
-                    <div
-                      key={category._id}
-                      onClick={() => handleCategoryClick(category._id)}
-                      className={`cursor-pointer text-lg h-12 text-center p-2 rounded border ${
-                        selectedCategories.includes(category._id)
-                          ? 'bg-green-500 text-white'
-                          : 'bg-gray-200'
-                      }`}
-                    >
-                      {category.name}
-                    </div>
-                  ))}
-                </div>
-              )}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {categories.map((category) => (
+                  <div
+                    key={category._id}
+                    onClick={() => handleCategoryClick(category._id)}
+                    className={`cursor-pointer text-lg h-12 text-center p-2 rounded border ${
+                      selectedCategories.includes(category._id)
+                        ? "bg-green-500 text-white"
+                        : "bg-gray-200"
+                    }`}
+                  >
+                    {category.name}
+                  </div>
+                ))}
+              </div>
             </div>
+          )}
+        </>
+      )}
 
-            <div className="flex justify-end gap-2 mt-10">
-              <button
-                onClick={handleSubmit}
-                className={`px-4 py-2 ${
-                  loading ? 'bg-gray-400' : 'bg-blue-500'
-                } text-white rounded`}
-                disabled={
-                  loading || !selectedHeading || selectedCategories.length === 0
-                }
-              >
-                {loading ? 'Saving...' : 'Save Combination'}
-              </button>
+      <div className="flex justify-end gap-2 mt-10">
+        <button
+          onClick={handleSubmit}
+          className={`px-4 py-2 ${
+            loading ? "bg-gray-400" : "bg-blue-500"
+          } text-white rounded`}
+          disabled={
+            loading || !selectedHeading || selectedCategories.length === 0
+          }
+        >
+          {loading ? "Saving..." : "Save Combination"}
+        </button>
 
-              <button
-                onClick={handleCancel}
-                className="px-4 py-2 bg-gray-500 text-white rounded"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      </Dialog>
+        <button
+          onClick={handleCancel}
+          className="px-4 py-2 bg-gray-300 text-white rounded"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+</Dialog>
     </div>
   );
 };

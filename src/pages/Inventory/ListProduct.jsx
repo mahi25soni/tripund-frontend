@@ -1,20 +1,28 @@
 import React, { useState, useEffect } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import Input from "../../atoms/Input";
-import axios from "../../../axios.jsx";
-import Spinner from "../../components/Spinner"; // Import the Spinner component
+import axios from "../../../axios";
+import Spinner from "../../components/Spinner"; 
 import { toast } from "react-toastify";
 import { BiSolidImageAdd } from "react-icons/bi";
 import { FaSearch } from "react-icons/fa";
+import { BsInfoCircle } from 'react-icons/bs';
 
-export const ListProduct = ({ props }) => {
-  const [images, setImages] = useState([null, null, null, null]); // Handle multiple images
+
+export const ListProduct = ({ props,onProductAdded }) => {
+  const [images, setImages] = useState([null, null, null, null]); 
   const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(false); // Loading state for spinner
-  const [searchTerm, setSearchTerm] = useState(""); // Search term state
-  const [suggestions, setSuggestions] = useState([]); // Suggestions state
+  const [loading, setLoading] = useState(false); 
+  const [searchTerm, setSearchTerm] = useState("");
+  const [suggestions, setSuggestions] = useState([]); 
+  const isEditMode = location.pathname.includes("edit");
+  const { id } = useParams();
 
   // States for form fields
+  const[editData,setEditData] =useState("");
   const [productName, setProductName] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState([]);
+
   const [productQuantity, setProductQuantity] = useState("");
   const [productMRP, setProductMRP] = useState("");
   const [description, setDescription] = useState("");
@@ -22,15 +30,16 @@ export const ListProduct = ({ props }) => {
   const [gst, setGst] = useState("");
   const [totalStock, setTotalStock] = useState("");
   const [thresholdStock, setThresholdStock] = useState("");
-  
+  const [showCategoryPopup, setShowCategoryPopup] = useState(false);
 
   const UserToken = localStorage.getItem("token");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/store/getCategories",
+          "/store/getCategories",
           {
             headers: {
               Authorization: `Bearer ${UserToken}`,
@@ -38,6 +47,11 @@ export const ListProduct = ({ props }) => {
           }
         );
         setCategories(response.data);
+
+        if (response?.data?.length === 0) {
+          setShowCategoryPopup(true);
+        }
+
       } catch (error) {
         console.error("Error fetching categories:", error);
       }
@@ -46,7 +60,6 @@ export const ListProduct = ({ props }) => {
     fetchCategories();
   }, [UserToken]);
 
-  // Fetch products for suggestions based on search term
   useEffect(() => {
     const fetchSuggestions = async () => {
       if (searchTerm.length > 0) {
@@ -71,48 +84,84 @@ export const ListProduct = ({ props }) => {
     fetchSuggestions();
   }, [searchTerm, UserToken]);
 
+  useEffect(() => {
+    if (isEditMode && id) {
+      const fetchProductDetails = async () => {
+        try {
+          const { data } = await axios.get(`/storedata/get-store-product-by-id/${id}`, {
+            headers: {
+              Authorization: `Bearer ${UserToken}`,
+            },
+          });
+          console.log("Fetched data for edit:", data);
+          setEditData(data?.data);
+          setSelectedCategory(data?.data?.product_category.name);
+          setProductName(data?.data.product_name);
+          setProductQuantity(data?.data.product_quantity);
+          setProductMRP(data?.data.product_mrp);
+          setDescription(data?.data.description);
+          setBrandName(data?.data?.brand_name);
+          setGst(data?.data.gst);
+          setTotalStock(data?.data?.total_stock);
+          setThresholdStock(data?.data?.threshold_stock);
+          const productImages = data?.data?.product_img;
+          setImages([
+            productImages[0] || null,
+            productImages[1] || null,
+            productImages[2] || null,
+            productImages[3] || null,
+          ]);   } catch (error) {
+          console.error("Error fetching product details:", error);
+        }
+      };
+
+      fetchProductDetails();
+    }
+  }, [isEditMode, id, UserToken]);
+
   const addProductHandle = async (event) => {
     event.preventDefault();
-    setLoading(true); // Start spinner
+    setLoading(true);
     const formData = new FormData(event.target);
 
     images.forEach((image, index) => {
       if (typeof image === "string") {
         formData.append(`product_image_url_${index}`, image);
       } else if (image) {
-        formData.append(`product_image_${index}`, image);
+        formData.append(`product_img`, image);
       }
     });
 
     try {
-      const { data } = await axios.post(
-        "/storedata/add-product-to-store/",
-        formData,
-        {
+      if (isEditMode) {
+        // Update product
+        await axios.put(`/storedata/update-store-product/${id}`, formData, {
           headers: {
             Authorization: `Bearer ${UserToken}`,
           },
-        }
-      );
-
-      toast.success("Product listed successfully!");
-
-      if (props?.setStoreProductList) {
-        const { setStoreProductList, setAddProductPopUp } = props;
-        setStoreProductList((prevData) => [...prevData, data?.data]);
-        setAddProductPopUp(false);
+        });
+        toast.success("Product updated successfully!");
+      } else {
+        // Add new product
+        const { data } = await axios.post(
+          "/storedata/add-product-to-store",
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${UserToken}`,
+            },
+          }
+        );
+        toast.success("Product added successfully!");
+        onProductAdded(data?.data?.data);
+        
       }
-
-      // Clear fields
-      setImages([null, null, null, null]);
-      setSearchTerm(""); // Clear search term
-      setSuggestions([]); // Clear suggestions
-      event.target.reset();
+      navigate("/inventory/view-all");
     } catch (error) {
-      console.error("Error adding product:", error);
-      toast.error("Failed to list product.");
+      console.error("Error Updating product:", error);
+      toast.error("Failed to update product.");
     } finally {
-      setLoading(false); // Stop spinner
+      setLoading(false);
     }
   };
 
@@ -140,7 +189,7 @@ export const ListProduct = ({ props }) => {
     const file = event.target.files[0];
     if (file) {
       const updatedImages = [...images];
-      updatedImages[index] = file; // Update the specific image in the array
+      updatedImages[index] = file; 
       setImages(updatedImages);
     }
   };
@@ -148,8 +197,30 @@ export const ListProduct = ({ props }) => {
   return (
     <div className="bg-white px-4 py-4 m-2 rounded-lg border-3">
       {loading && <Spinner />} 
+
+      {showCategoryPopup && (
+        <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded shadow-lg text-center w-72 ">
+          <BsInfoCircle className="text-red-500 text-center w-full" size={20}/>
+            <h2 className="text-lg font-semibold my-4 text-red-500">No Categories Found!</h2>
+            <p className="mb-4 text-gray-600 text-center">
+              You need to create at least one category to add a product.
+            </p>
+            <Link to='/category'>
+
+
+            <button
+              className="px-4 py-2 bg-blue-500 text-white rounded hover:border hover:border-blue-600 "
+            >
+              Go to Category Page
+            </button>
+            </Link>
+          </div>
+        </div>
+      )}
+
       <div className="flex gap-4 justify-between">
-      <div className="text-xl font-medium mb-2 text-gray-700">Add Product</div>
+      <div className="text-xl font-medium mb-2 text-gray-700">{isEditMode ? "Edit Product" : "Add Product"}</div>
       <div className="mb-4 w-1/2 relative">
       <div className="flex items-center border-none rounded-md overflow-hidden">
         <span className="p-3 text-blue-500 border">
@@ -182,10 +253,13 @@ export const ListProduct = ({ props }) => {
       )}
     </div>
     </div>
+    
+
+    {(isEditMode && (!editData)) ? (
+  <Spinner />
+) : (
       <form onSubmit={addProductHandle}>
-       
         <div className="flex gap-8 w-full justify-between">
-          {/* Basic Product Info */}
           <div className="w-full flex gap-4">
             <div className="mb-2 w-1/2">
               <label
@@ -194,32 +268,34 @@ export const ListProduct = ({ props }) => {
                 Product Name
               </label>
               <Input
-                name="product_name"
-                value={productName}
+                type="text"
+    id="productName"
+    name="product_name"
+    value={productName}
                 onChange={(e) => setProductName(e.target.value)}
               />
             </div>
 
             {/* Category Section */}
             <div className="mb-2 w-1/2">
-              <label
-                htmlFor="product_category"
-              >
-                Category
-              </label>
-              <select
-                id="product_category"
-                name="product_category"
-                className="bg-white border border-gray-300 rounded py-3 px-3.5 text-gray-900 placeholder:text-gray-400  outline-none w-full"
-              >
-                <option value="">Select Category</option>
-                {categories.map((category) => (
-                  <option key={category._id} value={category._id}>
-                    {category.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+  <label htmlFor="product_category">Category</label>
+  <select
+    id="product_category"
+    name="product_category"
+    className="bg-white border border-gray-300 rounded py-3 px-3.5 text-gray-900 placeholder:text-gray-400 outline-none w-full"
+    defaultValue={selectedCategory} 
+  >
+    <option disabled value="">
+      Select Category
+    </option>
+    {categories?.map((category) => (
+      <option key={category._id} value={category._id}>
+        {category.name}
+      </option>
+    ))}
+  </select>
+</div>
+
           </div>
         </div>
 
@@ -304,9 +380,6 @@ export const ListProduct = ({ props }) => {
   </div>
 </div>
 </div>
-
-
-
         <div className="mb-6">
           <label
             htmlFor="description"
@@ -333,7 +406,6 @@ export const ListProduct = ({ props }) => {
             >
               {image ? (
                 typeof image === "string" ? (
-                  // If the image is a URL from the backend
                   <img
                     name="product_img"
                     src={image}
@@ -341,7 +413,6 @@ export const ListProduct = ({ props }) => {
                     className="w-full h-full object-cover rounded-lg"
                   />
                 ) : (
-                  // If the image is a File object
                   <img
                     src={URL.createObjectURL(image)}
                     alt={`Preview ${index}`}
@@ -367,9 +438,10 @@ export const ListProduct = ({ props }) => {
           className="px-4 w-1/2 mt-4 py-2.5 border-2 rounded bg-blue-700 text-white border-blue-700"
           type="submit"
         >
-          Add Product
-        </button>
+          {isEditMode ? "Update Product" : "Add Product"}
+          </button>
       </form>
+)}
     </div>
   );
 };

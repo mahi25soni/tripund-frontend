@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import axios from '../../axios';
 import { FiBell, FiSearch } from 'react-icons/fi';
 import { FaUserCircle } from 'react-icons/fa';
 import { BsQrCodeScan } from 'react-icons/bs';
-import QrCodeGenerator from './QRCodeGenerator'; // Adjust the import path as needed
+import QrCodeGenerator from './QRCodeGenerator'; 
+import { Link } from 'react-router-dom';
+import { useSocket } from './Context/SocketContext';
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const TopBar = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -12,60 +16,47 @@ const TopBar = () => {
   const [userName, setUserName] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [notificationsOpen, setNotificationsOpen] = useState(false);
-  const [notifications, setNotifications] = useState([]);
   const navigate = useNavigate();
+  const { notifications } = useSocket(); 
+  const [storeName, setStoreName] = useState('');
+
 
   useEffect(() => {
-    const fetchUserData = async () => {
+    const fetchUserDataAndStoreData = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/login'); // Navigate to login if no token is found
+        return;
+      }
+  
       try {
-        const token = localStorage.getItem('token');
-        if (token) {
-          const config = {
-            headers: { Authorization: `Bearer ${token}` },
-          };
-          const response = await axios.get('http://localhost:5000/api/auth/user', config);
-          setUserName(response.data.name);
+        // Configure headers for requests
+        const config = { headers: { Authorization: `Bearer ${token}` } };
+  
+        // Fetch user data
+        const userResponse = await axios.get('/auth/user', config);
+        setUserName(userResponse.data.name);
+  
+        // Fetch store data
+        const storeResponse = await axios.get('/store/storeId', config);
+        setStoreName(storeResponse.data.store.storeName);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+  
+        if (error.response && error.response.status === 404) {
+          // Navigate to createStore if store data is not found
+          toast.error("Store does not exist. Redirecting to create store...");
+          navigate('/createStore');
         } else {
-          navigate('/login'); // Redirect to login if no token
+          // Navigate to login for other errors
+          navigate('/login');
         }
-      } catch (error) {
-        console.error('Failed to fetch user data:', error);
-        navigate('/login'); // Redirect to login if fetch fails
       }
     };
-
-    fetchUserData();
+  
+    fetchUserDataAndStoreData();
   }, [navigate]);
-
-  useEffect(() => {
-    const fetchOrderNotifications = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        if (token) {
-          const response = await axios.get("/orders/getOrders", {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            params: {
-              page: 1,
-              limit: 10,
-            },
-          });          
-          
-          const orderNotifications = response.data.orders.map((order) => {
-            return `Order #${order.orderId} status: ${order.status}`;
-          });
-          setNotifications(orderNotifications);
-        }
-        
-      } catch (error) {
-        console.error('Failed to fetch order notifications:', error);
-      }
-    };
-
-    fetchOrderNotifications();
-  }, []);
+  
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -86,13 +77,16 @@ const TopBar = () => {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    // Perform the search action here, e.g., navigate to a search results page
     console.log('Search query:', searchQuery);
   };
+
+  const unreadCount = notifications.filter(notification => !notification.read).length;
+
 
   return (
     <div className="h-16 w-5/6 bg-white flex items-center justify-between px-6 shadow fixed top-0 left-64 z-10">
       <div className="flex items-center">
+      <ToastContainer/>
         <form onSubmit={handleSearch} className="relative">
           {/* <input
             type="text"
@@ -108,27 +102,18 @@ const TopBar = () => {
       </div>
 
       <div className="flex items-center relative">
-        <div className="text-black text-lg font-medium mr-6">{userName || 'My Dashboard'}</div>
+        <div className="text-black text-lg font-medium mr-6">{storeName || userName || 'My Dashboard'}</div>
         <BsQrCodeScan className="text-black text-xl mr-6 cursor-pointer" onClick={toggleQrCodePopup} />
 
-        <div className="relative">
-          <FiBell className="text-black text-xl mr-6 cursor-pointer" onClick={toggleNotifications} />
-          {notificationsOpen && (
-            <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-200 shadow-md rounded-lg z-10">
-              <div className="px-4 py-2 font-bold text-gray-700">Notifications</div>
-              <div className="divide-y divide-gray-200">
-                {notifications.length > 0 ? (
-                  notifications.map((notification, index) => (
-                    <div key={index} className="px-4 py-2 text-gray-600 hover:bg-gray-100 cursor-pointer">
-                      {notification}
-                    </div>
-                  ))
-                ) : (
-                  <div className="px-4 py-2 text-gray-600">No new notifications</div>
-                )}
-              </div>
-            </div>
-          )}
+        <div className="relative mr-4">
+          <Link to='/notification' className="relative">
+              <FiBell className="text-black text-xl m-2 cursor-pointer" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full px-2 py-1 text-xs font-bold">
+                  {unreadCount}
+                </span>
+              )}
+            </Link>
         </div>
 
         <FaUserCircle className="text-black text-3xl cursor-pointer" onClick={toggleDropdown} />

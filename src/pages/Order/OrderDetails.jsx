@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
-import axios from "axios";
+import axios from "../../../axios";
 import OrderBill from "./OrderBill";
 import { GoDownload } from "react-icons/go";
 
@@ -9,7 +9,7 @@ const OrderDetails = ({ order, onClose }) => {
   const [store, setStore] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  if (!order) return null; // Render nothing if no order data is provided
+  if (!order) return null; 
 
   const calculateOrderValue = (product_mrp, quantity) => {
     return product_mrp * quantity;
@@ -19,7 +19,7 @@ const OrderDetails = ({ order, onClose }) => {
     const fetchStoreDetails = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.get("http://localhost:5000/api/store/storeDetails", {
+        const response = await axios.get("/store/storeDetails", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -27,7 +27,6 @@ const OrderDetails = ({ order, onClose }) => {
         setStore(response.data); // Assuming the store data is in the first element of the array
       } catch (error) {
         console.error("Error fetching store details:", error);
-        // Consider showing an error message to the user here
       } finally {
         setLoading(false);
       }
@@ -39,21 +38,17 @@ const OrderDetails = ({ order, onClose }) => {
   const downloadPDF = async () => {
     const input = document.getElementById("pdf-content");
 
-    // Use a higher scale for better quality
     const canvas = await html2canvas(input, { scale: 3, useCORS: true });
 
-    // Convert canvas to image data
     const imgData = canvas.toDataURL("image/png");
 
-    // Initialize jsPDF with the right dimensions for A4
     const pdf = new jsPDF({
-      orientation: "portrait", // or "landscape"
+      orientation: "portrait", 
       unit: "mm",
-      format: [210, 297], // A4 size
+      format: [210, 297], 
     });
 
-    // Adjust the position and size of the image in the PDF
-    const imgWidth = 210; // Full width of A4
+    const imgWidth = 210; 
     const pageHeight = 297;
     const imgHeight = (canvas.height * imgWidth) / canvas.width;
     let heightLeft = imgHeight;
@@ -62,7 +57,6 @@ const OrderDetails = ({ order, onClose }) => {
     pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
     heightLeft -= pageHeight;
 
-    // If the content exceeds one page, add new pages
     while (heightLeft >= 0) {
       position = heightLeft - imgHeight;
       pdf.addPage();
@@ -119,7 +113,7 @@ const OrderDetails = ({ order, onClose }) => {
             <div key={index} className="grid grid-cols-3 h-20 text-center">
               <div className="flex items-center gap-4">
                 <img
-                  src={product.productId?.product_image_url}
+                  src={product.productId?.product_img}
                   alt={product.productId?.product_name}
                   style={{
                     width: "60px",

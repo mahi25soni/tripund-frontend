@@ -3,16 +3,24 @@ import { useNavigate } from "react-router-dom";
 import { ListProduct } from "../pages/Inventory/ListProduct";
 import axios from "../../axios.jsx";
 import moment from "moment";
-import Spinner from "../components/Spinner"; // Import the Spinner
+import Spinner from "../components/Spinner"; 
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+import { FaTrashAlt, FaEdit } from "react-icons/fa"; 
+import DeleteAlertPopup from "../atoms/DeleteAlertPopup.jsx";
+import { showToast } from "../atoms/Toast.jsx";
 
 export const InventoryCatelogue = () => {
   const [storeProductList, setStoreProductList] = useState([]);
-  const [loading, setLoading] = useState(true); // State to manage loading
+  const [loading, setLoading] = useState(true);
   const [addProductPopUp, setAddProductPopUp] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const navigate = useNavigate();
   const UserToken = localStorage.getItem("token");
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [selectedProductId, setSelectedProductId] = useState(null);
 
   useEffect(() => {
     (async () => {
@@ -31,13 +39,44 @@ export const InventoryCatelogue = () => {
       } catch (error) {
         console.error("Error fetching inventory:", error);
       } finally {
-        setLoading(false); // Stop loading after data is fetched
+        setLoading(false);
       }
     })();
   }, [currentPage, UserToken]);
 
   const handleProductClick = (productId) => {
     navigate(`/inventory/product/${productId}`);
+  };
+
+  const handleEditProduct = (productId) => {
+    navigate(`/inventory/edit-product/${productId}`); 
+  };
+
+  const handleDeleteProduct = async (productId) => {
+    try {
+      await axios.delete(`/storedata/delete-store-product/${productId}`, {
+        headers: {
+          Authorization: `Bearer ${UserToken}`,
+        },
+      });
+
+      setStoreProductList((prevList) =>
+        prevList.filter((product) => product._id !== selectedProductId)
+      );
+      setIsPopupOpen(false); 
+      showToast('Deleted Successfully!', 'success')
+
+
+    } catch (error) {
+      console.error("Error deleting product:", error);
+      showToast('Failed to delete!', 'error')
+
+    }
+  };
+
+  const openDeletePopup = (productId) => {
+    setSelectedProductId(productId);
+    setIsPopupOpen(true);
   };
 
   return (
@@ -52,17 +91,11 @@ export const InventoryCatelogue = () => {
             >
               Add Product
             </button>
-            {/* <button className="px-4 py-2.5 border-2 rounded hover:bg-blue-700 hover:text-white hover:border-blue-700">
-              Filters
-            </button>
-            <button className="px-4 py-2.5 border-2 rounded hover:bg-blue-700 hover:text-white hover:border-blue-700">
-              Download All
-            </button> */}
           </div>
         </div>
 
         {loading ? (
-          <Spinner /> 
+          <Spinner />
         ) : storeProductList.length === 0 ? (
           <p className="text-center py-4 text-gray-500 h-92">
             No products listed, add now!
@@ -71,33 +104,44 @@ export const InventoryCatelogue = () => {
           <>
             <div className="my-4">
               <div className="flex items-center justify-between border-b-2 text-left font-bold text-md text-gray-600 p-1 font-Mont">
-                <h6 className="w-1/2 py-1">Products</h6>
-                <h6 className="w-1/2 py-1">MRP</h6>
-                <h6 className="w-1/2 py-1">Quantity</h6>
-                <h6 className="w-1/2 py-1">Total Stock</h6>
-                <h6 className="w-1/2 py-1">Threshold Stock</h6>
-                <h6 className="w-1/2 py-1">Availability</h6>
+                <h6 className="w-1/6 py-1">Products</h6>
+                <h6 className="w-1/6 py-1">MRP</h6>
+                <h6 className="w-1/6 py-1">Quantity</h6>
+                <h6 className="w-1/6 py-1">Total Stock</h6>
+                <h6 className="w-1/6 py-1">Threshold Stock</h6>
+                <h6 className="w-1/6 py-1">Availability</h6>
+                <h6 className="w-1/6 py-1">Actions</h6> {/* Action column */}
               </div>
 
               {storeProductList?.map((item, index) => (
                 <div
                   key={index}
                   className="flex items-center justify-between border-b-2 text-left font-medium p-1 cursor-pointer"
-                  onClick={() => handleProductClick(item._id)}
                 >
-                  <p className="w-1/2 py-1">{item?.product_name}</p>
-                  <p className="w-1/2 py-1">{item?.product_mrp}</p>
-                  <p className="w-1/2 py-1">{item?.product_quantity}</p>
-                  <p className="w-1/2 py-1">{item?.total_stock}</p>
-                  <p className="w-1/2 py-1">{item?.threshold_stock}</p>
-                  
-                  <p className="w-1/2 py-1">
+                  <p className="w-1/6 py-1" onClick={() => handleProductClick(item._id)}>
+                    {item?.product_name}
+                  </p>
+                  <p className="w-1/6 py-1">{item?.product_mrp}</p>
+                  <p className="w-1/6 py-1">{item?.product_quantity}</p>
+                  <p className="w-1/6 py-1">{item?.total_stock}</p>
+                  <p className="w-1/6 py-1">{item?.threshold_stock}</p>
+                  <p className="w-1/6 py-1">
                     {item?.total_stock > item?.threshold_stock ? (
                       <span className="font-bold text-green-600">In-Stock</span>
                     ) : (
                       <span className="font-bold text-red-600">Out of stock</span>
                     )}
                   </p>
+                  <div className="w-1/6 flex justify-start gap-4">
+                    <FaEdit
+                      className="text-blue-600 cursor-pointer hover:text-blue-800"
+                      onClick={() => handleEditProduct(item._id)} // Edit product
+                    />
+                    <FaTrashAlt
+                      className="text-red-600 cursor-pointer hover:text-red-800"
+                      onClick={() => openDeletePopup(item._id)}
+                      />
+                  </div>
                 </div>
               ))}
             </div>
@@ -105,20 +149,18 @@ export const InventoryCatelogue = () => {
             <div className="flex justify-between items-center">
               <button
                 className="border-2 border-gray-400 rounded py-2 px-4"
-                disabled={currentPage === 1 || storeProductList.length === 0} // Disable if no data or on first page
-                onClick={() => {
-                  setCurrentPage(currentPage - 1);
-                }}
+                disabled={currentPage === 1 || storeProductList.length === 0}
+                onClick={() => setCurrentPage(currentPage - 1)}
               >
                 Previous
               </button>
-              <p className="text-sm font-normal">Page {currentPage} of {totalPages}</p>
+              <p className="text-sm font-normal">
+                Page {currentPage} of {totalPages}
+              </p>
               <button
                 className="border-2 border-gray-400 rounded py-2 px-4"
-                disabled={currentPage === totalPages || storeProductList.length === 0} // Disable if no data or on last page
-                onClick={() => {
-                  setCurrentPage(currentPage + 1);
-                }}
+                disabled={currentPage === totalPages || storeProductList.length === 0}
+                onClick={() => setCurrentPage(currentPage + 1)}
               >
                 Next
               </button>
@@ -130,10 +172,9 @@ export const InventoryCatelogue = () => {
       {addProductPopUp && (
         <div className="fixed inset-0 flex h-screen items-center justify-center bg-black bg-opacity-50 z-50 overflow-auto ">
           <div className="bg-white h-screen p-2 rounded-lg overflow-auto relative">
-            {/* Close Button */}
             <button
               className="relative top-4 right-4 bg-red-600 text-white px-3 py-1 rounded"
-              onClick={() => setAddProductPopUp(false)} // Close the popup
+              onClick={() => setAddProductPopUp(false)}
             >
               Close
             </button>
@@ -141,10 +182,26 @@ export const InventoryCatelogue = () => {
             <ListProduct
               setStoreProductList={setStoreProductList}
               setAddProductPopUp={setAddProductPopUp}
+              onProductAdded={(prevList) => {
+                setStoreProductList((prevList) =>
+        prevList.filter((product) => product._id !== selectedProductId)
+      );                setAddProductPopUp(false); 
+              }}
             />
           </div>
+          
         </div>
       )}
+      <div>
+      <DeleteAlertPopup
+        isOpen={isPopupOpen}
+        message="Are you sure you want to delete this product? This action cannot be undone."
+        onConfirm={handleDeleteProduct}
+        onCancel={() => setIsPopupOpen(false)}
+      />
+      </div>
+      <ToastContainer />
+
     </>
   );
 };

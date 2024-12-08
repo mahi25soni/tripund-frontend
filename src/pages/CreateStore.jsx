@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import axios from '../../axios';
 import { useNavigate } from 'react-router-dom';
-import { toast, ToastContainer } from 'react-toastify'; // Import ToastContainer
-import 'react-toastify/dist/ReactToastify.css'; // Import CSS for react-toastify
-import { AiOutlineShop, AiOutlineMail, AiOutlineEnvironment } from 'react-icons/ai'; // Icons for business type, email, and location
-import { FiCamera } from 'react-icons/fi'; // Icon for logo upload
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { AiOutlineShop, AiOutlineMail, AiOutlineEnvironment, AiOutlinePhone } from 'react-icons/ai';
+import { FiCamera } from 'react-icons/fi';
+import { BsInfoCircle } from 'react-icons/bs';
+import { ClipLoader } from 'react-spinners';
 import MouseImg from '../images/Mouse.png';
 import tripund from '../images/tripund.jpeg';
-import { BsInfoCircle } from 'react-icons/bs'; 
-import { ClipLoader } from 'react-spinners';
+import { showToast } from "../atoms/Toast"; 
+
 const StoreForm = () => {
   const [formData, setFormData] = useState({
     logo: null,
@@ -16,54 +18,91 @@ const StoreForm = () => {
     storeCategory: '',
     storeName: '',
     email: '',
-    location: ''
+    location: '',
+    mobile: ''
   });
 
   const [logoPreview, setLogoPreview] = useState(null);
-  const [loading, setLoading] = useState(false); // Loader state
+  const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     if (name === 'logo') {
       setFormData({ ...formData, logo: files[0] });
-      setLogoPreview(URL.createObjectURL(files[0])); // Preview the logo
+      setLogoPreview(URL.createObjectURL(files[0]));
     } else {
       setFormData({ ...formData, [name]: value });
     }
   };
 
-  const navigate = useNavigate();
+  const handleLocationChange = (address) => {
+    setFormData({ ...formData, location: address });
+  };
+
+  const validateMobile = () => {
+    const mobileRegex = /^\d{10}$/;
+    return mobileRegex.test(formData.mobile);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true); // Start loader
+    if (!validateMobile()) {
+      toast.error('Mobile number must have 10 digits.');
+      return;
+    }
+    setLoading(true);
 
     const data = new FormData();
     for (const key in formData) {
       data.append(key, formData[key]);
     }
 
-    const token = localStorage.getItem('token'); 
+    const token = localStorage.getItem('token');
 
     try {
-      await axios.post('http://localhost:5000/api/store/create', data, {
+      await axios.post('/store/create', data, {
         headers: {
           'Content-Type': 'multipart/form-data',
-          'Authorization': `Bearer ${token}` 
+          Authorization: `Bearer ${token}`
         }
       });
-      toast.success('Store created successfully!');
+      showToast('Store created successfully!', "success");
       navigate('/dashboard');
     } catch (err) {
-      toast.error('Error creating store: ' + (err.response?.data || err.message));
+      showToast('Failed! Try again',"error");
     } finally {
-      setLoading(false); // Stop loader
+      setLoading(false);
     }
   };
 
+  const loadGoogleMapsAPI = () => {
+    const google = window.google;
+    const autocomplete = new google.maps.places.Autocomplete(
+      document.getElementById('location'),
+      { types: ['geocode'] }
+    );
+    autocomplete.addListener('place_changed', () => {
+      const place = autocomplete.getPlace();
+      handleLocationChange(place.formatted_address);
+    });
+  };
+
+  React.useEffect(() => {
+    if (!window.google) {
+      const script = document.createElement('script');
+      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyDqp6ukm--d3iZKhlH23VgiGVieq4HsH4Q&libraries=places`;
+      script.async = true;
+      script.onload = loadGoogleMapsAPI;
+      document.body.appendChild(script);
+    } else {
+      loadGoogleMapsAPI();
+    }
+  }, []);
+
   return (
     <div className="h-screen flex items-center justify-center bg-blue-100">
-      <ToastContainer /> {/* Add ToastContainer here */}
       <div className="w-1/2 bg-white h-screen">
         <div className="w-fit m-auto py-32">
           <img className="w-60 m-auto" src={MouseImg} alt="Mouse" />
@@ -77,7 +116,7 @@ const StoreForm = () => {
           </div>
         </div>
       </div>
-      <div className="w-1/2 pl-12 bg">
+      <div className="w-1/2 pl-12">
         <div className="bg-white p-8 rounded shadow-md w-full max-w-md ml-20">
           <div className="flex items-center justify-center mb-4">
             <BsInfoCircle className="text-blue-500 mr-2" size={24} />
@@ -112,6 +151,7 @@ const StoreForm = () => {
                 </label>
               </div>
             </div>
+            {/* Business Type */}
             <div className="mb-4 flex space-x-4">
               <div className="w-1/2">
                 <label className="block text-gray-700 flex items-center">
@@ -130,6 +170,7 @@ const StoreForm = () => {
                   <option value="Supplier">Supplier</option>
                 </select>
               </div>
+              {/* Store Category */}
               <div className="w-1/2">
                 <label className="block text-gray-700 flex items-center">
                   <AiOutlineShop className="mr-2" />
@@ -150,6 +191,7 @@ const StoreForm = () => {
                 </select>
               </div>
             </div>
+            {/* Store Name */}
             <div className="mb-4">
               <label className="block text-gray-700 flex items-center">
                 <AiOutlineShop className="mr-2" />
@@ -160,10 +202,44 @@ const StoreForm = () => {
                 name="storeName"
                 value={formData.storeName}
                 onChange={handleChange}
-                className="form-input mt-1 block w-full rounded border border-gray-300 py-2"
+                className="form-input mt-1 px-2 block w-full rounded border border-gray-300 py-2"
                 required
               />
             </div>
+            
+            <div className="mb-4">
+              <label className="block text-gray-700 flex items-center">
+                <AiOutlineEnvironment className="mr-2" />
+                Store Location
+              </label>
+              <input
+                type="text"
+                id="location"
+                name="location"
+                value={formData.location}
+                onChange={handleChange}
+                className="form-input mt-1 px-2 block w-full rounded border border-gray-300 py-2"
+                placeholder="Enter your location"
+                required
+              />
+            </div>
+            {/* Mobile Number */}
+            <div className="mb-4">
+              <label className="block text-gray-700 flex items-center">
+                <AiOutlinePhone className="mr-2" />
+                Mobile Number
+              </label>
+              <input
+                type="text"
+                name="mobile"
+                value={formData.mobile}
+                onChange={handleChange}
+                className="form-input mt-1 px-2 block w-full rounded border border-gray-300 py-2"
+                placeholder="+91XXXXXXXXXX"
+                required
+              />
+            </div>
+            {/* Email Address */}
             <div className="mb-4">
               <label className="block text-gray-700 flex items-center">
                 <AiOutlineMail className="mr-2" />
@@ -174,37 +250,28 @@ const StoreForm = () => {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="form-input mt-1 block w-full rounded border border-gray-300 py-2"
+                className="form-input mt-1 px-2 block w-full rounded border border-gray-300 py-2"
                 required
               />
             </div>
-            <div className="mb-4">
-              <label className="block text-gray-700 flex items-center">
-                <AiOutlineEnvironment className="mr-2" />
-                Store Location
-              </label>
-              <input
-                type="text"
-                name="location"
-                value={formData.location}
-                onChange={handleChange}
-                className="form-input mt-1 block w-full rounded border border-gray-300 py-2"
-                required
-              />
+           
+            
+            {/* Submit Button */}
+            <div className="mt-6">
+              <button
+                type="submit"
+                disabled={loading}
+                className={`w-full py-2 px-4 rounded-md text-white ${
+                  loading ? 'bg-gray-400' : 'bg-blue-600 hover:bg-blue-700'
+                }`}
+              >
+                {loading ? <ClipLoader size={20} color="#ffffff" /> : 'Submit'}
+              </button>
             </div>
-            <button
-              type="submit"
-              className="bg-blue-500 w-full text-white py-2 px-4 rounded hover:bg-blue-600 relative"
-            >
-              {loading ? (
-                <ClipLoader color="#fff" size={20} />
-              ) : (
-                'Create Store'
-              )}
-            </button>
           </form>
         </div>
       </div>
+      <ToastContainer />
     </div>
   );
 };

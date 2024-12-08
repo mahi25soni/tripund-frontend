@@ -4,10 +4,14 @@ import { IoAddSharp } from "react-icons/io5";
 import moment from "moment";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import axios from '../../axios.jsx';
-import Spinner from './Spinner'; // Assume you have a Spinner component
+import axios from "../../axios.jsx";
+import Spinner from "./Spinner"; // Assume you have a Spinner component
 
-export const OfferList = ({ setAllOffersList, allOffersList, setCurrentSingleOffer }) => {
+export const OfferList = ({
+  setAllOffersList,
+  allOffersList,
+  setCurrentSingleOffer,
+}) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isDropdownOpen, setIsDropdownOpen] = useState({});
   const UserToken = localStorage.getItem("token");
@@ -15,12 +19,12 @@ export const OfferList = ({ setAllOffersList, allOffersList, setCurrentSingleOff
   useEffect(() => {
     const fetchOffers = async () => {
       try {
-        const { data } = await axios.get('/offer/get-all', {
+        const { data } = await axios.get("/offer/get-all", {
           headers: {
             Authorization: "Bearer " + UserToken,
           },
         });
-  
+
         if (data?.success) {
           // Only update if the offers have changed
           if (JSON.stringify(allOffersList) !== JSON.stringify(data.offers)) {
@@ -35,15 +39,14 @@ export const OfferList = ({ setAllOffersList, allOffersList, setCurrentSingleOff
         setIsLoading(false);
       }
     };
-  
+
     fetchOffers();
   }, [UserToken, setAllOffersList]);
-  
 
   const toggleDropdown = (offerId) => {
     setIsDropdownOpen((prevData) => ({
       ...prevData,
-      [offerId]: !isDropdownOpen[offerId]
+      [offerId]: !isDropdownOpen[offerId],
     }));
   };
 
@@ -66,7 +69,9 @@ export const OfferList = ({ setAllOffersList, allOffersList, setCurrentSingleOff
       });
 
       if (data?.success) {
-        const updatedOffers = allOffersList.filter((offer) => offer?._id !== offerId);
+        const updatedOffers = allOffersList.filter(
+          (offer) => offer?._id !== offerId
+        );
         setAllOffersList(updatedOffers);
         toast.success("Offer deleted successfully!");
       } else {
@@ -85,7 +90,7 @@ export const OfferList = ({ setAllOffersList, allOffersList, setCurrentSingleOff
       <>
         <ToastContainer />
         <div className="flex justify-center items-center h-full">
-          <Spinner /> 
+          <Spinner />
         </div>
       </>
     );
@@ -99,11 +104,20 @@ export const OfferList = ({ setAllOffersList, allOffersList, setCurrentSingleOff
           return (
             <div
               key={offer._id}
-              className="h-64 w-80 px-5  flex flex-col justify-evenly bg-white"
+              className=" w-80 px-5  flex flex-col justify-evenly bg-white"
             >
+              <div className="h-36 w-full rounded-md">
+                <img
+                  src={offer?.offer_banner} 
+                  alt={`${offer?.offer_heading} banner`}
+                  className="h-full w-full object-cover"
+                />
+              </div>
               <div className="flex justify-between items-center relative">
-                <div className="text-green-500 bg-green-200 font-bold text-xl p-2 rounded-md">
-                  {offer?.offer_discount}%
+                <div>
+                  <p className="text-xl font-semibold">
+                    {offer?.offer_heading}
+                  </p>
                 </div>
                 <FiMoreVertical
                   className="h-5 w-5 cursor-pointer"
@@ -132,18 +146,22 @@ export const OfferList = ({ setAllOffersList, allOffersList, setCurrentSingleOff
                   </div>
                 )}
               </div>
-
-              <p className="text-2xl font-normal">{offer?.offer_heading}</p>
-              <p className="text-[18px] font-normal text-gray-600">
-                Validity: {moment(offer?.end_date).format("DD MMMM YYYY")}
-              </p>
-              <div className="flex justify-between items-center">
+              <div className="flex justify-between my-2">
+                <div className="text-green-500 bg-green-200 font-bold text-xl p-2 rounded-md ">
+                  {offer?.offer_discount}%
+                </div>
                 <div>
                   <span className="font-normal mr-1 text-xl">Product </span>
                   <div className="text-orange-500 bg-orange-200 px-2.5 py-1 inline rounded-md font-semibold">
                     {offer?.number_of_products}
                   </div>
                 </div>
+              </div>
+
+              <div className="flex justify-between items-center">
+                <p className="text-[18px] font-normal text-gray-400">
+                  Validity: {moment(offer?.end_date).format("DD MMMM YYYY")}
+                </p>
                 <button
                   className="p-1 bg-blue-500 rounded-md"
                   onClick={() => handleOpenOfferData(offer?._id)}

@@ -25,12 +25,16 @@ import 'react-toastify/dist/ReactToastify.css';
 import ForgotPassword from "./pages/Password/ForgotPassword";
 import ResetPassword from "./pages/Password/ResetPassword";
 import IconGallery from "./components/IconPack/IconGallery";
+import Notification from "./pages/Notification";
+import { SocketProvider } from "./components/Context/SocketContext";
 
 const App = () => {
   return (
     <Router>
+          <SocketProvider>
+
       <Layout>
-      <ToastContainer position="top-right" autoClose={3000} />
+      <ToastContainer />
 
         <Routes>
           {/* Public Routes */}
@@ -57,6 +61,15 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <Category />
+              </ProtectedRoute>
+            }
+          />
+
+<Route
+            path="/notification"
+            element={
+              <ProtectedRoute>
+                <Notification />
               </ProtectedRoute>
             }
           />
@@ -92,7 +105,7 @@ const App = () => {
             path="/inventory/edit-product/:id"
             element={
               <ProtectedRoute>
-                <ListProduct mode="edit" />
+                <ListProduct mode="edit"/>
               </ProtectedRoute>
             }
           />
@@ -149,6 +162,8 @@ const App = () => {
           {/* <Route path="*" element={<Navigate to="/signup" />} /> */}
         </Routes>
       </Layout>
+      </SocketProvider>
+      
     </Router>
   );
 };

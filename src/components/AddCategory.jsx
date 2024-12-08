@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from '../../axios';
-import { AiOutlineEdit } from 'react-icons/ai';
-import IconGallery from '../components/IconPack/IconGallery'; // Import the IconGallery component
+import { AiOutlineDelete, AiOutlineEdit } from 'react-icons/ai';
+import IconGallery from '../components/IconPack/IconGallery';
+import { showToast } from '../atoms/Toast'; 
+import DeleteAlertPopup from '../atoms/DeleteAlertPopup';
 
 const AddCategory = ({ categories, setCategories }) => {
   const [newCategory, setNewCategory] = useState('');
@@ -12,6 +14,8 @@ const AddCategory = ({ categories, setCategories }) => {
   const [editedCategory, setEditedCategory] = useState('');
   const [imagePreview, setImagePreview] = useState(null);
   const [isIconGalleryOpen, setIsIconGalleryOpen] = useState(false);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [selectedId, setSelectedId] = useState(null);
 
   useEffect(() => {
     if (editMode) {
@@ -23,52 +27,56 @@ const AddCategory = ({ categories, setCategories }) => {
       }
     }
   }, [editMode, categories]);
+
+
+  const openDeletePopup = (categoryId) => {
+    setSelectedId(categoryId);
+    setIsPopupOpen(true);
+  };
+
+
   const handleAddCategory = async () => {
     if (newCategory.trim() && imagePreview) {
       setLoading(true);
-  
-      // Log the data being sent
-      console.log("Sending data:", { name: newCategory.trim(), categoryImg: imagePreview });
-  
+
       const data = {
         name: newCategory.trim(),
-        categoryImg: imagePreview,  // Directly send the URL as a string
+        categoryImg: imagePreview,
       };
-  
+
       const token = localStorage.getItem('token');
-  
+
       try {
         const response = await axios.post('/store/addCategory', data, {
           headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',  // Use JSON instead of multipart/form-data
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
           },
         });
-  
-        // Update categories state with the newly added category
+
         setCategories([...categories, response.data]);
-  
-        // Reset form fields
+        showToast('Category added successfully!', 'success');
         setNewCategory('');
         setCategoryImg(null);
         setImagePreview(null);
         setIsOpen(false);
       } catch (error) {
         console.error('Error adding category:', error);
+        showToast('Failed to add category. Please try again.', 'error');
       } finally {
         setLoading(false);
       }
     } else {
-      console.log("Please provide both a category name and an icon URL.");
+      showToast('Please provide both a category name and an image.', 'warning');
     }
   };
-  
+
   const handleEditCategory = async () => {
     if (editedCategory.trim()) {
       setLoading(true);
       const formData = new FormData();
       formData.append('name', editedCategory.trim());
-      formData.append('categoryImg', imagePreview); // Pass the image URL for editing
+      formData.append('categoryImg', imagePreview);
       formData.append('id', editMode);
 
       const token = localStorage.getItem('token');
@@ -86,24 +94,50 @@ const AddCategory = ({ categories, setCategories }) => {
             category._id === editMode ? response.data : category
           )
         );
+        showToast('Category updated successfully!', 'success');
         setEditMode(null);
         setEditedCategory('');
         setImagePreview(null);
         setIsOpen(false);
       } catch (error) {
         console.error('Error editing category:', error);
+        showToast('Failed to update category. Please try again.', 'error');
       } finally {
         setLoading(false);
       }
+    } else {
+      showToast('Please provide a valid category name.', 'warning');
+    }
+  };
+
+  const handleDeleteCategory = async () => {
+    setLoading(true);
+    const token = localStorage.getItem('token');
+
+    try {
+      await axios.delete(`/store/deleteCategory/${selectedId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setCategories(categories.filter((category) => category._id !== selectedId));
+      showToast('Category deleted successfully!', 'success');
+      setIsPopupOpen(false); 
+
+    } catch (error) {
+      console.error('Error deleting category:', error);
+      showToast('Failed to delete category. Please try again.', 'error');
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleIconSelect = (url) => {
     setImagePreview(url);
-    setCategoryImg(url); // Ensure file input is cleared if using URL
+    setCategoryImg(url);
     setIsIconGalleryOpen(false);
   };
-  
 
   return (
     <div className="p-4 bg-white rounded-lg">
@@ -139,20 +173,28 @@ const AddCategory = ({ categories, setCategories }) => {
                 )}
               </div>
               <div className="text-lg font-medium flex-1">{category.name}</div>
-              <AiOutlineEdit
-                size={20}
-                className="cursor-pointer text-blue-500 hover:text-blue-700 absolute right-4 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100"
-                onClick={() => {
-                  setIsOpen(true);
-                  setEditMode(category._id);
-                }}
-              />
+              <div className="flex gap-2 absolute right-4 top-1/2 transform -translate-y-1/2 bg-slate-100 p-2 opacity-0 group-hover:opacity-100  ">
+  <AiOutlineEdit
+    size={20}
+    className="cursor-pointer text-blue-500 hover:text-blue-700"
+    onClick={() => {
+      setIsOpen(true);
+      setEditMode(category._id);
+    }}
+  />
+  <AiOutlineDelete
+    size={20}
+    className="cursor-pointer text-red-500 hover:text-red-700"
+    onClick={() => openDeletePopup(category._id)}
+  />
+</div>
+
             </div>
+
           ))}
         </div>
       </div>
 
-      {/* Conditionally render the popup instead of using Dialog */}
       {isOpen && (
   <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50">
     <div className="bg-white rounded-xl overflow-hidden shadow-2xl max-w-lg w-full p-8">
@@ -205,12 +247,18 @@ const AddCategory = ({ categories, setCategories }) => {
         </div>
 
         <div className="mt-8 flex justify-between items-center">
+        <button
+            onClick={() => setIsOpen(false)}
+            className="px-6 py-2 font-medium rounded text-gray-700 bg-gray-200 hover:bg-gray-300 transition"
+          >
+            Cancel
+          </button>
           <button
             onClick={editMode ? handleEditCategory : handleAddCategory}
-            className={`px-6 py-3 font-medium rounded-lg text-white transition ${
+            className={`px-6 py-2 font-medium rounded text-white transition ${
               loading
                 ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-blue-600 hover:bg-blue-700'
+                : 'bg-blue-500 hover:bg-blue-700'
             }`}
             disabled={loading}
           >
@@ -220,12 +268,7 @@ const AddCategory = ({ categories, setCategories }) => {
               ? 'Save Changes'
               : 'Create Category'}
           </button>
-          <button
-            onClick={() => setIsOpen(false)}
-            className="px-6 py-3 font-medium rounded-lg text-gray-700 bg-gray-200 hover:bg-gray-300 transition"
-          >
-            Cancel
-          </button>
+          
         </div>
       </div>
     </div>
@@ -240,6 +283,15 @@ const AddCategory = ({ categories, setCategories }) => {
           onSelect={handleIconSelect}
         />
       )}
+
+      <div>
+      <DeleteAlertPopup
+        isOpen={isPopupOpen}
+        message="Are you sure you want to delete this category? This action cannot be undone."
+        onConfirm={handleDeleteCategory}
+        onCancel={() => setIsPopupOpen(false)}
+      />
+      </div>
     </div>
   );
 };

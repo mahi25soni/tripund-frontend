@@ -1,22 +1,29 @@
 import React, { useState, useEffect } from "react";
-import axios from "../../axios";
+import axios from "../../../axios";
 import { Dialog } from "@headlessui/react";
 import moment from "moment";
-import Spinner from "../components/Spinner"; // Import the Spinner
-import OrderDetails from "../pages/Order/OrderDetails";
+import Spinner from "../Spinner"; // Import the Spinner
+import OrderDetails from "../../pages/Order/OrderDetails";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { SearchFilter } from "./OrderFilter";
 
-export const OrdersList = ({ setOpenOrderDetails }) => {
+export const OrdersList = ({ setOpenOrderDetails, updateOrderCounts }) => {
   const [orders, setOrders] = useState([]);
   const [orderStatuses, setOrderStatuses] = useState({});
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [loading, setLoading] = useState(false); // State for loading
-
+  const [loading, setLoading] = useState(false); 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1); 
+  const [itemsPerPage] = useState(10); 
+  const [searchParams, setSearchParams] = useState({});
+  const [filteredOrders, setFilteredOrders] = useState([]);
+  const [pendingOrdersCount, setPendingOrdersCount] = useState(0);
+  
   useEffect(() => {
     const fetchOrders = async () => {
-      setLoading(true); // Set loading to true when starting to fetch
+      setLoading(true); 
       try {
         const token = localStorage.getItem("token");
         if (!token) {
@@ -28,18 +35,17 @@ export const OrdersList = ({ setOpenOrderDetails }) => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
+          params: {
+            page: currentPage,
+            limit: itemsPerPage,
+          },
         });
 
-        const { orders: fetchedOrders } = response.data;
-
-        // Sort orders by timestamp (latest first)
-        const sortedOrders = fetchedOrders.sort(
-          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-        );
-
-        setOrders(sortedOrders);
+        setOrders(response?.data?.data?.orders);
+        setTotalPages(response?.data?.data?.total_pages);
+        setPendingOrdersCount(response?.data?.data?.total_pending_orders);
         setOrderStatuses(
-          sortedOrders.reduce((acc, order) => {
+          response.data.data.orders.reduce((acc, order) => {
             acc[order._id] = order.status;
             return acc;
           }, {})
@@ -47,18 +53,47 @@ export const OrdersList = ({ setOpenOrderDetails }) => {
       } catch (error) {
         console.error("Error fetching orders:", error.message);
       } finally {
-        setLoading(false); // Set loading to false after fetching is complete
+        setLoading(false); 
       }
     };
 
     fetchOrders();
+  }, [currentPage, itemsPerPage]); 
 
-    // Polling to refresh data periodically
-    const intervalId = setInterval(fetchOrders, 60000); // Fetch every 60 seconds
 
-    return () => clearInterval(intervalId); // Cleanup interval on component unmount
+  useEffect(() => {
+    const fetchFilteredOrders = async () => {
+      if (!searchParams || Object.keys(searchParams).length === 0) {
+        console.log("No search parameters, skipping API call.");
+        return;
+      }
+  
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          console.error("Authorization token is missing.");
+          return;
+        }
+        const response = await axios.get("/orders/filterOrders", {
+          headers: { Authorization: `Bearer ${token}` },
+          params: searchParams,
+        });
+        if (response.data) {
+          setFilteredOrders(response.data.orders);
+          setTotalPages(response.data.pagination.totalPages);
+        }
+      } catch (error) {
+        console.error('Error fetching filtered orders:', error);
+      }
+    };
+  
+    fetchFilteredOrders();
+  }, [searchParams]);
+  
 
-  }, []); // Empty dependency array means this effect runs once on mount
+  const handleSearchChange = (updatedParams) => {
+    setSearchParams((prev) => ({ ...prev, ...updatedParams, page: 1 }));
+  };
 
   const handleOpenOrderDetails = (orderId) => {
     const order = orders.find((element) => element._id === orderId);
@@ -75,7 +110,6 @@ export const OrdersList = ({ setOpenOrderDetails }) => {
   };
 
   const handleStatusChange = (orderId, newStatus) => {
-    // Optimistic UI Update
     setOrderStatuses((prevStatuses) => ({
       ...prevStatuses,
       [orderId]: newStatus,
@@ -91,19 +125,22 @@ export const OrdersList = ({ setOpenOrderDetails }) => {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
-          }
+          },
         }
       )
       .then((response) => {
         console.log("Order status updated:", response.data);
         toast.success("Status Updated successfully!");
+        setOrderStatuses((prevStatuses) => ({
+          ...prevStatuses,
+          [orderId]: newStatus,
+        }));
 
+        if (updateOrderCounts) updateOrderCounts();
       })
       .catch((error) => {
         console.error("Error updating status:", error.message);
-        toast.error("Error while Updating status.Try Again.");
-
-        // Revert optimistic UI update on error
+        toast.error("Error while Updating status. Try Again.");
         setOrderStatuses((prevStatuses) => ({
           ...prevStatuses,
           [orderId]: prevStatuses[orderId],
@@ -132,34 +169,39 @@ export const OrdersList = ({ setOpenOrderDetails }) => {
     }
   };
 
-  // Calculate pending orders count
-  const pendingOrdersCount = orders.filter((order) => order.status === "Pending").length;
+
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
+  const displayedOrders = filteredOrders.length > 0 ? filteredOrders : orders;
 
   return (
     <div className="bg-white p-4 rounded-lg flex-grow">
       <div className="flex justify-between items-center">
-        <div className="flex items-center">
+      <div className="flex items-center">
           <div className="text-xl font-medium">Orders</div>
+          
           {pendingOrdersCount > 0 && (
             <span className="ml-2 px-2 py-1 text-white bg-red-600 rounded-full text-xs font-bold">
               {pendingOrdersCount}
             </span>
           )}
         </div>
-        {/* <button className="px-4 py-2.5 border-2 rounded hover:bg-blue-700 hover:text-white hover:border-blue-700">
-          Filters
-        </button> */}
+        <SearchFilter onSearchChange={handleSearchChange} />
+       
       </div>
 
       {loading ? (
         <Spinner />
-      ) : orders.length === 0 ? (
+      ) : displayedOrders.length === 0 ? (
         <p className="text-center text-gray-500">No orders available</p>
       ) : (
         <div className="my-4">
           <div className="flex items-center justify-between border-b-2 text-left font-medium text-sm text-gray-400 p-1">
-          <h6 className="w-1/2 py-1">Order ID</h6>
-
+            <h6 className="w-1/2 py-1">Order ID</h6>
             <h6 className="w-1/2 py-1">Customer</h6>
             <h6 className="w-1/2 py-1">Order Value</h6>
             <h6 className="w-1/2 py-1">Ordering Date</h6>
@@ -167,15 +209,14 @@ export const OrdersList = ({ setOpenOrderDetails }) => {
             <h6 className="w-1/2 py-1"></h6>
           </div>
 
-          {orders.map((order) => (
+          {displayedOrders.map((order) => (
             <div
               key={order._id}
               className="flex items-center justify-between border-b-2 text-left font-medium p-1"
             >
-                          <p className="w-1/2 py-1">{order.orderId}</p>
-
+              <p className="w-1/2 py-1">{order.orderId}</p>
               <p className="w-1/2 py-1">{order.userId?.name}</p>
-              <p className="w-1/2 py-1">Rs {order.finalBillToPay}</p>
+              <p className="w-1/2 py-1">Rs {order.finalBillToPay.toFixed(2)}</p>
               <p className="w-1/2 py-1">
                 {moment(order.createdAt).format("DD MMM YYYY, h:mm A")}
               </p>
@@ -192,13 +233,11 @@ export const OrdersList = ({ setOpenOrderDetails }) => {
                   onChange={(e) => handleStatusChange(order._id, e.target.value)}
                   value={orderStatuses[order._id]}
                 >
-                  <option value="Processing">Processing</option>
-                  <option value="Shipped">Shipped</option>
-                  <option value="Delivered">Delivered</option>
                   <option value="Pending">Pending</option>
+                  <option value="Processing">Processing</option>
+                  <option value="Delivered">Delivered</option>
                   <option value="Cancelled">Cancelled</option>
                   <option value="Out for Delivery">Out for Delivery</option>
-                  <option value="Returned">Returned</option>
                 </select>
               </div>
               <div className="w-1/2 h-full flex gap-2">
@@ -214,6 +253,27 @@ export const OrdersList = ({ setOpenOrderDetails }) => {
         </div>
       )}
 
+      {/* Pagination controls */}
+      <div className="flex justify-between items-center my-4">
+        <button
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          className="px-4 py-2 border rounded bg-gray-300 hover:bg-gray-400 disabled:opacity-50"
+        >
+          Prev
+        </button>
+        <span>
+          Page {currentPage} of {totalPages}
+        </span>
+        <button
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className="px-4 py-2 border rounded bg-gray-300 hover:bg-gray-400 disabled:opacity-50"
+        >
+          Next
+        </button>
+      </div>
+
       {isModalOpen && selectedOrder && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white p-4 rounded-lg w-full m-12 h-screen overflow-y-auto">
@@ -221,6 +281,8 @@ export const OrdersList = ({ setOpenOrderDetails }) => {
           </div>
         </div>
       )}
+
+      <ToastContainer />
     </div>
   );
 };

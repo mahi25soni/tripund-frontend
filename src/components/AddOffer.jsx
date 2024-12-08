@@ -1,44 +1,55 @@
-import React , {useState} from "react";
+import React, { useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { CiCalendar } from "react-icons/ci";
-import axios from '../../axios.jsx'
+import { AiOutlineCloudUpload } from "react-icons/ai";
+import axios from "../../axios.jsx";
 
-export const AddOffer = ({setAddOfferPopUp, setAllOffersList}) => {
-    const [offerHeading, setOfferHeading] = useState("");
-    const [offerDiscount, setOfferDiscount] = useState("")
-    const [startDate, setStartDate] = useState(new Date());
-    const [endDate, setEndDate] = useState(new Date());
+export const AddOffer = ({ setAddOfferPopUp, setAllOffersList }) => {
+  const [offerHeading, setOfferHeading] = useState("");
+  const [offerDiscount, setOfferDiscount] = useState("");
+  const [startDate, setStartDate] = useState(new Date());
+  const [endDate, setEndDate] = useState(new Date());
+  const [image, setImage] = useState(null);
 
-    const UserToken = localStorage.getItem("token")
+  const UserToken = localStorage.getItem("token");
 
-    const handleAddOffer = async (e) => {
-        e.preventDefault();
-        const requestBody = {
-            offer_heading : offerHeading,
-            offer_discount : offerDiscount,
-            start_date : startDate,
-            end_date : endDate
-        }
+  const handleAddOffer = async (e) => {
+    e.preventDefault();
 
-        const {data} = await axios.post("/offer/create", requestBody, {
-            headers : {
-                "Authorization" : "Bearer " + UserToken
-            }
-        })
+    const formData = new FormData();
+    formData.append("offer_heading", offerHeading);
+    formData.append("offer_discount", offerDiscount);
+    formData.append("start_date", startDate);
+    formData.append("end_date", endDate);
+    if (image) formData.append("image", image);
 
-        setAllOffersList((prevData) => [...prevData, data?.data])
-        setAddOfferPopUp(false)
+    const { data } = await axios.post("/offer/create", formData, {
+      headers: {
+        "Authorization": "Bearer " + UserToken,
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    setAllOffersList((prevData) => [...prevData, data?.data]);
+    setAddOfferPopUp(false);
+  };
+
+  const handleDiscard = () => {
+    setAddOfferPopUp(false);
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImage(file);
     }
+  };
 
-    const handleDiscard = () => {
-        setAddOfferPopUp(false)
-    }
   return (
     <div className="bg-white px-4 py-6 m-2 rounded-lg w-[500px] absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 border-2">
-      <div className="text-xl font-medium mb-12 text-gray-700">Create Offer</div>
-
-      <form action="" >
+      <div className="text-xl font-medium mb-2 text-gray-700">Create Offer</div>
+      <form action="">
         <div>
           <label
             htmlFor="offer_heading"
@@ -74,57 +85,89 @@ export const AddOffer = ({setAddOfferPopUp, setAllOffersList}) => {
             placeholder="Enter Offer Discount in percentage"
           />
         </div>
-        <div className="my-2 flex justify-between">
-      <div className="w-full">
-        <label
-          htmlFor="start_date"
-          className="text-normal font-medium leading-6 text-gray-900 block my-2"
-        >
-          Start Date
-        </label>
-        <div >
-          <DatePicker
-            selected={startDate}
-            onChange={(date) => setStartDate(date)}
-            dateFormat="dd/MM/yyyy"
-            className="bg-white border-2 w-full border-gray-300 rounded-lg py-2.5 px-3.5 text-gray-900 placeholder:text-gray-400 outline-none"
-            placeholderText="Select Start Date"
-          />
-        </div>
-      </div>
-      <div className="w-full ml-4">
-        <label
-          htmlFor="end_date"
-          className="text-normal font-medium leading-6 text-gray-900 block my-2"
-        >
-          End Date
-        </label>
-        <div >
-          <DatePicker
-            selected={endDate}
-            onChange={(date) => setEndDate(date)}
-            dateFormat="dd/MM/yyyy"
-            className="bg-white border-2 w-full border-gray-300 rounded-lg py-2.5 px-3.5 text-gray-900 placeholder:text-gray-400 outline-none"
-            placeholderText="Select End Date"
-          />
-        </div>
-      </div>
-    </div>
 
+        <div className="my-2 flex justify-between">
+          <div className="w-full">
+            <label
+              htmlFor="start_date"
+              className="text-normal font-medium leading-6 text-gray-900 block my-2"
+            >
+              Start Date
+            </label>
+            <div>
+              <DatePicker
+                selected={startDate}
+                onChange={(date) => setStartDate(date)}
+                dateFormat="dd/MM/yyyy"
+                className="bg-white border-2 w-full border-gray-300 rounded-lg py-2.5 px-3.5 text-gray-900 placeholder:text-gray-400 outline-none"
+                placeholderText="Select Start Date"
+              />
+            </div>
+          </div>
+          <div className="w-full ml-4">
+            <label
+              htmlFor="end_date"
+              className="text-normal font-medium leading-6 text-gray-900 block my-2"
+            >
+              End Date
+            </label>
+            <div>
+              <DatePicker
+                selected={endDate}
+                onChange={(date) => setEndDate(date)}
+                dateFormat="dd/MM/yyyy"
+                className="bg-white border-2 w-full border-gray-300 rounded-lg py-2.5 px-3.5 text-gray-900 placeholder:text-gray-400 outline-none"
+                placeholderText="Select End Date"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Image Upload Section */}
+        <div className="my-4">
+          <label className="text-normal font-medium leading-6 text-gray-900 block my-2">
+            Upload Offer Banner
+          </label>
+          <div
+            className="border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center h-40 cursor-pointer relative"
+            onClick={() => document.getElementById("imageUpload").click()}
+          >
+            {image ? (
+              <img
+                src={URL.createObjectURL(image)}
+                alt="Preview"
+                className="w-full h-full object-cover rounded-lg"
+              />
+            ) : (
+              <div className="text-gray-400 flex flex-col items-center">
+                <AiOutlineCloudUpload size={40} />
+                <span>Click to upload</span>
+              </div>
+            )}
+          </div>
+          <input
+            type="file"
+            id="imageUpload"
+            accept="image/*"
+            className="hidden"
+            onChange={handleImageChange}
+          />
+        </div>
 
         <div className="mt-16 flex justify-between items-center gap-2">
-        <button className="px-2 py-2.5 border-2 w-full rounded-md hover:bg-red-700 hover:text-white hover:border-red-700" onClick={handleDiscard}>
+          <button
+            className="px-2 py-2.5 border-2 w-full rounded-md hover:bg-red-700 hover:text-white hover:border-red-700"
+            onClick={handleDiscard}
+          >
             Discard
           </button>
-        <button
+          <button
             className="px-4 py-2.5 border-2 w-full rounded-md bg-blue-700 text-white border-blue-700"
             type="button"
             onClick={(e) => handleAddOffer(e)}
           >
             Save
           </button>
-
-
         </div>
       </form>
     </div>

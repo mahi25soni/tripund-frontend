@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import axios from 'axios';
+import axios from '.././../axios';
 import { RxDashboard } from "react-icons/rx";
 import { BsBoxSeam } from "react-icons/bs";
 import { IoBagCheckOutline, IoSettingsOutline } from "react-icons/io5";
@@ -23,7 +23,7 @@ const Sidebar = () => {
     const fetchLogoUrl = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:5000/api/store/logo-url', {
+        const response = await axios.get('/store/logo-url', {
           headers: {
             Authorization: `Bearer ${token}`
           }
