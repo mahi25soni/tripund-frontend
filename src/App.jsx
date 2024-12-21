@@ -27,6 +27,7 @@ import ResetPassword from "./pages/Password/ResetPassword";
 import IconGallery from "./components/IconPack/IconGallery";
 import Notification from "./pages/Notification";
 import { SocketProvider } from "./components/Context/SocketContext";
+import { SingleOffer } from "./pages/Offer/SingleOffer";
 
 const App = () => {
   return (
@@ -125,6 +126,15 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <Offer />
+              </ProtectedRoute>
+            }
+          />
+
+<Route
+            path="/offers/add-product/:id"
+            element={
+              <ProtectedRoute>
+                <SingleOffer />
               </ProtectedRoute>
             }
           />

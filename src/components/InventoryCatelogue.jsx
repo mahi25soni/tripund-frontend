@@ -10,6 +10,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { FaTrashAlt, FaEdit } from "react-icons/fa"; 
 import DeleteAlertPopup from "../atoms/DeleteAlertPopup.jsx";
 import { showToast } from "../atoms/Toast.jsx";
+import { ProductFilter } from "../pages/Inventory/ProductFilter.jsx";
 
 export const InventoryCatelogue = () => {
   const [storeProductList, setStoreProductList] = useState([]);
@@ -21,12 +22,14 @@ export const InventoryCatelogue = () => {
   const UserToken = localStorage.getItem("token");
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState(null);
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [searchParams, setSearchParams] = useState({});
 
   useEffect(() => {
     (async () => {
       try {
         const { data } = await axios.get(
-          `/storedata/get-store-inventory/${currentPage}`,
+          `/storedata/get-store-inventory?page=${currentPage}`,
           {
             headers: {
               Authorization: `Bearer ${UserToken}`,
@@ -43,6 +46,42 @@ export const InventoryCatelogue = () => {
       }
     })();
   }, [currentPage, UserToken]);
+
+  useEffect(() => {
+    const fetchFilteredProducts = async () => {
+      if (!searchParams || Object.keys(searchParams).length === 0) {
+        console.log("No search parameters, skipping API call.");
+        return;
+      }
+  
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          console.error("Authorization token is missing.");
+          return;
+        }
+        const response = await axios.get("/storedata/filter-store-inventory", {
+          headers: { Authorization: `Bearer ${token}` },
+          params: searchParams,
+        });
+        if (response.data) {
+          setFilteredProducts(response.data.products);
+          setTotalPages(response.data.pagination.totalPages);
+        }
+      } catch (error) {
+        console.error('Error fetching filtered products:', error);
+      }
+    };
+  
+    fetchFilteredProducts();
+  }, [searchParams]);
+  
+
+  const handleSearchChange = (updatedParams) => {
+    setSearchParams((prev) => ({ ...prev, ...updatedParams, page: 1 }));
+  };
+
+  const displayedProducts = filteredProducts.length > 0 ? filteredProducts : storeProductList;
 
   const handleProductClick = (productId) => {
     navigate(`/inventory/product/${productId}`);
@@ -79,12 +118,15 @@ export const InventoryCatelogue = () => {
     setIsPopupOpen(true);
   };
 
+
+  
   return (
     <>
       <div className="bg-white p-4 rounded-lg flex-grow">
         <div className="flex justify-between items-center">
           <div className="text-xl font-medium">Products</div>
           <div className="flex items-center gap-2">
+          <ProductFilter onSearchChange={handleSearchChange}/>
             <button
               className="px-4 py-2.5 border-2 rounded bg-blue-700 text-white hover:border-blue-700"
               onClick={() => setAddProductPopUp(!addProductPopUp)}
@@ -109,11 +151,12 @@ export const InventoryCatelogue = () => {
                 <h6 className="w-1/6 py-1">Quantity</h6>
                 <h6 className="w-1/6 py-1">Total Stock</h6>
                 <h6 className="w-1/6 py-1">Threshold Stock</h6>
+                <h6 className="w-1/6 py-1">Category</h6>
                 <h6 className="w-1/6 py-1">Availability</h6>
-                <h6 className="w-1/6 py-1">Actions</h6> {/* Action column */}
+                <h6 className="w-1/6 py-1">Actions</h6> 
               </div>
 
-              {storeProductList?.map((item, index) => (
+              {displayedProducts?.map((item, index) => (
                 <div
                   key={index}
                   className="flex items-center justify-between border-b-2 text-left font-medium p-1 cursor-pointer"
@@ -125,6 +168,8 @@ export const InventoryCatelogue = () => {
                   <p className="w-1/6 py-1">{item?.product_quantity}</p>
                   <p className="w-1/6 py-1">{item?.total_stock}</p>
                   <p className="w-1/6 py-1">{item?.threshold_stock}</p>
+                  <p className="w-1/6 py-1">{item?.product_category?.name}</p>
+
                   <p className="w-1/6 py-1">
                     {item?.total_stock > item?.threshold_stock ? (
                       <span className="font-bold text-green-600">In-Stock</span>

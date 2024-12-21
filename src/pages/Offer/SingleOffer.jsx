@@ -3,7 +3,7 @@ import moment from "moment";
 import { FiSearch } from "react-icons/fi";
 import { IoArrowBack } from "react-icons/io5"; // Import a back arrow icon
 import axios from "../../../axios.jsx";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -16,19 +16,43 @@ export const SingleOffer = ({ currentSingleOffer, onClose }) => {
   const [isChecked, setIsChecked] = useState({});
   const [selectAll, setSelectAll] = useState(false); 
   const [loading, setLoading] = useState(false);
+  const [offerData, setOfferData] = useState(null); // New state for offer data
   const navigate = useNavigate(); 
+  const { id } = useParams();
 
   const UserToken = localStorage.getItem("token");
 
+  // Fetch offer data based on the ID from URL
+  useEffect(() => {
+    fetchOfferData();
+  }, [id]);
+
+  const fetchOfferData = async () => {
+    setLoading(true);
+    try {
+      const { data } = await axios.get(`/offer/get-offer-by-id/${id}`, {
+        headers: {
+          Authorization: `Bearer ${UserToken}`,
+        },
+      });
+      setOfferData(data?.data);
+    } catch (error) {
+      console.error("Error fetching offer data: ", error);
+      toast.error("Failed to fetch offer details.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchProducts();
-  }, [currentPage, currentSingleOffer]);
+  }, [currentPage]);
 
   const fetchProducts = async () => {
     setLoading(true); 
 
     const { data } = await axios.get(
-      `/offer/get-all-products-of-offer/${currentSingleOffer?._id}/${currentPage}`,
+      `/offer/get-all-products-of-offer/${id}/${currentPage}`,
       {
         headers: {
           Authorization: `Bearer ${UserToken}`,
@@ -65,62 +89,58 @@ export const SingleOffer = ({ currentSingleOffer, onClose }) => {
   const handleSelectAll = () => {
     const updatedChecked = {};
     filteredProducts.forEach((product) => {
-      updatedChecked[product?._id] = !selectAll; // Toggle all products
+      updatedChecked[product?._id] = !selectAll; 
     });
     setIsChecked(updatedChecked);
-    setSelectAll(!selectAll); // Toggle select all state
+    setSelectAll(!selectAll); 
   };
 
-const handleAddTickedProduct = async () => {
-  const selectedProducts = [];
-  const deselectedProducts = [];
+  const handleAddTickedProduct = async () => {
+    const selectedProducts = [];
+    const deselectedProducts = [];
 
-  Object.keys(isChecked).map((key) => {
-    if (isChecked[key]) {
-      selectedProducts.push({
-        productId: key,
-        offerId: currentSingleOffer?._id,
-        discount_value: currentSingleOffer?.offer_discount,
-      });
-    } else {
-      deselectedProducts.push({
-        productId: key,
-        offerId: currentSingleOffer?._id,
-      });
+    Object.keys(isChecked).map((key) => {
+      if (isChecked[key]) {
+        selectedProducts.push({
+          productId: key,
+          offerId: offerData?._id,
+          discount_value: offerData?.offer_discount,
+        });
+      } else {
+        deselectedProducts.push({
+          productId: key,
+          offerId: offerData?._id,
+        });
+      }
+    });
+
+    try {
+      if (selectedProducts.length > 0) {
+        await axios.post("/offer/add-product-to-offer", selectedProducts, {
+          headers: {
+            Authorization: "Bearer " + UserToken,
+          },
+        });
+      }
+
+      if (deselectedProducts.length > 0) {
+        await axios.post("/offer/remove-product-from-offer", deselectedProducts, {
+          headers: {
+            Authorization: "Bearer " + UserToken,
+          },
+        });
+      }
+
+      toast.success("Offer updated successfully!");
+      navigate('/offers')
+      fetchProducts();
+    } catch (error) {
+      console.error("Error updating offer: ", error);
+
+      // Show error toast notification
+      toast.error("Failed to update the offer. Please try again.");
     }
-  });
-
-  try {
-    // Send selected products to add to the offer
-    if (selectedProducts.length > 0) {
-      await axios.post("/offer/add-product-to-offer", selectedProducts, {
-        headers: {
-          Authorization: "Bearer " + UserToken,
-        },
-      });
-    }
-
-    if (deselectedProducts.length > 0) {
-      await axios.post("/offer/remove-product-from-offer", deselectedProducts, {
-        headers: {
-          Authorization: "Bearer " + UserToken,
-        },
-      });
-    }
-
-    // Show success toast notification
-    toast.success("Offer updated successfully!")
-
-    // Refetch the updated product list
-    fetchProducts();
-  } catch (error) {
-    console.error("Error updating offer: ", error);
-    
-    // Show error toast notification
-    toast.error("Failed to update the offer. Please try again.")
-  }
-};
-
+  };
 
   return (
     <>
@@ -129,19 +149,19 @@ const handleAddTickedProduct = async () => {
           <div className="flex h-full flex-row justify-between items-center font-semibold text-xl">
             <div className="flex flex-col justify-between gap-2 items-center">
               <div className="text-green-500 bg-green-200 font-bold p-2 rounded-md">
-                {currentSingleOffer?.offer_discount}%
+                {offerData?.offer_discount}%
               </div>
-              <p>{currentSingleOffer?.offer_heading}</p>
+              <p>{offerData?.offer_heading}</p>
             </div>
-            <div className="flex flex-col justify-between gap-2  items-center">
+            <div className="flex flex-col justify-between gap-2 items-center">
               <div className="text-orange-500 bg-orange-200 px-2.5 py-1 inline rounded-md font-bold">
-                {currentSingleOffer?.number_of_products}
+                {offerData?.number_of_products}
               </div>
               <p>Products</p>
             </div>
-            <div className="flex flex-col justify-between gap-2  items-center">
+            <div className="flex flex-col justify-between gap-2 items-center">
               <p>Validity</p>
-              <p>{moment(currentSingleOffer?.end_date).format('DD MMMM YYYY')}</p>
+              <p>{moment(offerData?.end_date).format('DD MMMM YYYY')}</p>
             </div>
           </div>
         </div>
@@ -162,15 +182,8 @@ const handleAddTickedProduct = async () => {
             </div>
 
             <div className="flex items-center gap-2">
-              <button className="px-4 py-2.5 border-2 rounded hover:bg-blue-700 hover:text-white hover:border-blue-700">
-                Filters
-              </button>
-              <button
-                className="px-4 py-2.5 border-2 rounded bg-blue-700 text-white hover:border-blue-700"
-                onClick={handleAddTickedProduct}
-              >
-                Apply Offer
-              </button>
+             
+              
               <button
                 className="px-4 py-2.5 border-2 rounded bg-gray-200 hover:bg-gray-300 flex items-center"
                 onClick={handleSelectAll} // Handle select all
@@ -178,11 +191,12 @@ const handleAddTickedProduct = async () => {
                 {selectAll ? "Deselect All" : "Select All"}
               </button>
               <button
-                className="px-4 py-2.5 border-2 rounded bg-gray-200 hover:bg-gray-300 flex items-center"
-                onClick={onClose}              >
-                <IoArrowBack className="h-5 w-5 mr-2" />
-                Back
+                className="px-4 py-2.5 border-2 rounded bg-blue-700 text-white hover:border-blue-700"
+                onClick={handleAddTickedProduct}
+              >
+                Apply Offer
               </button>
+              
             </div>
           </div>
 
@@ -196,7 +210,7 @@ const handleAddTickedProduct = async () => {
               <div className="flex items-center justify-between border-b-2 text-center font-medium text-sm text-gray-400  p-1">
                 <h6></h6>
                 <h6 className="w-1/2 py-1">Products</h6>
-                <h6 className="w-1/2 py-1">Buying Price</h6>
+                <h6 className="w-1/2 py-1">MRP</h6>
                 <h6 className="w-1/2 py-1">Quantity</h6>
                 <h6 className="w-1/2 py-1">Units</h6>
                 <h6 className="w-1/2 py-1">Threshold Value</h6>
@@ -220,14 +234,14 @@ const handleAddTickedProduct = async () => {
                   <p className="w-1/2 py-1">{item?.product_name}</p>
                   <p className="w-1/2 py-1">{item?.product_mrp}</p>
                   <p className="w-1/2 py-1">{item?.product_quantity}</p>
-                  <p className="w-1/2 py-1">{item?.units}</p>
-                  <p className="w-1/2 py-1">{item?.threshold_value}</p>
+                  <p className="w-1/2 py-1">{item?.total_stock}</p>
+                  <p className="w-1/2 py-1">{item?.threshold_stock}</p>
                   <p className="w-1/2 py-1">
                     {moment(item?.product_expiry).format("DD MMM YYYY")}
                   </p>
                   <p className="w-1/2 py-1">
-                  {item?.units > item?.threshold_value ? (
-                    <span className="text-green-500 font-semibold">In Stock</span>
+                    {item?.total_stock > item?.threshold_stock ? (
+                      <span className="text-green-500 font-semibold">In Stock</span>
                     ) : (
                       <span className="text-red-500 font-semibold">Out-Of-Stock</span>
                     )}
@@ -238,7 +252,7 @@ const handleAddTickedProduct = async () => {
           )}
         </div>
       </div>
-      <ToastContainer/>
+      <ToastContainer />
     </>
   );
 };
