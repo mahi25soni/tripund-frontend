@@ -4,10 +4,9 @@ import axios from "../../axios.jsx";
 import Spinner from "./Spinner.jsx";
 
 const ProductDetails = () => {
-  const { productId } = useParams(); // Getting productId from the URL params
+  const { productId } = useParams();
   const [product, setProduct] = useState(null);
   const UserToken = localStorage.getItem("token");
-  const [currentImageIndex, setCurrentImageIndex] = useState(0); // State to track the current image index
 
   useEffect(() => {
     (async () => {
@@ -27,24 +26,6 @@ const ProductDetails = () => {
     })();
   }, [productId, UserToken]);
 
-  // Function to handle next image
-  const handleNextImage = () => {
-    if (product && product.product_img && product.product_img.length > 0) {
-      setCurrentImageIndex((prevIndex) =>
-        prevIndex === product.product_img.length - 1 ? 0 : prevIndex + 1
-      );
-    }
-  };
-
-  // Function to handle previous image
-  const handlePrevImage = () => {
-    if (product && product.product_img && product.product_img.length > 0) {
-      setCurrentImageIndex((prevIndex) =>
-        prevIndex === 0 ? product.product_img.length - 1 : prevIndex - 1
-      );
-    }
-  };
-
   if (!product) {
     return (
       <div className="text-center h-screen text-gray-500">
@@ -53,84 +34,134 @@ const ProductDetails = () => {
     );
   }
 
+  const totalPrice = (product.product_mrp * (1 + product.gst / 100)).toFixed(2);
+  const finalPrice =
+    product.discount_price || (product.product_mrp - product.discount_value);
+
   return (
-    <div className="bg-white h-auto w-full p-6 rounded-lg">
-      <div className="flex flex-col gap-4">
-        <div className="flex justify-between items-center mb-4">
-          <p className="text-2xl font-bold text-gray-800">
-            {product?.product_name}
-          </p>
+    <div className="bg-gray-50 min-h-screen p-4">
+      <div className="bg-white rounded-lg p-4">
+        {/* Image and Product Information */}
+        <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-6">
+          <div className="flex-shrink-0">
+            {product.product_img?.length > 0 ? (
+              <img
+                src={product.product_img[0]}
+                alt="Product"
+                className="rounded-lg shadow-md w-full md:w-64 h-auto object-cover"
+              />
+            ) : (
+              <div className="bg-gray-200 rounded-lg shadow-md w-full md:w-64 h-64 flex items-center justify-center text-gray-500">
+                No Image Available
+              </div>
+            )}
+          </div>
+          <div className="flex-grow">
+            <h2 className="text-2xl font-semibold text-blue-800">
+              {product.product_name}
+            </h2>
+            <p className="text-gray-600 mt-2">
+              <span className="font-medium">Category:</span>{" "}
+              {product.product_category?.name}
+            </p>
+            <p className="text-gray-600 mt-2">
+              <span className="font-medium">Description:</span>{" "}
+              {product.description}
+            </p>
+          </div>
         </div>
 
-        <div className="w-full border-t border-gray-200 mb-4"></div>
-
-        <div className="flex justify-between">
-          <div className="flex flex-col gap-4">
-            <h1 className="text-xl font-semibold text-gray-800 mb-2">
-              Primary Details
-            </h1>
-            <ul className="space-y-2 text-gray-600">
-              <li className="justify-between">
-                <span className="font-medium text-gray-700">Product Name:</span>{" "}
-                <span>{product?.product_name}</span>
-              </li>
-              <li className="justify-between">
-                <span className="font-medium text-gray-700">Product ID:</span>{" "}
-                <span>{product?._id}</span>
-              </li>
-              <li className="justify-between">
-                <span className="font-medium text-gray-700">Expiry Date:</span>{" "}
-                <span>{product?.nearest_expiry_date}</span>
-              </li>
-              <li className="justify-between">
-                <span className="font-medium text-gray-700">Threshold Value:</span>{" "}
-                <span>{product?.threshold_value}</span>
-              </li>
-              <li className="justify-between">
-                <span className="font-medium text-gray-700">MRP:</span>{" "}
-                <span>{product?.product_mrp}</span>
-              </li>
-            </ul>
-          </div>
-
-          <div className="w-1/3 text-center">
-            {product?.product_img && product.product_img.length > 0 ? (
-              <div className="relative w-full h-auto border-2 border-gray-200 rounded-lg shadow-sm object-contain mb-4">
-                <img
-                  src={product.product_img[currentImageIndex]} // Display the current image
-                  alt={`Product ${currentImageIndex}`}
-                  className="w-full h-auto object-contain rounded-lg"
-                />
-
-                {/* Next and Previous buttons */}
-                <button
-                  onClick={handlePrevImage}
-                  className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-gray-300 hover:bg-gray-400 p-2 rounded-full"
-                >
-                  &lt;
-                </button>
-                <button
-                  onClick={handleNextImage}
-                  className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-gray-300 hover:bg-gray-400 p-2 rounded-full"
-                >
-                  &gt;
-                </button>
+        {/* Details Sections */}
+        <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Left Side: Stock, Price, and Offer Details */}
+          <div className="md:col-span-2 space-y-6">
+            {/* Stock Details */}
+            <div className="p-4 rounded-lg shadow">
+              <h3 className="text-lg font-semibold text-black pb-2">
+                Stock Details
+              </h3>
+              <hr />
+              <div className="text-gray-700 mt-2 space-y-1">
+                <p>
+                  <span className="font-medium">Total Stock:</span>{" "}
+                  {product.total_stock}
+                </p>
+                <p>
+                  <span className="font-medium">Threshold Stock:</span>{" "}
+                  {product.threshold_stock}
+                </p>
+                <p>
+                  <span className="font-medium">Stock Status:</span>{" "}
+                  {product.stock_Status}
+                </p>
               </div>
-            ) : (
-              <p className="text-gray-500">No image available</p>
-            )}
+            </div>
 
-            <ul className="space-y-2 text-gray-600">
-              <li className="flex justify-between">
-                <span className="font-medium text-gray-700">Stock:</span>{" "}
-                <span>{product?.units}</span>
-              </li>
-              <li className="flex justify-between">
-                <span className="font-medium text-gray-700">Remaining Stock:</span>{" "}
-                <span>{product?.units}</span>
-              </li>
-            </ul>
+            {/* Price Details */}
+            <div className="p-4 rounded-lg shadow">
+              <h3 className="text-lg font-semibold text-black pb-2">
+                Price Details
+              </h3>
+              <hr />
+              <div className="text-gray-700 mt-2 space-y-1">
+                <p>
+                  <span className="font-medium">MRP:</span> ₹{product.product_mrp}
+                </p>
+                <p>
+                  <span className="font-medium">GST:</span> {product.gst}%
+                </p>
+                <p>
+                  <span className="font-medium">Total (Incl. GST):</span> ₹
+                  {totalPrice}
+                </p>
+              </div>
+            </div>
+
+            {/* Offer Details */}
+            <div className="p-4 rounded-lg shadow">
+              <h3 className="text-lg font-semibold text-black pb-2">
+                Offer Details
+              </h3>
+              <hr />
+              <div className="text-gray-700 mt-2 space-y-1">
+                <p>
+                  <span className="font-medium">Discount Value:</span>{" "}
+                  ₹{product.discount_value || "0"}
+                </p>
+                <p>
+                  <span className="font-medium">Discounted Price:</span>{" "}
+                  ₹{product.discount_price || "0"}
+                </p>
+              </div>
+            </div>
           </div>
+
+          {/* Right Side: Price Summary */}
+          {/* Price Summary */}
+<div className="p-4 rounded-lg shadow w-full  self-start">
+  <h3 className="text-lg font-semibold text-black pb-2">Price Summary</h3>
+  <hr className="mb-2" />
+  <div className="text-gray-700 space-y-2">
+    <div className="flex justify-between">
+      <span className="font-medium">Product MRP:</span>
+      <span>₹{product.product_mrp}</span>
+    </div>
+    <div className="flex justify-between">
+      <span className="font-medium text-red-500">GST ({product.gst}%):</span>
+      <span className="text-red-500">₹{(product.product_mrp * (product.gst / 100)).toFixed(2)}</span>
+    </div>
+    <div className="flex justify-between text-green-500">
+      <span className="font-medium">Discount:</span>
+      <span>- ₹{product.discount_value || "0"}</span>
+    </div>
+    <hr className="my-2" />
+    <div className="flex justify-between font-semibold text-black">
+      <span>Total Amount:</span>
+      <span>₹{product.discount_price || totalPrice}</span>
+    </div>
+  </div>
+</div>
+
         </div>
       </div>
     </div>

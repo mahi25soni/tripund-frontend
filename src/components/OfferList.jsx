@@ -167,11 +167,13 @@ export const OfferList = ({
         ))}
       </div>
       {editOfferPopUp && (
+        <div className="fixed inset-0 flex h-screen items-center justify-center bg-black bg-opacity-50 z-50 overflow-auto">
         <EditOffer
           setEditOfferPopUp={setEditOfferPopUp}
           offerId={selectedOfferId}
           setAllOffersList={setAllOffersList}
         />
+        </div>
       )}
     </>
   );

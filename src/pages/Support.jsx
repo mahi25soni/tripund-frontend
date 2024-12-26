@@ -8,9 +8,9 @@ const SupportPage = () => {
   const navigate = useNavigate();
   const companyInfo = {
     name: 'Tripund Store',
-    address: '1234 Street Name, City, Country',
+    address: 'Sector 70, Mohali,India',
     email: 'support@tripundstore.com',
-    phone: '+1 234 567 890',
+    phone: '',
   };
 
   const whatsappMessage = encodeURIComponent('Hello, I need support with...');

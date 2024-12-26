@@ -9,6 +9,7 @@ import { Link } from 'react-router-dom';
 import { useSocket } from './Context/SocketContext';
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { BiUser } from 'react-icons/bi';
 
 const TopBar = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -84,7 +85,7 @@ const TopBar = () => {
 
 
   return (
-    <div className="h-16 w-5/6 bg-white flex items-center justify-between px-6 shadow fixed top-0 left-64 z-10">
+    <div className="h-16 lg:w-5/6 w-full bg-white flex items-center justify-between px-6 shadow fixed top-0 lg:left-64   z-10">
       <div className="flex items-center">
       <ToastContainer/>
         <form onSubmit={handleSearch} className="relative">
@@ -102,12 +103,12 @@ const TopBar = () => {
       </div>
 
       <div className="flex items-center relative">
-        <div className="text-black text-lg font-medium mr-6">{storeName || userName || 'My Dashboard'}</div>
-        <BsQrCodeScan className="text-black text-xl mr-6 cursor-pointer" onClick={toggleQrCodePopup} />
+        <div className="text-black text-lg font-medium mr-6 hidden lg:visible ">{storeName || userName || 'My Dashboard'}</div>
+        <BsQrCodeScan className="text-black text-xl lg:mr-6 mr-2 cursor-pointer" onClick={toggleQrCodePopup} />
 
         <div className="relative mr-4">
           <Link to='/notification' className="relative">
-              <FiBell className="text-black text-xl m-2 cursor-pointer" />
+              <FiBell className="text-black text-xl mx-2 cursor-pointer" />
               {unreadCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full px-2 py-1 text-xs font-bold">
                   {unreadCount}
@@ -116,7 +117,7 @@ const TopBar = () => {
             </Link>
         </div>
 
-        <FaUserCircle className="text-black text-3xl cursor-pointer" onClick={toggleDropdown} />
+        <BiUser className="text-black text-xl lg:mr-6 cursor-pointer" onClick={toggleDropdown} />
         {dropdownOpen && (
           <div className="absolute top-12 right-0 w-48 bg-white shadow-md rounded-md overflow-hidden z-10">
             <div className="px-4 py-2 cursor-pointer hover:bg-gray-100" onClick={() => navigate('/profile')}>View Profile</div>

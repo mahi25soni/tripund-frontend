@@ -114,7 +114,7 @@ const SignUp = () => {
               <button type="submit" className="bg-blue-500 w-full text-white py-2 px-4 rounded hover:bg-blue-600">Get Started</button>
             </form>
             
-            <button className='flex border w-full justify-center py-2 mt-4'><FaGoogle className='mt-1 mx-4 text-blue-500' /> Sign Up via Google</button>
+            {/* <button className='flex border w-full justify-center py-2 mt-4'><FaGoogle className='mt-1 mx-4 text-blue-500' /> Sign Up via Google</button> */}
 
             <div className='flex w-fit m-auto'>
             <h3 className='mt-4'>Already a user</h3>

@@ -64,7 +64,7 @@ export const ProductFilter = ({ onSearchChange }) => {
             value={filters.category}
             onChange={handleInputChange}
             className="p-2 border-2 rounded-lg w-52 pl-10 hover:border-blue-500"
-          ><option disabled value="">
+          ><option value="">
                     Filter by category
                   </option>
                   {categories?.map((category) => (

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { FaSearch } from "react-icons/fa";
 import { FiFilter } from 'react-icons/fi';
+import { BiReset } from "react-icons/bi";
 
 export const SearchFilter = ({ onSearchChange }) => {
   const [filters, setFilters] = useState({
@@ -16,6 +17,19 @@ export const SearchFilter = ({ onSearchChange }) => {
     const { name, value } = e.target;
     setFilters((prev) => ({ ...prev, [name]: value }));
     onSearchChange({ [name]: value });
+  };
+
+  const handleResetFilter = (e) => {
+    const resetFilter = {
+      orderId: "",
+      status: "",
+      deliveryAddress: "",
+      startDate: "",
+      endDate: "",
+    };
+
+    setFilters(resetFilter);
+    onSearchChange({});
   };
 
   return (
@@ -44,7 +58,7 @@ export const SearchFilter = ({ onSearchChange }) => {
           name="status"
           value={filters.status}
           onChange={handleInputChange}
-          className="p-2 border-2 rounded-lg w-52 pl-10 hover:border-blue-500"
+          className="p-2 border-2 rounded-lg w-44 pl-8 hover:border-blue-500"
           >
           <option value="">Select Status</option>
           <option value="Processing">Processing</option>
@@ -70,7 +84,14 @@ export const SearchFilter = ({ onSearchChange }) => {
           onChange={handleInputChange}
           className="border p-2 rounded w-full"
         />
+        <div className="">
+      <button
+          onClick={handleResetFilter}
+          className="border-2 text-black px-4 h-full rounded-md hover:border-orange-500"
+        ><BiReset size={20}/></button>
       </div>
+      </div>
+      
     </div>
   );
 };

@@ -11,6 +11,10 @@ import { FaTrashAlt, FaEdit } from "react-icons/fa";
 import DeleteAlertPopup from "../atoms/DeleteAlertPopup.jsx";
 import { showToast } from "../atoms/Toast.jsx";
 import { ProductFilter } from "../pages/Inventory/ProductFilter.jsx";
+import { BiPencil } from "react-icons/bi";
+import { FiDelete } from "react-icons/fi";
+import { MdDelete } from "react-icons/md";
+import { BsEye, BsViewList } from "react-icons/bs";
 
 export const InventoryCatelogue = () => {
   const [storeProductList, setStoreProductList] = useState([]);
@@ -64,10 +68,14 @@ export const InventoryCatelogue = () => {
           headers: { Authorization: `Bearer ${token}` },
           params: searchParams,
         });
-        if (response.data) {
-          setFilteredProducts(response.data.products);
-          setTotalPages(response.data.pagination.totalPages);
+        
+          setFilteredProducts(response?.data?.products);
+          setTotalPages(response.data?.pagination?.totalPages);
+        if(response.data.products.length === 0){
+          showToast("No Product for this filter",'warning')
         }
+
+
       } catch (error) {
         console.error('Error fetching filtered products:', error);
       }
@@ -91,9 +99,9 @@ export const InventoryCatelogue = () => {
     navigate(`/inventory/edit-product/${productId}`); 
   };
 
-  const handleDeleteProduct = async (productId) => {
+  const handleDeleteProduct = async () => {
     try {
-      await axios.delete(`/storedata/delete-store-product/${productId}`, {
+      await axios.delete(`/storedata/delete-store-product/${selectedProductId}`, {
         headers: {
           Authorization: `Bearer ${UserToken}`,
         },
@@ -114,6 +122,7 @@ export const InventoryCatelogue = () => {
   };
 
   const openDeletePopup = (productId) => {
+    console.log('Product Id for delete:', productId)
     setSelectedProductId(productId);
     setIsPopupOpen(true);
   };
@@ -122,7 +131,7 @@ export const InventoryCatelogue = () => {
   
   return (
     <>
-      <div className="bg-white p-4 rounded-lg flex-grow">
+      <div className="bg-white p-4 rounded-lg flex-grow h-full">
         <div className="flex justify-between items-center">
           <div className="text-xl font-medium">Products</div>
           <div className="flex items-center gap-2">
@@ -161,7 +170,7 @@ export const InventoryCatelogue = () => {
                   key={index}
                   className="flex items-center justify-between border-b-2 text-left font-medium p-1 cursor-pointer"
                 >
-                  <p className="w-1/6 py-1" onClick={() => handleProductClick(item._id)}>
+                  <p className="w-1/6 py-1" >
                     {item?.product_name}
                   </p>
                   <p className="w-1/6 py-1">{item?.product_mrp}</p>
@@ -169,7 +178,6 @@ export const InventoryCatelogue = () => {
                   <p className="w-1/6 py-1">{item?.total_stock}</p>
                   <p className="w-1/6 py-1">{item?.threshold_stock}</p>
                   <p className="w-1/6 py-1">{item?.product_category?.name}</p>
-
                   <p className="w-1/6 py-1">
                     {item?.total_stock > item?.threshold_stock ? (
                       <span className="font-bold text-green-600">In-Stock</span>
@@ -178,14 +186,25 @@ export const InventoryCatelogue = () => {
                     )}
                   </p>
                   <div className="w-1/6 flex justify-start gap-4">
-                    <FaEdit
-                      className="text-blue-600 cursor-pointer hover:text-blue-800"
-                      onClick={() => handleEditProduct(item._id)} // Edit product
+                  <div className="p-2 border rounded-md">
+                  <BiPencil
+                      className="text-green-600 cursor-pointer hover:text-blue-800"
+                      onClick={() => handleEditProduct(item._id)} 
                     />
-                    <FaTrashAlt
+                  </div>
+                    <div className="p-2 border rounded-md">
+                    <MdDelete
                       className="text-red-600 cursor-pointer hover:text-red-800"
                       onClick={() => openDeletePopup(item._id)}
                       />
+                    </div>
+                    <div className="p-2 border rounded-md">
+                    <BsEye
+                      className="text-blue-600 cursor-pointer hover:text-red-800"
+                      onClick={() => handleProductClick(item._id)}
+                      />
+                    </div>
+                   
                   </div>
                 </div>
               ))}

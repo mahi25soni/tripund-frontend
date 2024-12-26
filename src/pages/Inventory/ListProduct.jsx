@@ -133,15 +133,15 @@ export const ListProduct = ({ props, onProductAdded }) => {
 
     try {
       if (isEditMode) {
-        // Update product
         await axios.put(`/storedata/update-store-product/${id}`, formData, {
           headers: {
             Authorization: `Bearer ${UserToken}`,
           },
         });
-        toast.success("Product updated successfully!");
+        toast.success("Product updated successfully!", 'success');
+        navigate("/inventory/view-all");
+
       } else {
-        // Add new product
         const { data } = await axios.post(
           "/storedata/add-product-to-store",
           formData,
@@ -151,10 +151,9 @@ export const ListProduct = ({ props, onProductAdded }) => {
             },
           }
         );
-        toast.success("Product added successfully!");
+        toast.success("Product added successfully!", 'sucsess');
         onProductAdded(data?.data?.data);
       }
-      navigate("/inventory/view-all");
     } catch (error) {
       console.error("Error Updating product:", error);
       toast.error("Failed to update product.");

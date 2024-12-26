@@ -101,7 +101,7 @@ export const EditOffer = ({ setEditOfferPopUp, offerId, setAllOffersList }) => {
   };
 
   return (
-    <div className="bg-white px-4 py-6 m-2 rounded-lg w-[500px] absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 border-2">
+    <div className="bg-white px-4 py-6 m-2 rounded-lg w-[500px] absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 border-2 ">
       <div className="text-xl font-medium mb-2 text-gray-700">Edit Offer</div>
       {loading ? (
         <Spinner/>

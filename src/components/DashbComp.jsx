@@ -56,7 +56,7 @@ const DashbComp = () => {
       </div>
 
       {/* Right Column - 30% */}
-      <div className="w-3/10 ml-4">
+      {/* <div className="w-3/10 ml-4">
         <div className='bg-white w-full p-4'>
         <h3 className='text-2xl font-medium p-2 pb-4'>Inventory Overview</h3>
         <div className='flex'>
@@ -81,7 +81,7 @@ const DashbComp = () => {
         </div>
         </div>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };

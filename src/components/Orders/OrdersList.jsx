@@ -7,6 +7,7 @@ import OrderDetails from "../../pages/Order/OrderDetails";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { SearchFilter } from "./OrderFilter";
+import { BsEye } from "react-icons/bs";
 
 export const OrdersList = ({ setOpenOrderDetails, updateOrderCounts }) => {
   const [orders, setOrders] = useState([]);
@@ -78,10 +79,15 @@ export const OrdersList = ({ setOpenOrderDetails, updateOrderCounts }) => {
           headers: { Authorization: `Bearer ${token}` },
           params: searchParams,
         });
-        if (response.data) {
-          setFilteredOrders(response.data.orders);
-          setTotalPages(response.data.pagination.totalPages);
-        }
+        
+          setFilteredOrders(response?.data?.orders);
+          setTotalPages(response?.data?.pagination?.totalPages);
+
+          if(response.data.orders.length === 0){
+            showToast("No Product for this filter",'warning')
+          }
+  
+       
       } catch (error) {
         console.error('Error fetching filtered orders:', error);
       }
@@ -206,7 +212,7 @@ export const OrdersList = ({ setOpenOrderDetails, updateOrderCounts }) => {
             <h6 className="w-1/2 py-1">Order Value</h6>
             <h6 className="w-1/2 py-1">Ordering Date</h6>
             <h6 className="w-1/2 py-1">Status</h6>
-            <h6 className="w-1/2 py-1"></h6>
+            <h6 className="w-1/2 py-1">Actions</h6>
           </div>
 
           {displayedOrders.map((order) => (
@@ -240,9 +246,12 @@ export const OrdersList = ({ setOpenOrderDetails, updateOrderCounts }) => {
                   <option value="Out for Delivery">Out for Delivery</option>
                 </select>
               </div>
-              <div className="w-1/2 h-full flex gap-2">
+              <div className="w-1/2 h-full flex gap-2  border text-blue-600 p-2 rounded-md">
+              <div>
+                    <BsEye size={20}/>
+              </div>
                 <button
-                  className="rounded-md py-2 bg-blue-200 text-blue-600 border-none w-[130px] h-full"
+                  className="rounded-md py-2border-none w-[130px] h-full"
                   onClick={() => handleOpenOrderDetails(order._id)}
                 >
                   View Order List
