@@ -29,7 +29,7 @@ export const SearchFilter = ({ onSearchChange }) => {
     };
 
     setFilters(resetFilter);
-    onSearchChange({});
+    onSearchChange(resetFilter);
   };
 
   return (
