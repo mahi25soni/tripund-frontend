@@ -54,7 +54,7 @@ export const Orders = () => {
 
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-5 ">
       {openOrderDetails ? (
         <OrderDetails
           Order={openOrderDetails}

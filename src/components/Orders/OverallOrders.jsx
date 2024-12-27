@@ -2,9 +2,9 @@ import React from 'react';
 
 export const OverallOrders = ({ orderCounts }) => {
   return (
-    <div className="bg-white p-4 mb-2 rounded-lg flex-none shadow">
-      <div className="flex justify-between">
-        <div className="w-1/2 px-10 py-3">
+    <div className="bg-white p-4 mb-2 rounded-lg flex-none shadow ">
+      <div className="flex flex-col lg:flex-row justify-between">
+        <div className="lg:w-1/2 w-full px-4 py-3">
           <div className="font-semibold text-blue-500 mb-2 text-lg">Total Orders</div>
           <div className="flex justify-between items-center">
             <div className="flex flex-col gap-2">

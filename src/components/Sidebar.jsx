@@ -47,7 +47,7 @@ const Sidebar = () => {
     <div>
       {/* Hamburger Menu for Mobile */}
       <button
-        className=" lg:hidden fixed top-4 left-4 z-30 text-2xl text-gray-800"
+        className=" lg:hidden fixed top-5 left-2 z-30 text-2xl text-gray-800"
         onClick={toggleSidebar}
       >
         {isSidebarOpen ? <AiOutlineClose /> : <AiOutlineMenu />}

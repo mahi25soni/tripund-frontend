@@ -157,7 +157,7 @@ const AddCategory = ({ categories, setCategories }) => {
         </button>
       </div>
       <div className="border p-4 rounded h-80 overflow-x-auto">
-        <div className="mb-4 grid grid-cols-2 gap-2 rounded-md">
+        <div className="mb-4 grid lg:grid-cols-2 gap-2 rounded-md">
           {categories.map((category) => (
             <div
               key={category._id}
@@ -214,7 +214,6 @@ const AddCategory = ({ categories, setCategories }) => {
           className="w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none px-4 py-2 text-gray-700"
         />
 
-        {/* Image Upload/Preview Container */}
         <div
           className="border-2 border-dashed border-gray-300 rounded-lg p-4 flex justify-center items-center relative hover:bg-gray-50 transition cursor-pointer"
           onClick={() => setIsIconGalleryOpen(true)}

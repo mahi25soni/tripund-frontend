@@ -154,12 +154,12 @@ export const InventoryCatelogue = () => {
         ) : (
           <>
             <div className="my-4">
-              <div className="flex items-center justify-between border-b-2 text-left font-bold text-md text-gray-600 p-1 font-Mont">
-                <h6 className="w-1/6 py-1">Products</h6>
+            <div className="flex items-center justify-between border-b-2 text-left font-medium text-sm text-gray-400 p-1">
+            <h6 className="w-3/6 py-1">Products</h6>
                 <h6 className="w-1/6 py-1">MRP</h6>
                 <h6 className="w-1/6 py-1">Quantity</h6>
                 <h6 className="w-1/6 py-1">Total Stock</h6>
-                <h6 className="w-1/6 py-1">Threshold Stock</h6>
+                {/* <h6 className="w-1/6 py-1">Threshold Stock</h6> */}
                 <h6 className="w-1/6 py-1">Category</h6>
                 <h6 className="w-1/6 py-1">Availability</h6>
                 <h6 className="w-1/6 py-1">Actions</h6> 
@@ -170,13 +170,13 @@ export const InventoryCatelogue = () => {
                   key={index}
                   className="flex items-center justify-between border-b-2 text-left font-medium p-1 cursor-pointer"
                 >
-                  <p className="w-1/6 py-1" >
+                  <p className="w-3/6 py-1" >
                     {item?.product_name}
                   </p>
-                  <p className="w-1/6 py-1">{item?.product_mrp}</p>
+                  <p className="w-1/6 py-1">₹{item?.product_mrp}</p>
                   <p className="w-1/6 py-1">{item?.product_quantity}</p>
                   <p className="w-1/6 py-1">{item?.total_stock}</p>
-                  <p className="w-1/6 py-1">{item?.threshold_stock}</p>
+                  {/* <p className="w-1/6 py-1">{item?.threshold_stock}</p> */}
                   <p className="w-1/6 py-1">{item?.product_category?.name}</p>
                   <p className="w-1/6 py-1">
                     {item?.total_stock > item?.threshold_stock ? (

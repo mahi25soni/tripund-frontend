@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from '../../axios';
-import { FiBell, FiSearch } from 'react-icons/fi';
-import { FaUserCircle } from 'react-icons/fa';
+import { FiBell } from 'react-icons/fi';
 import { BsQrCodeScan } from 'react-icons/bs';
 import QrCodeGenerator from './QRCodeGenerator'; 
 import { Link } from 'react-router-dom';
@@ -15,49 +14,42 @@ const TopBar = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [qrCodePopupOpen, setQrCodePopupOpen] = useState(false);
   const [userName, setUserName] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [storeLogo, setStoreLogo] = useState('');
+  const [storeName, setStoreName] = useState('');
   const navigate = useNavigate();
   const { notifications } = useSocket(); 
-  const [storeName, setStoreName] = useState('');
-
+  const qrCodePopupRef = useRef(null);
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
     const fetchUserDataAndStoreData = async () => {
       const token = localStorage.getItem('token');
       if (!token) {
-        navigate('/login'); // Navigate to login if no token is found
+        navigate('/login');
         return;
       }
-  
+
       try {
-        // Configure headers for requests
         const config = { headers: { Authorization: `Bearer ${token}` } };
-  
-        // Fetch user data
         const userResponse = await axios.get('/auth/user', config);
         setUserName(userResponse.data.name);
-  
-        // Fetch store data
         const storeResponse = await axios.get('/store/storeId', config);
-        setStoreName(storeResponse.data.store.storeName);
+        setStoreLogo(storeResponse.data.store.logo);
+        setStoreName(storeResponse.data.store.name);
+
       } catch (error) {
         console.error('Error fetching data:', error);
-  
         if (error.response && error.response.status === 404) {
-          // Navigate to createStore if store data is not found
           toast.error("Store does not exist. Redirecting to create store...");
           navigate('/createStore');
         } else {
-          // Navigate to login for other errors
           navigate('/login');
         }
       }
     };
-  
+
     fetchUserDataAndStoreData();
   }, [navigate]);
-  
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -72,56 +64,57 @@ const TopBar = () => {
     setQrCodePopupOpen(!qrCodePopupOpen);
   };
 
-  const toggleNotifications = () => {
-    setNotificationsOpen(!notificationsOpen);
+  const handleClickOutside = (event) => {
+    if (
+      (qrCodePopupRef.current && !qrCodePopupRef.current.contains(event.target)) ||
+      (dropdownRef.current && !dropdownRef.current.contains(event.target))
+    ) {
+      setQrCodePopupOpen(false);
+      setDropdownOpen(false);
+    }
   };
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    console.log('Search query:', searchQuery);
-  };
+  useEffect(() => {
+    if (qrCodePopupOpen || dropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [qrCodePopupOpen, dropdownOpen]);
 
   const unreadCount = notifications.filter(notification => !notification.read).length;
 
-
   return (
-    <div className="h-16 lg:w-5/6 w-full bg-white flex items-center justify-between px-6 shadow fixed top-0 lg:left-64   z-10">
+    <div className="h-16 lg:w-5/6 w-full bg-white flex items-center justify-between px-6 shadow fixed top-0 lg:left-64 z-10">
       <div className="flex items-center">
-      <ToastContainer/>
-        <form onSubmit={handleSearch} className="relative">
-          {/* <input
-            type="text"
-            placeholder="Search..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="px-4 py-2 w-80 border-2 border-gray-300 rounded-md focus:outline-none"
-          />
-          <button type="submit" className="absolute right-2 top-2 text-gray-500 border-l-2 w-6 pl-1">
-            <FiSearch className="mt-1 text-lg" />
-          </button> */}
-        </form>
+        <ToastContainer />
+        <img src={storeLogo} alt="Logo" className=" lg:hidden h-12 w-20 object-cover rounded" />
       </div>
 
       <div className="flex items-center relative">
-        <div className="text-black text-lg font-medium mr-6 hidden lg:visible ">{storeName || userName || 'My Dashboard'}</div>
         <BsQrCodeScan className="text-black text-xl lg:mr-6 mr-2 cursor-pointer" onClick={toggleQrCodePopup} />
 
         <div className="relative mr-4">
           <Link to='/notification' className="relative">
-              <FiBell className="text-black text-xl mx-2 cursor-pointer" />
-              {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full px-2 py-1 text-xs font-bold">
-                  {unreadCount}
-                </span>
-              )}
-            </Link>
+            <FiBell className="text-black text-xl mx-2 cursor-pointer" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full px-2 py-1 text-xs font-bold">
+                {unreadCount}
+              </span>
+            )}
+          </Link>
         </div>
 
         <BiUser className="text-black text-xl lg:mr-6 cursor-pointer" onClick={toggleDropdown} />
         {dropdownOpen && (
-          <div className="absolute top-12 right-0 w-48 bg-white shadow-md rounded-md overflow-hidden z-10">
-            <div className="px-4 py-2 cursor-pointer hover:bg-gray-100" onClick={() => navigate('/profile')}>View Profile</div>
-            <div className="px-4 py-2 cursor-pointer hover:bg-gray-100" onClick={() => navigate('/profile/edit')}>Edit Profile</div>
+          <div ref={dropdownRef} className="absolute top-10 right-0 w-48 bg-white shadow-md rounded-md overflow-hidden z-10">
+            <div className="px-4 py-2 cursor-pointer hover:bg-gray-100" onClick={() => navigate('/forgot-password')}>Update Password</div>
+            <div className="px-4 py-2 cursor-pointer hover:bg-gray-100" onClick={() => navigate('/settings')}>Settings</div>
+            <div className="px-4 py-2 cursor-pointer hover:bg-gray-100" onClick={() => navigate('/support')}>Support</div>
             <div className="px-4 py-2 cursor-pointer hover:bg-gray-100" onClick={handleLogout}>Logout</div>
           </div>
         )}
@@ -129,7 +122,7 @@ const TopBar = () => {
 
       {qrCodePopupOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white p-8 rounded-lg">
+          <div ref={qrCodePopupRef} className="bg-white p-8 rounded-lg">
             <button className="relative top-2 left-2 text-gray-500 hover:text-gray-800" onClick={toggleQrCodePopup}>
               &times;
             </button>

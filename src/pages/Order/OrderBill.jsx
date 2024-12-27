@@ -40,7 +40,7 @@ const OrderBill = ({ order }) => {
     <div
       id="pdf-content"
       style={{
-        padding: "10px",
+        padding: "5px",
         color: "#333",
         maxWidth: "700px",
         margin: "auto",
@@ -51,64 +51,69 @@ const OrderBill = ({ order }) => {
       }}
     >
       {/* Header Section */}
-      <div style={{ borderBottom: "2px solid #333", paddingBottom: "10px", marginBottom: "20px" }}>
+      <div style={{ borderBottom: "1px solid black", paddingBottom: "10px", marginBottom: "10px" }}>
         <div style={{ display: "flex", justifyContent: "space-around", alignItems: "center" }}>
           {/* <img src={store.logo} alt="Store Logo" style={{ height: "50px" }} /> */}
           <div style={{ textAlign: "center" }}>
-            <h2 className="text-xl font-semibold" style={{ margin: 0 }}>{store.storeName}</h2>
-            <p style={{ margin: 0 }}>{store.location}</p>
+            <h2 className="text-lg font-semibold" style={{ margin: 0 }}>{store.storeName}</h2>
+            <p style={{ margin: 0, fontSize:12 }}>{store.businessType}</p>
+            <p style={{ margin: 0, fontSize:12  }}>{store.location}</p>
+
           </div>
         </div>
       </div>
 
-      {/* Order Information Section */}
-      <div style={{ marginBottom: "20px" }}>
-        <h3 style={{ borderBottom: "1px solid #ddd", paddingBottom: "5px" }}>Order Information</h3>
+      <div style={{ marginBottom: "20px", fontSize:12}}>
+        {/* <h3 style={{ borderBottom: "1px solid #ddd", paddingBottom: "5px" }}>Order Information</h3> */}
         <div style={{ display: "flex", justifyContent: "space-between" }}>
           <div>
-            <p><strong>Order ID:</strong> {order.orderId}</p>
-            <p><strong>Order Date:</strong> {new Date(order.createdAt).toLocaleDateString("en-GB")}</p>
+            <p>Order ID: {order?.orderId}</p>
+            <p>Order Date: {new Date(order?.createdAt).toLocaleDateString("en-GB")}</p>
           </div>
           <div style={{ textAlign: "right" }}>
-            <p><strong>Customer:</strong> {order.userId?.name}</p>
-            <p><strong>Email:</strong> {order.userId?.email}</p>
-            <p><strong>Phone:</strong> {order.userId?.phone}</p>
+            <p>{order?.userId?.name}</p>
+            <p>{order?.userId?.phone}</p>
           </div>
         </div>
       </div>
 
       {/* Products Table Section */}
-      <div>
-        <h3 style={{ borderBottom: "1px solid #ddd", paddingBottom: "5px" }}>Products</h3>
+      <div className="text-xs">
         <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "10px" }}>
           <thead>
             <tr>
-              <th style={{ borderBottom: "1px solid #ddd", padding: "8px", textAlign: "left" }}>Product</th>
-              <th style={{ borderBottom: "1px solid #ddd", padding: "8px", textAlign: "center" }}>Quantity</th>
-              <th style={{ borderBottom: "1px solid #ddd", padding: "8px", textAlign: "right" }}>Price (Rs)</th>
-              <th style={{ borderBottom: "1px solid #ddd", padding: "8px", textAlign: "right" }}>Total (Rs)</th>
-              <th style={{ borderBottom: "1px solid #ddd", padding: "8px", textAlign: "right" }}>GST (Rs)</th>
+              <th style={{ borderBottom: "1px solid #ddd", padding: "4px", textAlign: "left" }}>Product</th>
+              <th style={{ borderBottom: "1px solid #ddd", padding: "4px", textAlign: "left" }}>Qty</th>
+              <th style={{ borderBottom: "1px solid #ddd", padding: "4px", textAlign: "left" }}>MRP</th>
+              <th style={{ borderBottom: "1px solid #ddd", padding: "4px", textAlign: "left" }}>Discount</th>
+              <th style={{ borderBottom: "1px solid #ddd", padding: "4px", textAlign: "left" }}>Total</th>
+              <th style={{ borderBottom: "1px solid #ddd", padding: "4px", textAlign: "left" }}>GST </th>
 
             </tr>
           </thead>
           <tbody>
-            {order.products?.map((product, index) => (
+            {order?.products?.map((product, index) => (
               <tr key={index}>
-                <td style={{ borderBottom: "1px solid #ddd", padding: "8px" }}>
-                  {product.productId?.product_name}
+                <td style={{ borderBottom: "1px solid #ddd", padding: "4px" }}>
+                  {product?.productId?.product_name}
                 </td>
-                <td style={{ borderBottom: "1px solid #ddd", padding: "8px", textAlign: "center" }}>
+                <td style={{ borderBottom: "1px solid #ddd", padding: "4px", textAlign: "left" }}>
                   {product.quantity}
                 </td>
-                <td style={{ borderBottom: "1px solid #ddd", padding: "8px", textAlign: "right" }}>
-                  Rs {product.productId?.product_mrp.toFixed(2)}
+                <td style={{ borderBottom: "1px solid #ddd", padding: "4px", textAlign: "left" }}>
+                  ₹{product?.productId?.product_mrp.toFixed(2) || 'N/A'}
                 </td>
-                <td style={{ borderBottom: "1px solid #ddd", padding: "8px", textAlign: "right" }}>
-                  Rs {calculateOrderValue(product.productId?.product_mrp, product.quantity).toFixed(2)}
+                <td style={{ borderBottom: "1px solid #ddd", padding: "4px", textAlign: "left" }}>
+                  ₹{product?.discountAmount.toFixed(2) || 'N/A'}
                 </td>
-                <td style={{ borderBottom: "1px solid #ddd", padding: "8px", textAlign: "right" }}>
-                  Rs {product.gstAmount.toFixed(2)}
+        
+                <td style={{ borderBottom: "1px solid #ddd", padding: "4px", textAlign: "left" }}>
+                  ₹{product?.totalPrice.toFixed(2)}
                 </td>
+                <td style={{ borderBottom: "1px solid #ddd", padding: "4px", textAlign: "left"  }}>
+                  ₹{product?.gstAmount.toFixed(2)}
+                </td>
+                
               </tr>
             ))}
           </tbody>
@@ -116,20 +121,23 @@ const OrderBill = ({ order }) => {
       </div>
 
       {/* Total Amount Section */}
-      <div style={{ textAlign: "right", marginTop: "20px", paddingTop: "10px", borderTop: "2px solid #333" }}>
-        <h3>Total Amount: Rs {order.totalBill.toFixed(2)}</h3>
+      <div style={{ textAlign: "right", marginTop: "20px", paddingTop: "10px", borderTop: "1px solid #333" , fontSize:12}}>
+        <h3>Line Total: ₹{order.totalBill.toFixed(2)}</h3>
       </div>
-      <div style={{ textAlign: "right", marginTop: "1px", paddingTop: "4px", }}>
-        <h3>GST Amount: Rs {order.totalGst.toFixed(2)}</h3>
+      <div style={{ textAlign: "right", marginTop: "1px", paddingTop: "4px",  fontSize:12 }}>
+        <h3>Discount: ₹{order?.totalDiscount?.toFixed(2)}</h3>
       </div>
-      <div style={{ textAlign: "right", marginTop: "20px", paddingTop: "10px", borderTop: "2px solid #333" }}>
-        <h3>To pay: Rs {order.finalBillToPay.toFixed(2)}</h3>
+      <div style={{ textAlign: "right", marginTop: "1px", paddingTop: "4px",  fontSize:12 }}>
+        <h3>GST: ₹{order.totalGst.toFixed(2)}</h3>
+      </div>
+      <div style={{ textAlign: "right", marginTop: "20px", paddingTop: "10px", borderTop: "1px solid #333"}}>
+        <h3 className="text-14px font-bold">Grand Total: ₹{order.finalBillToPay.toFixed(2)}</h3>
       </div>
 
       {/* Footer Section */}
-      <div style={{ marginTop: "40px", textAlign: "center", fontSize: "12px", color: "#888" }}>
+      <div style={{ marginTop: "10px", marginBottom:'10px', textAlign: "center", fontSize: "12px", color: "#888" }}>
         <p>Thank you for your order!</p>
-        <p>If you have any questions, please contact us at {store.email}</p>
+        <p>If you have any questions, please contact us at {store.phoneNumber}</p>
       </div>
     </div>
   );

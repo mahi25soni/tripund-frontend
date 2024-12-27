@@ -175,7 +175,7 @@ const AddHeading = ({ headings, setHeadings }) => {
           </button>
         </div>
       </div>
-      <div className="grid grid-cols-2 border p-4 rounded h-80 overflow-x-auto">
+      <div className="grid lg:grid-cols-2 border p-4 rounded h-80 overflow-x-auto">
         <ul className="mb-4">
           {headings.map((heading) => (
             <li
