@@ -116,7 +116,7 @@ const OrderDetails = ({ order, onClose }) => {
                   <div className="flex items-center gap-4">
                     <img
                       src={product?.productId?.product_img[0]}
-                      alt={product?.productId?.product_name}
+                      alt={'img'}
                       style={{
                         width: "60px",
                         height: "60px",
