@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import { ClipLoader } from 'react-spinners';
 import { FiMail, FiLock } from 'react-icons/fi'; // Importing icons
 import { BsInfoCircle } from 'react-icons/bs'; // Info icon for messages
-
+import Logo from '../assets/logo.png';
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -35,7 +35,8 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-50 to-blue-100">
+    <div className="min-h-screen flex flex-col gap-y-2 items-center justify-center bg-gradient-to-r from-blue-50 to-blue-100">
+      
       <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
         <div className="flex items-center justify-center mb-4">
           <BsInfoCircle className="text-blue-500 mr-2" size={24} />
@@ -93,6 +94,10 @@ const Login = () => {
             </Link>
           </div>
         </div>
+      </div>
+      <div>
+      <img src={Logo} className='w-20 opacity-50'/>
+      <p className='text-gray-400'>v1.0.0(Beta)</p>
       </div>
     </div>
   );

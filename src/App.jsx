@@ -1,10 +1,6 @@
-import React from "react";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
+// src/App.js
+import React, { useState, useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import SignUp from "./pages/Signup";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
@@ -28,152 +24,73 @@ import IconGallery from "./components/IconPack/IconGallery";
 import Notification from "./pages/Notification";
 import { SocketProvider } from "./components/Context/SocketContext";
 import { SingleOffer } from "./pages/Offer/SingleOffer";
+import MobileViewModal from "./components/MobileViewModel";
 
 const App = () => {
+  const [isMobile, setIsMobile] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Update screen size on window resize
+  useEffect(() => {
+    const handleResize = () => {
+      const isMobileView = window.innerWidth < 1024;
+      setIsMobile(isMobileView);
+      if (isMobileView) {
+        setIsModalOpen(true); // Open modal for mobile view
+      }
+    };
+
+    // Initial check
+    handleResize();
+
+    // Add event listener for resize
+    window.addEventListener("resize", handleResize);
+
+    // Clean up event listener on component unmount
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   return (
     <Router>
-          <SocketProvider>
+      <SocketProvider>
+        <Layout>
+          <ToastContainer />
 
-      <Layout>
-      <ToastContainer />
+          {isModalOpen && isMobile && (
+            <MobileViewModal
+              isModalOpen={isModalOpen}
+              closeModal={() => setIsModalOpen(false)} // Close the modal
+            />
+          )}
 
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/login" element={<Login />} />
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/signup" element={<SignUp />} />
+            <Route path="/login" element={<Login />} />
 
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password/:token" element={<ResetPassword />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password/:token" element={<ResetPassword />} />
 
-          <Route path="/createStore" element={<StoreForm />} />
-          <Route path="/icon-gallery" element={<IconGallery />} />
+            <Route path="/createStore" element={<StoreForm />} />
+            <Route path="/icon-gallery" element={<IconGallery />} />
 
-          {/* Protected Routes */}
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/category"
-            element={
-              <ProtectedRoute>
-                <Category />
-              </ProtectedRoute>
-            }
-          />
-
-<Route
-            path="/notification"
-            element={
-              <ProtectedRoute>
-                <Notification />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/inventory/view-all"
-            element={
-              <ProtectedRoute>
-                <InventoryViewAll />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/inventory/product/:productId"
-            element={
-              <ProtectedRoute>
-                <ProductDetails />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/inventory/list-product"
-            element={
-              <ProtectedRoute>
-                <ListProduct mode="add" />
-              </ProtectedRoute>
-            }
-          />
-
-        <Route
-            path="/inventory/edit-product/:id"
-            element={
-              <ProtectedRoute>
-                <ListProduct mode="edit"/>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/orders"
-            element={
-              <ProtectedRoute>
-                <Orders/>
-              </ProtectedRoute>
-            }
-          />
-
-
-          <Route
-            path="/offers"
-            element={
-              <ProtectedRoute>
-                <Offer />
-              </ProtectedRoute>
-            }
-          />
-
-<Route
-            path="/offers/add-product/:id"
-            element={
-              <ProtectedRoute>
-                <SingleOffer />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/reports"
-            element={
-              <ProtectedRoute>
-                <Reports />
-              </ProtectedRoute>
-            }
-          />
-
-
-          <Route
-            path="/settings"
-            element={
-              <ProtectedRoute>
-                <Settings/>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/support"
-            element={
-              <ProtectedRoute>
-                <SupportPage/>
-              </ProtectedRoute>
-            }
-          />
-
-
-          {/* Default redirect to signup if no match */}
-          {/* <Route path="*" element={<Navigate to="/signup" />} /> */}
-        </Routes>
-      </Layout>
+            {/* Protected Routes */}
+            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/category" element={<ProtectedRoute><Category /></ProtectedRoute>} />
+            <Route path="/notification" element={<ProtectedRoute><Notification /></ProtectedRoute>} />
+            <Route path="/inventory/view-all" element={<ProtectedRoute><InventoryViewAll /></ProtectedRoute>} />
+            <Route path="/inventory/product/:productId" element={<ProtectedRoute><ProductDetails /></ProtectedRoute>} />
+            <Route path="/inventory/list-product" element={<ProtectedRoute><ListProduct mode="add" /></ProtectedRoute>} />
+            <Route path="/inventory/edit-product/:id" element={<ProtectedRoute><ListProduct mode="edit" /></ProtectedRoute>} />
+            <Route path="/orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
+            <Route path="/offers" element={<ProtectedRoute><Offer /></ProtectedRoute>} />
+            <Route path="/offers/add-product/:id" element={<ProtectedRoute><SingleOffer /></ProtectedRoute>} />
+            <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
+            <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+            <Route path="/support" element={<ProtectedRoute><SupportPage /></ProtectedRoute>} />
+          </Routes>
+        </Layout>
       </SocketProvider>
-      
     </Router>
   );
 };
