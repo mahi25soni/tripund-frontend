@@ -3,6 +3,14 @@ import axios from "../../axios";
 import { FaEdit } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import mapIcon from '../assets/mapIcon.png';
+import deliveryTime from '../assets/deliverytime.png';
+import { Dialog } from "@headlessui/react";
+import Clock from "react-clock";
+import "react-clock/dist/Clock.css";
+import { RiArrowRightWideFill } from "react-icons/ri";
+import { Link } from "react-router-dom";
+import DeliveryTimePopup from "../components/TimeSetPopup";
 
 const Settings = () => {
   const [storeData, setStoreData] = useState({
@@ -10,12 +18,14 @@ const Settings = () => {
     storeName: "",
     location: "",
     email: "",
-    phoneNumber:""
-
+    phoneNumber:"",
+    deliveryTiming: "" 
   });
   const [editingField, setEditingField] = useState(null);
   const [logoPreview, setLogoPreview] = useState(null); // For image preview
   const [selectedFile, setSelectedFile] = useState(null); // For image file
+  const [deliveryDuration, setDeliveryDuration] = useState(null);
+  const [isDeliveryTimePopupOpen, setIsDeliveryTimePopupOpen] = useState(false); // State to handle popup open/close
   const token = localStorage.getItem("token");
 
   useEffect(() => {
@@ -28,6 +38,7 @@ const Settings = () => {
         });
         console.log("Fetched Store Data:", response.data);
         setStoreData(response.data.store);
+        setDeliveryDuration(response.data.store.deliveryDuration);
       } catch (error) {
         console.error("Error fetching store data:", error.message);
         console.error("Error Details:", error.response);
@@ -46,9 +57,7 @@ const Settings = () => {
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
-    setSelectedFile(file); // Set the selected file for upload
-
-    // Generate a preview URL for the image
+    setSelectedFile(file); 
     const reader = new FileReader();
     reader.onloadend = () => {
       setLogoPreview(reader.result);
@@ -61,28 +70,35 @@ const Settings = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData();
-    formData.append("logo", selectedFile); // Append the selected file
+    formData.append("logo", selectedFile);
     formData.append("storeName", storeData.storeName);
-    formData.append("location", storeData.location);
     formData.append("email", storeData.email);
     formData.append("phoneNumber", storeData.phoneNumber);
-
+    formData.append("deliveryTime", deliveryTime); 
 
     try {
       const response = await axios.put("/store/editStore", formData, {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data", // Important for file uploads
+          "Content-Type": "multipart/form-data", 
         },
       });
       console.log("Updated Store Data Response:", response.data);
       setEditingField(null);
-      toast.success("Store information updated successfully!"); // Success toast
+      toast.success("Store information updated successfully!"); 
     } catch (error) {
       console.error("Error updating store data:", error.message);
       console.error("Error Details:", error.response);
-      toast.error("Error updating store information."); // Error toast
+      toast.error("Error updating store information."); 
     }
+  };
+
+  const handleSave = (duration) => {
+    setDeliveryDuration(duration);
+    setStoreData((prevData) => ({
+      ...prevData,
+      deliveryDuration: duration,
+    }));
   };
 
   const renderField = (label, name, value, isEditable) => (
@@ -136,14 +152,15 @@ const Settings = () => {
 
   return (
     <div className="container mx-auto p-6">
-      <ToastContainer /> {/* Toast container for notifications */}
+      <ToastContainer />
       <h1 className="text-2xl font-bold mb-4">Settings</h1>
       <div className="bg-white shadow-md rounded-lg p-6 mb-6">
         <h2 className="text-xl font-semibold mb-4">Store Information</h2>
         <form onSubmit={handleSubmit}>
           {renderField("Store Logo", "logo", storeData.logo, editingField === "logo")}
           {renderField("Store Name", "storeName", storeData.storeName, editingField === "storeName")}
-          {renderField("Location", "location", storeData.location, editingField === "location")}
+          {renderField("Location", "location", storeData.address, editingField === "address")}
+          {renderField("Delivery Radius", "deliveryRadius", storeData.deliveryRadius, editingField === "address")}
           {renderField("Email", "email", storeData.email, editingField === "email")}
           {renderField("Phone Number", "phoneNumber", storeData.phoneNumber, editingField === "phoneNumber")}
 
@@ -167,18 +184,43 @@ const Settings = () => {
         </form>
       </div>
 
-      {/* <div className="bg-white shadow-md rounded-lg p-6 mb-6">
-        <h2 className="text-xl font-semibold mb-4">Section 2</h2>
-        <p>Content for section 2 goes here.</p>
+      <Link to='/set-delivery-radius'>
+        <div className="bg-white shadow-md rounded-lg p-6 mb-6 flex gap-x-4 justify-between hover:border hover:border-blue-400">
+          <div className="flex gap-x-4">
+            <img src={mapIcon} className="w-28 rounded-md border object-cover"/>
+            <div className="mt-2">
+              <h2 className="text-xl font-semibold mt-2">Store location</h2>
+              <p>{storeData.address}</p>
+              <p className="bg-blue-100 text-blue-600 px-4 py-2 rounded-full w-fit">Delivery Radius: <strong>{storeData.deliveryRadius/1000}km</strong></p>
+            </div>
+          </div>
+          <div className="mt-6">
+            <RiArrowRightWideFill size={24} className="text-blue-500"/>
+          </div>
+        </div>
+      </Link>
+
+      <div  onClick={() => setIsDeliveryTimePopupOpen(true)} className="bg-white shadow-md rounded-lg p-6 mb-6 flex gap-x-4 justify-between hover:border hover:border-blue-400">
+        <div className="flex gap-x-4">
+          <img src={deliveryTime} className="w-28 rounded-md border object-cover"/>
+          <div className="mt-2">
+            <h2 className="text-xl font-semibold mt-2">Delivery Time</h2>
+            <p>Estimated time taken for delivery </p>
+            <p className="bg-blue-100 text-blue-600 px-4 py-2 rounded-full w-fit">Delivery Duration: <strong>{deliveryDuration} mins</strong></p>
+          </div>
+        </div>
+        <div className="mt-6">
+          <RiArrowRightWideFill size={24} className="text-blue-500"/>
+        </div>
       </div>
 
-      <div className="bg-white shadow-md rounded-lg p-6">
-        <h2 className="text-xl font-semibold mb-4">Section 3</h2>
-        <p>Content for section 3 goes here.</p>
-      </div> */}
+      <DeliveryTimePopup 
+        isOpen={isDeliveryTimePopupOpen} 
+        onClose={() => setIsDeliveryTimePopupOpen(false)} 
+        onSave={handleSave} 
+      />
     </div>
   );
 };
 
 export default Settings;
- 

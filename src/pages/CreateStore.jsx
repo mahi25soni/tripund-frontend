@@ -8,7 +8,7 @@ import { FiCamera } from 'react-icons/fi';
 import { BsInfoCircle } from 'react-icons/bs';
 import { ClipLoader } from 'react-spinners';
 import MouseImg from '../images/Mouse.png';
-import tripund from '../images/tripund.jpeg';
+import logo from '../assets/logo.png';
 import { showToast } from "../atoms/Toast"; 
 
 const StoreForm = () => {
@@ -112,7 +112,7 @@ const StoreForm = () => {
           <div className="h-2 bg-blue-600 m-auto rounded"></div>
           <div className="mt-auto px-6 py-3">
             <p className="text-sm text-gray-500">Powered by</p>
-            <img src={tripund} alt="Powered by Company" className="mt-2 h-8" />
+            <img src={logo} alt="Powered by Company" className="mt-2 h-8" />
           </div>
         </div>
       </div>
