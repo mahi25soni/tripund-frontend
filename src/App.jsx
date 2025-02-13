@@ -25,6 +25,7 @@ import Notification from "./pages/Notification";
 import { SocketProvider } from "./components/Context/SocketContext";
 import { SingleOffer } from "./pages/Offer/SingleOffer";
 import MobileViewModal from "./components/MobileViewModel";
+import DeliveryRadius from "./pages/DeliveryRadius";
 
 const App = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -87,6 +88,8 @@ const App = () => {
             <Route path="/offers/add-product/:id" element={<ProtectedRoute><SingleOffer /></ProtectedRoute>} />
             <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+            <Route path="/set-delivery-radius" element={<ProtectedRoute><DeliveryRadius /></ProtectedRoute>} />
+
             <Route path="/support" element={<ProtectedRoute><SupportPage /></ProtectedRoute>} />
           </Routes>
         </Layout>

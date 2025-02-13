@@ -8,7 +8,7 @@ import { TfiHelpAlt } from 'react-icons/tfi';
 import { AiOutlineEye, AiOutlineUnorderedList, AiOutlineClose, AiOutlineMenu } from 'react-icons/ai';
 import { MdOutlineCategory } from 'react-icons/md';
 import axios from '.././../axios';
-import tripund from '../images/tripund.jpeg';
+import logo from '../assets/logo.png';
 
 const Sidebar = () => {
   const [logoUrl, setLogoUrl] = useState('');
@@ -193,7 +193,7 @@ const Sidebar = () => {
 
         <div className="mt-auto px-6 py-3">
           <p className="text-sm text-gray-500">Powered by</p>
-          <img src={tripund} alt="Powered by Company" className="mt-2 h-8" />
+          <img src={logo} alt="Powered by Company" className="w-32 h-16 object-cover" />
         </div>
       </div>
     </div>
