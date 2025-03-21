@@ -31,23 +31,19 @@ const App = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Update screen size on window resize
   useEffect(() => {
     const handleResize = () => {
       const isMobileView = window.innerWidth < 1024;
       setIsMobile(isMobileView);
       if (isMobileView) {
-        setIsModalOpen(true); // Open modal for mobile view
+        setIsModalOpen(true); 
       }
     };
 
-    // Initial check
     handleResize();
 
-    // Add event listener for resize
     window.addEventListener("resize", handleResize);
 
-    // Clean up event listener on component unmount
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
@@ -60,7 +56,7 @@ const App = () => {
           {isModalOpen && isMobile && (
             <MobileViewModal
               isModalOpen={isModalOpen}
-              closeModal={() => setIsModalOpen(false)} // Close the modal
+              closeModal={() => setIsModalOpen(false)}
             />
           )}
 

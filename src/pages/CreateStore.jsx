@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from '../../axios';
 import { useNavigate } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
@@ -18,13 +18,12 @@ const StoreForm = () => {
     storeCategory: '',
     storeName: '',
     email: '',
-    location: '',
-    mobile: ''
+    mobile: '',
+    gstNumber: '',
   });
 
   const [logoPreview, setLogoPreview] = useState(null);
   const [loading, setLoading] = useState(false);
-
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -46,36 +45,57 @@ const StoreForm = () => {
     return mobileRegex.test(formData.mobile);
   };
 
+  const validateGstNumber = () => {
+    const gstRegex = /^[0-9A-Z]{15}$/;
+    return gstRegex.test(formData.gstNumber);
+  };
+
+ 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+  
     if (!validateMobile()) {
       toast.error('Mobile number must have 10 digits.');
       return;
     }
+    if (!validateGstNumber()) {
+      toast.error('GST number must be 15 alphanumeric characters.');
+      return;
+    }
+   
+  
     setLoading(true);
-
+  
     const data = new FormData();
     for (const key in formData) {
       data.append(key, formData[key]);
     }
-
+  
     const token = localStorage.getItem('token');
-
+  
     try {
-      await axios.post('/store/create', data, {
+      const response = await axios.post('/store/create', data, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${token}`
         }
       });
+  
+      // Extract token from response and update localStorage
+      if (response.data.token) {
+        localStorage.setItem('token', response.data.token);
+      }
+  
       showToast('Store created successfully!', "success");
       navigate('/dashboard');
     } catch (err) {
-      showToast('Failed! Try again',"error");
+      showToast('Failed! Try again', "error");
     } finally {
       setLoading(false);
     }
   };
+  
 
   const loadGoogleMapsAPI = () => {
     const google = window.google;
@@ -89,7 +109,7 @@ const StoreForm = () => {
     });
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!window.google) {
       const script = document.createElement('script');
       script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyDqp6ukm--d3iZKhlH23VgiGVieq4HsH4Q&libraries=places`;
@@ -126,9 +146,10 @@ const StoreForm = () => {
             Please fill your store details to create your store.
           </p>
           <form onSubmit={handleSubmit}>
+            
             <div className="mb-4">
               <div className="flex items-center justify-center w-full">
-                <label className="flex flex-col items-center justify-center w-24 h-24 bg-gray-200 rounded-full cursor-pointer hover:bg-gray-300">
+                <label className="flex flex-col items-center justify-center w-32 h-32 bg-gray-200 rounded-full cursor-pointer hover:bg-gray-300">
                   {logoPreview ? (
                     <img
                       src={logoPreview}
@@ -139,6 +160,7 @@ const StoreForm = () => {
                     <div className="flex flex-col items-center justify-center text-gray-500">
                       <FiCamera size={24} />
                       <span className="text-sm mt-2">Add Logo</span>
+
                     </div>
                   )}
                   <input
@@ -167,6 +189,7 @@ const StoreForm = () => {
                 >
                   <option value="">Select Business Type</option>
                   <option value="Wholeseller">Wholeseller</option>
+                  <option value="Retailer">Retailer</option>
                   <option value="Supplier">Supplier</option>
                 </select>
               </div>
@@ -185,8 +208,8 @@ const StoreForm = () => {
                 >
                   <option value="">Select Store Category</option>
                   <option value="Kirana">Kirana</option>
-                  <option value="Fruits">Fruits</option>
-                  <option value="Vegetables">Vegetables</option>
+                  <option value="Fruits">Fruits or Vegetables</option>
+                  <option value="Electronics">Electronics</option>
                   <option value="Stationary">Stationary</option>
                 </select>
               </div>
@@ -201,28 +224,13 @@ const StoreForm = () => {
                 type="text"
                 name="storeName"
                 value={formData.storeName}
+                placeholder='Enter your store name'
                 onChange={handleChange}
                 className="form-input mt-1 px-2 block w-full rounded border border-gray-300 py-2"
                 required
               />
             </div>
             
-            <div className="mb-4">
-              <label className="block text-gray-700 flex items-center">
-                <AiOutlineEnvironment className="mr-2" />
-                Store Location
-              </label>
-              <input
-                type="text"
-                id="location"
-                name="location"
-                value={formData.location}
-                onChange={handleChange}
-                className="form-input mt-1 px-2 block w-full rounded border border-gray-300 py-2"
-                placeholder="Enter your location"
-                required
-              />
-            </div>
             {/* Mobile Number */}
             <div className="mb-4">
               <label className="block text-gray-700 flex items-center">
@@ -249,13 +257,29 @@ const StoreForm = () => {
                 type="email"
                 name="email"
                 value={formData.email}
+                placeholder='Enter your email address'
                 onChange={handleChange}
                 className="form-input mt-1 px-2 block w-full rounded border border-gray-300 py-2"
                 required
               />
             </div>
-           
-            
+            {/* GST Number */}
+            <div className="mb-4">
+              <label className="block text-gray-700 flex items-center">
+                <AiOutlineEnvironment className="mr-2" />
+                GST Number
+              </label>
+              <input
+                type="text"
+                name="gstNumber"
+                value={formData.gstNumber}
+                onChange={handleChange}
+                className="form-input mt-1 px-2 block w-full rounded border border-gray-300 py-2"
+                placeholder="Enter your GST number"
+                required
+              />
+            </div>
+                    
             {/* Submit Button */}
             <div className="mt-6">
               <button

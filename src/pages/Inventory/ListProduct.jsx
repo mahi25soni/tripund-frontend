@@ -93,7 +93,7 @@ export const ListProduct = ({ props, onProductAdded }) => {
           );
           console.log("Fetched data for edit:", data);
           setEditData(data?.data);
-          setSelectedCategory(data?.data?.product_category.name);
+          setSelectedCategory(data?.data?.product_category._id);
           setProductName(data?.data.product_name);
           setProductQuantity(data?.data.product_quantity);
           setProductMRP(data?.data.product_mrp);
@@ -121,26 +121,41 @@ export const ListProduct = ({ props, onProductAdded }) => {
   const addProductHandle = async (event) => {
     event.preventDefault();
     setLoading(true);
-    const formData = new FormData(event.target);
-
-    images.forEach((image, index) => {
-      if (typeof image === "string") {
-        formData.append(`product_image_url_${index}`, image);
-      } else if (image) {
-        formData.append(`product_img`, image);
+  
+    const formData = new FormData();
+  
+    // Append existing images (keeping the previous logic)
+    const existingImages = images.filter((image) => typeof image === "string");
+    formData.append("existing_images", JSON.stringify(existingImages));
+  
+    // Append new images (only files, not URLs)
+    images.forEach((image) => {
+      if (typeof image !== "string") {
+        formData.append("product_img", image);
       }
     });
-
+  
+    formData.append("product_name", productName);
+    formData.append("brand_name", brandName);
+    formData.append("product_mrp", productMRP);
+    formData.append("product_quantity", productQuantity);
+    formData.append("description", description);
+    formData.append("total_stock", totalStock);
+    formData.append("threshold_stock", thresholdStock);
+    formData.append("gst", gst);
+    formData.append("product_category", selectedCategory);
+  
     try {
       if (isEditMode) {
         await axios.put(`/storedata/update-store-product/${id}`, formData, {
           headers: {
             Authorization: `Bearer ${UserToken}`,
+            "Content-Type": "multipart/form-data", 
           },
         });
-        toast.success("Product updated successfully!", 'success');
+        toast.success("Product updated successfully!");
         navigate("/inventory/view-all");
-
+  
       } else {
         const { data } = await axios.post(
           "/storedata/add-product-to-store",
@@ -148,11 +163,14 @@ export const ListProduct = ({ props, onProductAdded }) => {
           {
             headers: {
               Authorization: `Bearer ${UserToken}`,
+              "Content-Type": "multipart/form-data",
             },
           }
         );
-        toast.success("Product added successfully!", 'sucsess');
+        toast.success("Product added successfully!");
         onProductAdded(data?.data?.data);
+        navigate("/inventory/view-all");
+
       }
     } catch (error) {
       console.error("Error Updating product:", error);
@@ -160,6 +178,10 @@ export const ListProduct = ({ props, onProductAdded }) => {
     } finally {
       setLoading(false);
     }
+  };
+  const handleCategoryChange = (event) => {
+    const selectedId = event.target.value;
+    setSelectedCategory(selectedId);
   };
 
   const handleSuggestionClick = (suggestion) => {
@@ -276,6 +298,7 @@ export const ListProduct = ({ props, onProductAdded }) => {
                   name="product_category"
                   className="bg-white border border-gray-300 rounded py-3 px-3.5 text-gray-900 placeholder:text-gray-400 outline-none w-full"
                   defaultValue={selectedCategory}
+                  onChange={handleCategoryChange}
                 >
                   <option disabled value="">
                     Select Category
@@ -411,7 +434,6 @@ export const ListProduct = ({ props, onProductAdded }) => {
               </div>
             ))}
           </div>
-
           <button
             className="px-4 w-1/2 mt-4 py-2.5 border-2 rounded bg-blue-700 text-white border-blue-700"
             type="submit"

@@ -26,7 +26,7 @@ const OrderDetails = ({ order, onClose }) => {
             Authorization: `Bearer ${token}`,
           },
         });
-        setStore(response.data); // Assuming the store data is in the first element of the array
+        setStore(response.data); 
       } catch (error) {
         console.error("Error fetching store details:", error);
       } finally {
@@ -66,7 +66,7 @@ const OrderDetails = ({ order, onClose }) => {
       heightLeft -= pageHeight;
     }
 
-    pdf.save("order-details.pdf");
+    pdf.save(`order-${order?.orderId}.pdf`);
   };
 
   return (

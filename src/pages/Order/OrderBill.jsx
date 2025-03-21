@@ -56,8 +56,9 @@ const OrderBill = ({ order }) => {
           {/* <img src={store.logo} alt="Store Logo" style={{ height: "50px" }} /> */}
           <div style={{ textAlign: "center" }}>
             <h2 className="text-lg font-semibold" style={{ margin: 0 }}>{store.storeName}</h2>
-            <p style={{ margin: 0, fontSize:12 }}>{store.businessType}</p>
-            <p style={{ margin: 0, fontSize:12  }}>{store.location}</p>
+            <p style={{ margin: 0, fontSize:12 }}>{store?.gstNumber}</p>
+            <p style={{ margin: 0, fontSize:12 }}>{store?.businessType}</p>
+            <p style={{ margin: 0, fontSize:12  }}>{store?.address}</p>
 
           </div>
         </div>

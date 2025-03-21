@@ -8,7 +8,7 @@ export const SocketProvider = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
-    const socketInstance = io('http://localhost:5000'); 
+    const socketInstance = io('https://tripund-backend-dot-project-101-396902.el.r.appspot.com'); 
 
     setSocket(socketInstance);
 

@@ -51,7 +51,7 @@ const QRCodeGenerator = () => {
                 }
 
                 const config = { headers: { Authorization: `Bearer ${token}` } };
-                const response = await axios.get(`http://localhost:5000/api/qrcode/generate-qr/${storeId}`, config);
+                const response = await axios.get(`https://tripund-backend-dot-project-101-396902.el.r.appspot.com/api/qrcode/generate-qr/${storeId}`, config);
                 setQrCodeUrl(response.data.qrCodeUrl);
                 setLoading(false);
             } catch (error) {

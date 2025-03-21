@@ -12,34 +12,40 @@ const HeadingCategoryCombo = () => {
   const [combinations, setCombinations] = useState([]);
   const [selectedCombinations, setSelectedCombinations] = useState([]);
 
+  const fetchData = async () => {
+    try {
+      const token = localStorage.getItem('token');
+
+      const [headingsResponse, categoriesResponse] = await Promise.all([
+        axios.get('/store/getHeadings', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        }),
+        axios.get('/store/getCategories', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }),
+      ]);
+
+      setHeadings(headingsResponse.data);
+      setCategories(categoriesResponse.data);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const token = localStorage.getItem('token');
-
-        const [headingsResponse, categoriesResponse] = await Promise.all([
-          axios.get('/store/getHeadings', {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              'Content-Type': 'multipart/form-data',
-            },
-          }),
-          axios.get('/store/getCategories', {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }),
-        ]);
-
-        setHeadings(headingsResponse.data);
-        setCategories(categoriesResponse.data);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-
     fetchData();
   }, []);
+
+  const openPopup = async () => {
+    await fetchData();
+    setIsOpen(true);
+  };
+
 
   const handleHeadingClick = (headingId) => {
     setSelectedHeading(headingId);
@@ -152,8 +158,8 @@ const HeadingCategoryCombo = () => {
         </h2>
         <div>
           <button
-            onClick={() => setIsOpen(true)}
-            className="px-4 py-2 bg-blue-500 text-white rounded mr-2"
+onClick={openPopup}            
+className="px-4 py-2 bg-blue-500 text-white rounded mr-2"
           >
             Create Combo
           </button>

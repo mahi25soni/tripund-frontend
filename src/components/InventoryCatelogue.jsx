@@ -54,7 +54,6 @@ export const InventoryCatelogue = () => {
   useEffect(() => {
     const fetchFilteredProducts = async () => {
       if (!searchParams || Object.keys(searchParams).length === 0) {
-        console.log("No search parameters, skipping API call.");
         return;
       }
   
@@ -72,7 +71,7 @@ export const InventoryCatelogue = () => {
           setFilteredProducts(response?.data?.products);
           setTotalPages(response.data?.pagination?.totalPages);
         if(response.data.products.length === 0){
-          showToast("No Product for this filter",'warning')
+          toast.warning("No Product for this filter");
         }
 
 

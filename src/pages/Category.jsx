@@ -1,15 +1,14 @@
-// src/components/Category.js
 import React, { useState, useEffect } from 'react';
 import AddCategory from '../components/AddCategory';
 import AddHeading from '../components/AddHeading';
 import axios from '../../axios';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate for navigation
+import { useNavigate } from 'react-router-dom'; 
 import HeadingCategoryCombo from '../components/HeadingCategoryCombo';
 
 const Category = () => {
   const [categories, setCategories] = useState([]);
   const [headings, setHeadings] = useState([]);
-  const navigate = useNavigate(); // Initialize navigate
+  const navigate = useNavigate(); 
 
   const addCategory = (newCategory) => {
     setCategories([...categories, newCategory]);
@@ -27,7 +26,7 @@ const Category = () => {
           console.log('Category: ', response.data);
           setCategories(response.data);
         } else {
-          navigate('/login'); // Redirect to login if no token
+          navigate('/login'); 
         }
       } catch (error) {
         console.error('Error fetching categories:', error);
@@ -49,7 +48,7 @@ const Category = () => {
           console.log('Headings: ', response.data);
           setHeadings(response.data);
         } else {
-          navigate('/login'); // Redirect to login if no token
+          navigate('/login'); 
         }
       } catch (error) {
         console.error('Error fetching headings:', error);
@@ -66,13 +65,13 @@ const Category = () => {
         <AddCategory categories={categories} setCategories={setCategories} />
       </div>
       <div className="w-full md:w-1/2 rounded-lg shadow">
-        <AddHeading headings={headings} setHeadings={setHeadings} /> {/* Corrected prop name */}
+        <AddHeading headings={headings} setHeadings={setHeadings} /> 
       </div>
     
     </div>
     <div className="w-full pt-4 rounded-lg shadow">
-        <HeadingCategoryCombo/> 
-      </div>
+    <HeadingCategoryCombo categories={categories} headings={headings} />
+    </div>
     </div>
   );
 };
