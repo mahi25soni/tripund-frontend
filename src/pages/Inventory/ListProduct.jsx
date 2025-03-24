@@ -3,8 +3,9 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import Input from "../../atoms/Input";
 import axios from "../../../axios";
 import Spinner from "../../components/Spinner";
-import { toast } from "react-toastify";
-import { BiSolidImageAdd } from "react-icons/bi";
+import { toast, ToastContainer } from "react-toastify"; // Import ToastContainer
+import "react-toastify/dist/ReactToastify.css"; // Import Toast CSS
+import { BiSolidImageAdd, BiX } from "react-icons/bi";
 import { FaSearch } from "react-icons/fa";
 import { BsInfoCircle } from "react-icons/bs";
 
@@ -21,7 +22,6 @@ export const ListProduct = ({ props, onProductAdded }) => {
   const [editData, setEditData] = useState("");
   const [productName, setProductName] = useState("");
   const [selectedCategory, setSelectedCategory] = useState([]);
-
   const [productQuantity, setProductQuantity] = useState("");
   const [productMRP, setProductMRP] = useState("");
   const [description, setDescription] = useState("");
@@ -118,23 +118,36 @@ export const ListProduct = ({ props, onProductAdded }) => {
     }
   }, [isEditMode, id, UserToken]);
 
+  const resetForm = () => {
+    setProductName("");
+    setSelectedCategory([]);
+    setProductQuantity("");
+    setProductMRP("");
+    setDescription("");
+    setBrandName("");
+    setGst("");
+    setTotalStock("");
+    setThresholdStock("");
+    setImages([null, null, null, null]);
+  };
+
   const addProductHandle = async (event) => {
     event.preventDefault();
     setLoading(true);
-  
+
     const formData = new FormData();
-  
+
     // Append existing images (keeping the previous logic)
     const existingImages = images.filter((image) => typeof image === "string");
     formData.append("existing_images", JSON.stringify(existingImages));
-  
+
     // Append new images (only files, not URLs)
     images.forEach((image) => {
       if (typeof image !== "string") {
         formData.append("product_img", image);
       }
     });
-  
+
     formData.append("product_name", productName);
     formData.append("brand_name", brandName);
     formData.append("product_mrp", productMRP);
@@ -144,18 +157,17 @@ export const ListProduct = ({ props, onProductAdded }) => {
     formData.append("threshold_stock", thresholdStock);
     formData.append("gst", gst);
     formData.append("product_category", selectedCategory);
-  
+
     try {
       if (isEditMode) {
         await axios.put(`/storedata/update-store-product/${id}`, formData, {
           headers: {
             Authorization: `Bearer ${UserToken}`,
-            "Content-Type": "multipart/form-data", 
+            "Content-Type": "multipart/form-data",
           },
         });
         toast.success("Product updated successfully!");
         navigate("/inventory/view-all");
-  
       } else {
         const { data } = await axios.post(
           "/storedata/add-product-to-store",
@@ -169,8 +181,7 @@ export const ListProduct = ({ props, onProductAdded }) => {
         );
         toast.success("Product added successfully!");
         onProductAdded(data?.data?.data);
-        navigate("/inventory/view-all");
-
+        resetForm(); // Reset the form after successful submission
       }
     } catch (error) {
       console.error("Error Updating product:", error);
@@ -179,6 +190,7 @@ export const ListProduct = ({ props, onProductAdded }) => {
       setLoading(false);
     }
   };
+
   const handleCategoryChange = (event) => {
     const selectedId = event.target.value;
     setSelectedCategory(selectedId);
@@ -216,9 +228,30 @@ export const ListProduct = ({ props, onProductAdded }) => {
     <div className="bg-white px-4 py-4 m-2 rounded-lg border-3">
       {loading && <Spinner />}
 
+      {/* Toast Container */}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
+
       {showCategoryPopup && (
         <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded shadow-lg text-center w-72 ">
+          <div className="bg-white p-6 rounded-lg text-center w-72 relative">
+            {/* Close Icon */}
+            <button
+              onClick={() => setShowCategoryPopup(false)}
+              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+            >
+              <BiX size={24} />
+            </button>
+
             <BsInfoCircle
               className="text-red-500 text-center w-full"
               size={20}
@@ -230,7 +263,7 @@ export const ListProduct = ({ props, onProductAdded }) => {
               You need to create at least one category to add a product.
             </p>
             <Link to="/category">
-              <button className="px-4 py-2 bg-blue-500 text-white rounded hover:border hover:border-blue-600 ">
+              <button className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-300">
                 Go to Category Page
               </button>
             </Link>
@@ -400,7 +433,7 @@ export const ListProduct = ({ props, onProductAdded }) => {
             {images.map((image, index) => (
               <div
                 key={index}
-                className="relative border p-2 rounded-lg cursor-pointer bg-gray-100 flex items-center justify-center w-[200px] h-[200px] transition duration-300 ease-in-out hover:shadow-md hover:bg-gray-50"
+                className="relative border p-2 rounded-lg cursor-pointer bg-gray-100 flex items-center justify-center w-[200px] h-[200px] transition duration-300 ease-in-out hover:bg-gray-50"
                 onClick={() =>
                   document.getElementById(`imageInput${index}`).click()
                 }
@@ -435,7 +468,7 @@ export const ListProduct = ({ props, onProductAdded }) => {
             ))}
           </div>
           <button
-            className="px-4 w-1/2 mt-4 py-2.5 border-2 rounded bg-blue-700 text-white border-blue-700"
+            className="px-4 w-1/2 mt-4 py-2.5 border-2 rounded bg-blue-700 text-white border-blue-700 hover:bg-blue-800 transition duration-300"
             type="submit"
           >
             {isEditMode ? "Update Product" : "Add Product"}

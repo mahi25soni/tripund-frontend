@@ -3,9 +3,9 @@ import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import axios from "../../../axios";
 import OrderBill from "./OrderBill";
-import { GoDownload, GoIssueClosed } from "react-icons/go";
-import { BiCloset, BiCollapse, BiCross, BiWindowClose } from "react-icons/bi";
+import { GoDownload } from "react-icons/go";
 import { IoCloseCircleOutline } from "react-icons/io5";
+import { ClipLoader } from "react-spinners"; 
 
 const OrderDetails = ({ order, onClose }) => {
   const [store, setStore] = useState(null);
@@ -26,7 +26,7 @@ const OrderDetails = ({ order, onClose }) => {
             Authorization: `Bearer ${token}`,
           },
         });
-        setStore(response.data); 
+        setStore(response.data);
       } catch (error) {
         console.error("Error fetching store details:", error);
       } finally {
@@ -70,82 +70,82 @@ const OrderDetails = ({ order, onClose }) => {
   };
 
   return (
-    <div>
-      <div className="flex w-full">
-        <div className="w-3/5 mx-6">
-          <div className="flex justify-between bg-gray-100 p-4 rounded-lg items-center h-32">
-            <div>
-              <p className="text-md">Order ID</p>
-              <p className="font-medium text-lg">{order?.orderId}</p>
-            </div>
+    <div className="p-4 sm:p-6 lg:p-8">
+      <div className="fixed top-4 right-8 flex gap-2 z-50">
+        <button
+          onClick={downloadPDF}
+          className="flex items-center px-4 py-2 bg-white/90 backdrop-blur-sm text-black rounded-full shadow-lg border border-gray-200 hover:border-blue-300 hover:text-blue-500 transition-all hover:shadow-md"
+        >
+          <GoDownload size={20} className="mr-2" /> Download Bill
+        </button>
+        <button
+          onClick={onClose}
+          className="flex items-center px-4 py-2 bg-white/90 backdrop-blur-sm text-black rounded-full shadow-lg border border-gray-200 hover:border-blue-300 hover:text-blue-500 transition-all hover:shadow-md"
+        >
+          <IoCloseCircleOutline size={20} className="mr-2" /> Close
+        </button>
+      </div>
 
+      <div className="flex flex-col lg:flex-row w-full gap-4">
+        <div className="w-full lg:w-3/5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 bg-white/80 backdrop-blur-sm p-4 rounded-lg shadow-sm border border-gray-100">
             <div>
-              <p className="text-md">Ordered By</p>
-              <p className="font-medium text-lg">{order?.userId?.name}</p>
+              <p className="text-sm sm:text-md text-gray-600">Order ID</p>
+              <p className="font-medium text-md sm:text-lg">{order?.orderId}</p>
             </div>
-
             <div>
-              <p className="text-md">Products</p>
-              <p className="font-medium text-lg">{order?.products?.length}</p>
+              <p className="text-sm sm:text-md text-gray-600">Ordered By</p>
+              <p className="font-medium text-md sm:text-lg">{order?.userId?.name}</p>
             </div>
-
             <div>
-              <p className="text-md">Amount</p>
-              <p className="font-medium text-lg">
+              <p className="text-sm sm:text-md text-gray-600">Products</p>
+              <p className="font-medium text-md sm:text-lg">{order?.products?.length}</p>
+            </div>
+            <div>
+              <p className="text-sm sm:text-md text-gray-600">Amount</p>
+              <p className="font-medium text-md sm:text-lg">
                 Rs {order?.finalBillToPay.toFixed(2)}
               </p>
             </div>
-
             <div>
-              <p className="text-md">Ordered On</p>
-              <p className="font-medium text-lg">
+              <p className="text-sm sm:text-md text-gray-600">Ordered On</p>
+              <p className="font-medium text-md sm:text-lg">
                 {new Date(order.createdAt).toLocaleDateString("en-GB")}
               </p>
             </div>
           </div>
-
-          <div className="bg-white p-4 rounded-lg">
-            <div className="text-xl font-medium">Products</div>
-
+          <div className="bg-white/80 backdrop-blur-sm p-4 rounded-lg mt-4 shadow-sm border border-gray-100">
+            <div className="text-lg sm:text-xl font-medium mb-4">Products</div>
             <div className="my-4 flex flex-col gap-2">
               {order.products?.map((product, index) => (
                 <div
                   key={index}
-                  className="grid grid-cols-3 h-20 text-center border rounded-md px-2 hover:shadow hover:border-blue-300"
+                  className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 p-2 sm:p-4 border border-gray-100 rounded-md hover:shadow-md hover:border-blue-300 transition-all"
                 >
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2 sm:gap-4">
                     <img
                       src={product?.productId?.product_img[0]}
                       alt={'img'}
-                      style={{
-                        width: "60px",
-                        height: "60px",
-                        borderRadius: "4px",
-                      }}
+                      className="w-12 h-12 sm:w-16 sm:h-16 rounded-md object-cover"
                     />
-
-                    <div className="text-left">
-                      <p className="font-semibold">
+                    <div>
+                      <p className="font-semibold text-sm sm:text-md">
                         {product?.productId?.product_name}
                       </p>
-                      <p className="text-md font-normal">
-                        <span className="text-sm font-normal">
-                          Rs {product?.productId?.product_mrp}{" "}
-                          <span>{" | "}</span>{" "}
-                          {product?.productId?.product_quantity}
-                        </span>
+                      <p className="text-sm text-gray-600">
+                        Rs {product?.productId?.product_mrp} | {product?.productId?.product_quantity}
                       </p>
                     </div>
                   </div>
-                  <div className="flex justify-end items-center text-md font-medium gap-1">
-                    <p>Order value</p>
-                    <p className="h-[22px] w-fit px-2  bg-green-200 text-green-500 rounded-md">
+                  <div className="flex items-center justify-end sm:justify-center">
+                    <p className="text-sm sm:text-md">Order value</p>
+                    <p className="ml-2 px-2 py-1 bg-green-100 text-green-600 rounded-md text-sm sm:text-md">
                       Rs {product?.totalPrice}
                     </p>
                   </div>
-                  <div className="flex justify-end items-center text-md font-medium gap-1">
-                    <p>Quantity</p>
-                    <p className="h-[22px] w-[22px] bg-green-200 text-green-500 rounded-full">
+                  <div className="flex items-center justify-end sm:justify-center">
+                    <p className="text-sm sm:text-md">Quantity</p>
+                    <p className="ml-2 px-2 py-1 bg-green-100 text-green-600 rounded-full text-sm sm:text-md">
                       {product?.quantity}
                     </p>
                   </div>
@@ -154,32 +154,19 @@ const OrderDetails = ({ order, onClose }) => {
             </div>
           </div>
         </div>
-
-        <div className="w-2/5 bg-gray-100 min-h-screen px-8 rounded-md">
-          <div className="my-12">
+        <div className="w-full lg:w-2/5 bg-white/80 backdrop-blur-sm p-4 sm:p-6 rounded-md mt-4 lg:mt-0 shadow-sm border border-gray-100">
+          <div className="my-4 sm:my-8">
             {loading ? (
-              <p>Loading Bill...</p>
+              <div className="flex justify-center items-center h-64">
+                <ClipLoader color="#3B82F6" size={50} /> 
+              </div>
             ) : (
-              store && <OrderBill order={order} store={store} />
+              store && (
+                <div id="pdf-content" className="w-full h-[80vh] overflow-y-auto">
+                  <OrderBill order={order} store={store} />
+                </div>
+              )
             )}
-          </div>
-        </div>
-
-        <div className="absolute top-0 right-16 bg flex gap-x-2  rounded-full ">
-          <div
-            onClick={downloadPDF}
-            className="mt-4 px-4 py-2 w-fit flex text-black bg-white rounded-full whitespace-nowrap cursor-pointer border shadow-lg hover:border-blue-300 hover:text-blue-500"
-          >
-            <GoDownload size={20} /> Download Bill
-          </div>
-          <div
-            onClick={onClose}
-            className=" h-fit flex mt-4 p-2 bg-white text-black rounded-full shadow-lg border hover:border-blue-300 hover:text-blue-500 hover:cursor-pointer"
-          >
-            <div className="pt-0.5">
-              <IoCloseCircleOutline size={20} />
-            </div>
-            <p>Close</p>
           </div>
         </div>
       </div>

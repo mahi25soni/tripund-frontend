@@ -1,47 +1,46 @@
-import React from 'react';
+import React from "react";
 
 export const OverallOrders = ({ orderCounts }) => {
   return (
-    <div className="bg-white p-4 mb-2 rounded-lg flex-none shadow ">
-      <div className="flex flex-col lg:flex-row justify-between">
-        <div className="lg:w-1/2 w-full px-4 py-3">
-          <div className="font-semibold text-blue-500 mb-2 text-lg">Total Orders</div>
+    <div className="bg-white p-4 mb-2 rounded-lg">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+        {/* Total Orders Card */}
+        <div className="p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 border-l-4 border-blue-500">
+          <div className="text-gray-600 font-semibold text-lg mb-2">Total Orders</div>
           <div className="flex justify-between items-center">
-            <div className="flex flex-col gap-2">
-              <p className="font-bold text-lg">{orderCounts?.totalOrders || 0}</p>
-            </div>
+            <p className="text-3xl font-bold text-blue-500">{orderCounts?.totalOrders || 0}</p>
           </div>
         </div>
-        <div className="w-1/2 px-10 py-3 border-l-2">
-          <div className="font-semibold text-yellow-500 mb-2 text-lg">Total Pending</div>
+
+        {/* Total Pending Card */}
+        <div className="p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 border-l-4 border-yellow-500">
+          <div className="text-gray-600 font-semibold text-lg mb-2">Total Pending</div>
           <div className="flex justify-between items-center">
-            <div className="flex flex-col gap-2">
-              <p className="font-bold text-lg">{orderCounts?.pending || 0}</p>
-            </div>
+            <p className="text-3xl font-bold text-yellow-500">{orderCounts?.pending || 0}</p>
           </div>
         </div>
-        <div className="w-1/2 px-10 py-3 border-l-2">
-          <div className="font-semibold text-violet-500 mb-2 text-lg">Total Packing</div>
+
+        {/* Total Packing Card */}
+        <div className="p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 border-l-4 border-violet-500">
+          <div className="text-gray-600 font-semibold text-lg mb-2">Total Packing</div>
           <div className="flex justify-between items-center">
-            <div className="flex flex-col gap-2">
-              <p className="font-bold text-lg">{orderCounts?.packing || 0}</p>
-            </div>
+            <p className="text-3xl font-bold text-violet-500">{orderCounts?.packing || 0}</p>
           </div>
         </div>
-        <div className="w-1/2 px-10 py-3 border-l-2">
-          <div className="font-semibold text-green-500 mb-2 text-lg">Out For Delivery</div>
+
+        {/* Out for Delivery Card */}
+        <div className="p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 border-l-4 border-green-500">
+          <div className="text-gray-600 font-semibold text-lg mb-2">Out for Delivery</div>
           <div className="flex justify-between items-center">
-            <div className="flex flex-col gap-2">
-              <p className="font-bold text-lg">{orderCounts?.outForDelivery || 0}</p>
-            </div>
+            <p className="text-3xl font-bold text-green-500">{orderCounts?.outForDelivery || 0}</p>
           </div>
         </div>
-        <div className="w-1/2 px-10 py-3 border-l-2">
-          <div className="font-semibold text-red-500 mb-2 text-lg">Cancelled</div>
+
+        {/* Cancelled Card */}
+        <div className="p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 border-l-4 border-red-500">
+          <div className="text-gray-600 font-semibold text-lg mb-2">Cancelled</div>
           <div className="flex justify-between items-center">
-            <div className="flex flex-col gap-2">
-              <p className="font-bold text-lg">{orderCounts?.cancelled || 0}</p>
-            </div>
+            <p className="text-3xl font-bold text-red-500">{orderCounts?.cancelled || 0}</p>
           </div>
         </div>
       </div>

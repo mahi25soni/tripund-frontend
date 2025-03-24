@@ -31,21 +31,21 @@ const App = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  useEffect(() => {
-    const handleResize = () => {
-      const isMobileView = window.innerWidth < 1024;
-      setIsMobile(isMobileView);
-      if (isMobileView) {
-        setIsModalOpen(true); 
-      }
-    };
+  // useEffect(() => {
+  //   const handleResize = () => {
+  //     const isMobileView = window.innerWidth < 1024;
+  //     setIsMobile(isMobileView);
+  //     if (isMobileView) {
+  //       setIsModalOpen(true); 
+  //     }
+  //   };
 
-    handleResize();
+  //   handleResize();
 
-    window.addEventListener("resize", handleResize);
+  //   window.addEventListener("resize", handleResize);
 
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  //   return () => window.removeEventListener("resize", handleResize);
+  // }, []);
 
   return (
     <Router>
