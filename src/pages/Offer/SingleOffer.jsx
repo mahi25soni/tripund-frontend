@@ -199,7 +199,7 @@ export const SingleOffer = ({ onClose }) => {
         <div className="lg:bg-white lg:shadow-md p-4 rounded-lg flex-grow">
           {/* Search Bar */}
           <div className="flex flex-col lg:flex-row justify-between items-center gap-4 mb-4">
-            <div className="flex relative w-full">
+            <div className="flex relative w-3/5">
               <input
                 type="text"
                 placeholder="Search..."
@@ -214,16 +214,16 @@ export const SingleOffer = ({ onClose }) => {
 
             <div className="flex flex-col lg:flex-row gap-2 w-full lg:w-auto">
               <button
-                className="px-4 py-2.5 border-2 rounded bg-gray-200 hover:bg-gray-300 flex items-center justify-center w-full"
+                className="px-4 py-2.5 border-2 rounded bg-gray-200 hover:bg-gray-300 flex items-center justify-center w-full whitespace-nowrap"
                 onClick={handleSelectAll}
               >
                 {selectAll ? "Deselect All" : "Select All"}
               </button>
               <button
-                className="px-4 py-2.5 border-2 rounded bg-blue-700 text-white hover:border-blue-700 w-full"
+                className="px-4 py-2.5 border-2  rounded bg-blue-700 text-white hover:border-blue-700 w-full whitespace-nowrap"
                 onClick={handleAddTickedProduct}
               >
-                Apply Offer
+                Apply offer
               </button>
             </div>
           </div>
