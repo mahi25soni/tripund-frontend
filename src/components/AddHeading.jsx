@@ -7,7 +7,7 @@ import {
   AiOutlineCheck,
 } from "react-icons/ai";
 import axios from "../../axios";
-import { showToast } from "../atoms/Toast"; 
+import { showToast } from "../atoms/Toast";
 
 const AddHeading = ({ headings, setHeadings }) => {
   const [newHeading, setNewHeading] = useState("");
@@ -23,7 +23,7 @@ const AddHeading = ({ headings, setHeadings }) => {
 
       const token = localStorage.getItem("token");
       if (!token) {
-        showToast("Authorization token is missing.", "error"); // Show error toast
+        showToast("Authorization token is missing.", "error");
         setLoading(false);
         return;
       }
@@ -49,12 +49,12 @@ const AddHeading = ({ headings, setHeadings }) => {
           "Error adding heading:",
           error.response ? error.response.data : error.message
         );
-        showToast("Failed to add heading. Please try again.", "error"); // Error toast
+        showToast("Failed to add heading. Please try again.", "error");
       } finally {
         setLoading(false);
       }
     } else {
-      showToast("Heading cannot be empty.", "warning"); // Warning toast
+      showToast("Heading cannot be empty.", "warning");
     }
   };
 
@@ -64,7 +64,7 @@ const AddHeading = ({ headings, setHeadings }) => {
 
       const token = localStorage.getItem("token");
       if (!token) {
-        showToast("Authorization token is missing.", "error"); // Show error toast
+        showToast("Authorization token is missing.", "error");
         setLoading(false);
         return;
       }
@@ -88,18 +88,18 @@ const AddHeading = ({ headings, setHeadings }) => {
         );
         setEditMode(null);
         setEditedHeading("");
-        showToast("Heading edited successfully!", "success"); // Success toast
+        showToast("Heading edited successfully!", "success");
       } catch (error) {
         console.error(
           "Error editing heading:",
           error.response ? error.response.data : error.message
         );
-        showToast("Failed to edit heading. Please try again.", "error"); // Error toast
+        showToast("Failed to edit heading. Please try again.", "error");
       } finally {
         setLoading(false);
       }
     } else {
-      showToast("Heading cannot be empty.", "warning"); // Warning toast
+      showToast("Heading cannot be empty.", "warning");
     }
   };
 
@@ -117,7 +117,7 @@ const AddHeading = ({ headings, setHeadings }) => {
 
       const token = localStorage.getItem("token");
       if (!token) {
-        showToast("Authorization token is missing.", "error"); // Show error toast
+        showToast("Authorization token is missing.", "error");
         setLoading(false);
         return;
       }
@@ -138,18 +138,18 @@ const AddHeading = ({ headings, setHeadings }) => {
           headings.filter((heading) => !selectedHeadings.includes(heading._id))
         );
         setSelectedHeadings([]);
-        showToast("Selected headings deleted successfully!", "success"); // Success toast
+        showToast("Selected headings deleted successfully!", "success");
       } catch (error) {
         console.error(
           "Error deleting headings:",
           error.response ? error.response.data : error.message
         );
-        showToast("Failed to delete headings. Please try again.", "error"); // Error toast
+        showToast("Failed to delete headings. Please try again.", "error");
       } finally {
         setLoading(false);
       }
     } else {
-      showToast("No headings selected for deletion.", "warning"); // Warning toast
+      showToast("No headings selected for deletion.", "warning");
     }
   };
 
@@ -231,7 +231,6 @@ const AddHeading = ({ headings, setHeadings }) => {
         </ul>
       </div>
 
-
       <Transition appear show={isOpen} as={Fragment}>
         <Dialog
           as="div"
@@ -262,6 +261,14 @@ const AddHeading = ({ headings, setHeadings }) => {
                 leaveTo="opacity-0 scale-95"
               >
                 <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                  <div className="flex justify-end">
+                    <AiOutlineClose
+                      size={20}
+                      className="text-gray-500 cursor-pointer hover:text-gray-700"
+                      onClick={() => setIsOpen(false)}
+                    />
+                  </div>
+
                   <Dialog.Title
                     as="h3"
                     className="text-lg font-medium leading-6 text-gray-900"
