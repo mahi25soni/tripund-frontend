@@ -5,6 +5,7 @@ import { EditOffer } from "../../components/EditOffer";
 import CardWrapper from "../../atoms/CardWrapper";
 import axios from "../../../axios.jsx";
 import Spinner from "../../components/Spinner.jsx";
+import { toast } from "react-toastify";
 
 export const Offer = () => {
   const [allOffersList, setAllOffersList] = useState([]);
@@ -48,10 +49,12 @@ export const Offer = () => {
           (offer) => offer._id !== offerId
         );
         setAllOffersList(updatedOffers);
+        toast.success('Successfully deleted')
       } else {
-        console.error("Failed to delete offer.");
+        toast.error('Failed to delete')
       }
     } catch (error) {
+      toast.error('Failed to delete')
       console.error("An error occurred while deleting the offer:", error);
     } finally {
       setIsLoading(false);
