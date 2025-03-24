@@ -1,53 +1,19 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { FiMoreVertical } from "react-icons/fi";
 import { IoAddSharp } from "react-icons/io5";
 import moment from "moment";
-import { toast, ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import axios from "../../axios.jsx";
 import Spinner from "./Spinner";
-import { EditOffer } from "./EditOffer.jsx";
 import { useNavigate } from "react-router-dom";
 
 export const OfferList = ({
-  setAllOffersList,
   allOffersList,
-  setCurrentSingleOffer,
-  setAddOfferPopUp,
+  handleDeleteOffer,
+  handleEditOffer,
 }) => {
-  const [isLoading, setIsLoading] = useState(true);
   const [isDropdownOpen, setIsDropdownOpen] = useState({});
-  const [editOfferData, setEditOfferData] = useState(null);
-  const [editOfferPopUp, setEditOfferPopUp] = useState(false);
-  const [selectedOfferId, setSelectedOfferId] = useState(null);
-  const UserToken = localStorage.getItem("token");
-
   const navigate = useNavigate();
-  useEffect(() => {
-    const fetchOffers = async () => {
-      try {
-        const { data } = await axios.get("/offer/get-all", {
-          headers: {
-            Authorization: "Bearer " + UserToken,
-          },
-        });
-
-        if (data?.success) {
-          if (JSON.stringify(allOffersList) !== JSON.stringify(data.offers)) {
-            setAllOffersList(data.offers);
-          }
-        } else {
-          toast.error("Failed to fetch offers.");
-        }
-      } catch (error) {
-        toast.error("An error occurred while fetching offers.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchOffers();
-  }, [UserToken, setAllOffersList]);
 
   const toggleDropdown = (offerId) => {
     setIsDropdownOpen((prevData) => ({
@@ -56,51 +22,9 @@ export const OfferList = ({
     }));
   };
 
-  const handleOpenOfferData = (offerId) => {    
+  const handleOpenOfferData = (offerId) => {
     navigate(`/offers/add-product/${offerId}`);
   };
-
-  const handleDeleteOffer = async (offerId) => {
-    setIsLoading(true);
-    try {
-      const { data } = await axios.delete(`/offer/delete-offer/${offerId}`, {
-        headers: {
-          Authorization: "Bearer " + UserToken,
-        },
-      });
-
-      if (data?.success) {
-        const updatedOffers = allOffersList.filter(
-          (offer) => offer._id !== offerId
-        );
-        setAllOffersList(updatedOffers);
-        toast.success("Offer deleted successfully!");
-      } else {
-        toast.error("Failed to delete offer.");
-      }
-    } catch (error) {
-      toast.error("An error occurred while deleting the offer.");
-    } finally {
-      setIsLoading(false);
-      setIsDropdownOpen({ [offerId]: false });
-    }
-  };
-
-  const handleEditOffer = (offerId) => {
-    setSelectedOfferId(offerId);
-    setEditOfferPopUp(true);
-  };
-
-  if (isLoading) {
-    return (
-      <>
-        <ToastContainer />
-        <div className="flex justify-center items-center h-full">
-          <Spinner />
-        </div>
-      </>
-    );
-  }
 
   return (
     <>
@@ -146,7 +70,7 @@ export const OfferList = ({
                     </button>
                     <button
                       className="border-none bg-transparent hover:bg-gray-200 p-1 rounded-md"
-                      onClick={() => handleEditOffer(offer?._id)}
+                      onClick={() => handleEditOffer(offer._id)}
                     >
                       Edit
                     </button>
@@ -179,15 +103,6 @@ export const OfferList = ({
           );
         })}
       </div>
-      {editOfferPopUp && (
-        <div className="fixed inset-0 flex h-screen items-center justify-center bg-black bg-opacity-50 z-50 overflow-auto">
-          <EditOffer
-            setEditOfferPopUp={setEditOfferPopUp}
-            offerId={selectedOfferId}
-            setAllOffersList={setAllOffersList}
-          />
-        </div>
-      )}
     </>
   );
 };

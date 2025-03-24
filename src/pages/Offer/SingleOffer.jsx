@@ -9,20 +9,19 @@ import "react-toastify/dist/ReactToastify.css";
 
 export const SingleOffer = ({ currentSingleOffer, onClose }) => {
   const [storeProductList, setStoreProductList] = useState([]);
-  const [filteredProducts, setFilteredProducts] = useState([]); 
+  const [filteredProducts, setFilteredProducts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [isChecked, setIsChecked] = useState({});
-  const [selectAll, setSelectAll] = useState(false); 
+  const [selectAll, setSelectAll] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [offerData, setOfferData] = useState(null); // New state for offer data
-  const navigate = useNavigate(); 
+  const [offerData, setOfferData] = useState(null);
+  const navigate = useNavigate();
   const { id } = useParams();
 
   const UserToken = localStorage.getItem("token");
 
-  // Fetch offer data based on the ID from URL
   useEffect(() => {
     fetchOfferData();
   }, [id]);
@@ -49,7 +48,7 @@ export const SingleOffer = ({ currentSingleOffer, onClose }) => {
   }, [currentPage]);
 
   const fetchProducts = async () => {
-    setLoading(true); 
+    setLoading(true);
 
     const { data } = await axios.get(
       `/offer/get-all-products-of-offer/${id}/${currentPage}`,
@@ -69,9 +68,9 @@ export const SingleOffer = ({ currentSingleOffer, onClose }) => {
 
     setIsChecked(checkedState);
     setStoreProductList(productList);
-    setFilteredProducts(productList); 
+    setFilteredProducts(productList);
     setTotalPages(data?.data?.total_pages);
-    setLoading(false); 
+    setLoading(false);
   };
 
   const handleSearch = (e) => {
@@ -89,10 +88,12 @@ export const SingleOffer = ({ currentSingleOffer, onClose }) => {
   const handleSelectAll = () => {
     const updatedChecked = {};
     filteredProducts.forEach((product) => {
-      updatedChecked[product?._id] = !selectAll; 
+      if (product?.total_stock > product?.threshold_stock) {
+        updatedChecked[product?._id] = !selectAll;
+      }
     });
     setIsChecked(updatedChecked);
-    setSelectAll(!selectAll); 
+    setSelectAll(!selectAll);
   };
 
   const handleAddTickedProduct = async () => {
@@ -137,8 +138,13 @@ export const SingleOffer = ({ currentSingleOffer, onClose }) => {
     } catch (error) {
       console.error("Error updating offer: ", error);
 
-      // Show error toast notification
       toast.error("Failed to update the offer. Please try again.");
+    }
+  };
+
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
     }
   };
 
@@ -182,11 +188,9 @@ export const SingleOffer = ({ currentSingleOffer, onClose }) => {
             </div>
 
             <div className="flex items-center gap-2">
-             
-              
               <button
                 className="px-4 py-2.5 border-2 rounded bg-gray-200 hover:bg-gray-300 flex items-center"
-                onClick={handleSelectAll} // Handle select all
+                onClick={handleSelectAll}
               >
                 {selectAll ? "Deselect All" : "Select All"}
               </button>
@@ -196,13 +200,11 @@ export const SingleOffer = ({ currentSingleOffer, onClose }) => {
               >
                 Apply Offer
               </button>
-              
             </div>
           </div>
 
           {loading ? (
             <div className="flex justify-center items-center py-4">
-              {/* Simple loader */}
               <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div>
             </div>
           ) : (
@@ -229,6 +231,7 @@ export const SingleOffer = ({ currentSingleOffer, onClose }) => {
                       className="w-5 h-5 border-4 rounded flex items-center justify-center border-blue-300 bg-white"
                       checked={!!isChecked[item?._id]}
                       onChange={() => handleCheckboxChange(item?._id)}
+                      disabled={item?.total_stock <= item?.threshold_stock} 
                     />
                   </div>
                   <p className="w-1/2 py-1">{item?.product_name}</p>
@@ -250,6 +253,34 @@ export const SingleOffer = ({ currentSingleOffer, onClose }) => {
               ))}
             </div>
           )}
+
+          <div className="flex justify-center items-center mt-4">
+            <button
+              className="px-3 py-1 border rounded mr-2"
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </button>
+            {[...Array(totalPages)].map((_, index) => (
+              <button
+                key={index}
+                className={`px-3 py-1 border rounded mx-1 ${
+                  currentPage === index + 1 ? "bg-blue-500 text-white" : ""
+                }`}
+                onClick={() => handlePageChange(index + 1)}
+              >
+                {index + 1}
+              </button>
+            ))}
+            <button
+              className="px-3 py-1 border rounded ml-2"
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </button>
+          </div>
         </div>
       </div>
       <ToastContainer />
