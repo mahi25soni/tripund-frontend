@@ -255,9 +255,9 @@ export const OrdersList = ({ setOpenOrderDetails, updateOrderCounts }) => {
                     ))}
                   </select>
                 </div>
-                <div className="w-1/6 py-1">
+                <div className="w-1/6  text-center py-1 lg:ml-2">
                   <button
-                    className="flex items-center gap-2 text-blue-600 hover:text-blue-800"
+                    className="flex items-center lg:pl-4 lg:px-4 lg:py-2  lg:hover:border-blue-500 lg:border rounded text-center gap-2 text-blue-600 hover:text-blue-800"
                     onClick={() => handleOpenOrderDetails(order._id)}
                   >
                     <BsEye size={20} />

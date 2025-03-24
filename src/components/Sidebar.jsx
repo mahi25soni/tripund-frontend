@@ -86,7 +86,7 @@ const Sidebar = () => {
           Dashboard
         </NavLink>
 
-        <div>
+        {/* <div>
           <div
             className={`flex items-center px-6 py-3 cursor-pointer hover:bg-gray-100 ${
               isInventoryOpen ? 'bg-gray-100 text-blue-500' : 'text-black'
@@ -126,7 +126,19 @@ const Sidebar = () => {
               </NavLink>
             </div>
           </div>
-        </div>
+        </div> */}
+
+        <NavLink
+                to="/inventory/view-all"
+                className={({ isActive }) =>
+                  `block flex items-center px-6 py-2 hover:bg-gray-100 ${
+                    isActive ? 'bg-gray-100 text-blue-500' : 'text-black'
+                  }`
+                }
+              >
+            <BsBoxSeam className="mr-4" />
+              Inventory
+              </NavLink>
 
         <NavLink
           to="/category"

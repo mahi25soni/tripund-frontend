@@ -173,63 +173,63 @@ const AddHeading = ({ headings, setHeadings }) => {
           >
             Add Heading
           </button>
+        </div> 
+      </div>
+      <div className="grid grid-cols-2 gap-4 border p-4 rounded h-80 overflow-x-auto">
+  {headings.map((heading, index) => (
+    <div
+      key={heading._id}
+      className="flex items-center font-medium justify-between bg-slate-100 rounded-md text-lg py-2 px-4 relative group"
+      style={{ gridColumn: (index % 2) + 1 }} 
+    >
+      <div className="flex items-center">
+        <input
+          type="checkbox"
+          checked={selectedHeadings.includes(heading._id)}
+          onChange={() => handleCheckboxChange(heading._id)}
+          className="mr-2"
+        />
+        {editMode === heading._id ? (
+          <input
+            type="text"
+            value={editedHeading}
+            onChange={(e) => setEditedHeading(e.target.value)}
+            className="border p-1 rounded-md"
+          />
+        ) : (
+          heading.heading
+        )}
+      </div>
+      {editMode === heading._id ? (
+        <div className="flex items-center bg-slate-100 p-2 ml-2 rounded-md ">
+          <AiOutlineCheck
+            size={20}
+            className="text-green-500 cursor-pointer mr-2"
+            onClick={handleEditHeading}
+          />
+          <AiOutlineClose
+            size={20}
+            className="text-red-500 cursor-pointer"
+            onClick={() => {
+              setEditMode(null);
+              setEditedHeading("");
+            }}
+          />
         </div>
-      </div>
-      <div className="grid lg:grid-cols-2 border p-4 rounded h-80 overflow-x-auto">
-        <ul className="mb-4">
-          {headings.map((heading) => (
-            <li
-              key={heading._id}
-              className="flex items-center font-medium justify-between bg-slate-100 mb-2 rounded-md text-lg py-2 px-4 relative group"
-            >
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={selectedHeadings.includes(heading._id)}
-                  onChange={() => handleCheckboxChange(heading._id)}
-                  className="mr-2"
-                />
-                {editMode === heading._id ? (
-                  <input
-                    type="text"
-                    value={editedHeading}
-                    onChange={(e) => setEditedHeading(e.target.value)}
-                    className="border p-1 rounded-md"
-                  />
-                ) : (
-                  heading.heading
-                )}
-              </div>
-              {editMode === heading._id ? (
-                <div className="flex items-center bg-slate-100 p-2 ml-2 rounded-md ">
-                  <AiOutlineCheck
-                    size={20}
-                    className="text-green-500 cursor-pointer mr-2"
-                    onClick={handleEditHeading}
-                  />
-                  <AiOutlineClose
-                    size={20}
-                    className="text-red-500 cursor-pointer"
-                    onClick={() => {
-                      setEditMode(null);
-                      setEditedHeading("");
-                    }}
-                  />
-                </div>
-              ) : (
-                <AiOutlineEdit
-                  size={20}
-                  className="ml-2 text-blue-500 cursor-pointer hover:text-blue-700 group-hover:visible invisible"
-                  onClick={() => {
-                    setEditMode(heading._id);
-                    setEditedHeading(heading.heading);
-                  }}
-                />
-              )}
-            </li>
-          ))}
-        </ul>
-      </div>
+      ) : (
+        <AiOutlineEdit
+          size={20}
+          className="ml-2 text-blue-500 cursor-pointer hover:text-blue-700 group-hover:visible invisible"
+          onClick={() => {
+            setEditMode(heading._id);
+            setEditedHeading(heading.heading);
+          }}
+        />
+      )}
+    </div>
+  ))}
+</div>
+
 
       <Transition appear show={isOpen} as={Fragment}>
         <Dialog

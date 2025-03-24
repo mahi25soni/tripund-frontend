@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ListProduct } from "../pages/Inventory/ListProduct";
 import axios from "../../axios.jsx";
@@ -23,32 +23,38 @@ export const InventoryCatelogue = () => {
   const [selectedProductId, setSelectedProductId] = useState(null);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [searchParams, setSearchParams] = useState({});
+  const [shouldRefetch, setShouldRefetch] = useState(false);
+
+  const fetchProducts = useCallback(async () => {
+    try {
+      setLoading(true);
+      const { data } = await axios.get(
+        `/storedata/get-store-inventory?page=${currentPage}`,
+        {
+          headers: {
+            Authorization: `Bearer ${UserToken}`,
+          },
+        }
+      );
+
+      setStoreProductList(data?.data?.entire_inventory || []);
+      setTotalPages(data?.data?.total_pages || 1);
+    } catch (error) {
+      console.error("Error fetching inventory:", error);
+    } finally {
+      setLoading(false);
+      setShouldRefetch(false);
+    }
+  }, [currentPage, UserToken]);
 
   useEffect(() => {
-    (async () => {
-      try {
-        const { data } = await axios.get(
-          `/storedata/get-store-inventory?page=${currentPage}`,
-          {
-            headers: {
-              Authorization: `Bearer ${UserToken}`,
-            },
-          }
-        );
-
-        setStoreProductList(data?.data?.entire_inventory || []);
-        setTotalPages(data?.data?.total_pages || 1);
-      } catch (error) {
-        console.error("Error fetching inventory:", error);
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, [currentPage, UserToken]);
+    fetchProducts();
+  }, [fetchProducts, shouldRefetch]);
 
   useEffect(() => {
     const fetchFilteredProducts = async () => {
       if (!searchParams || Object.keys(searchParams).length === 0) {
+        setFilteredProducts([]);
         return;
       }
 
@@ -63,9 +69,9 @@ export const InventoryCatelogue = () => {
           params: searchParams,
         });
 
-        setFilteredProducts(response?.data?.products);
-        setTotalPages(response.data?.pagination?.totalPages);
-        if (response.data.products.length === 0) {
+        setFilteredProducts(response?.data?.products || []);
+        setTotalPages(response.data?.pagination?.totalPages || 1);
+        if (response.data.products && response.data.products.length === 0) {
           toast.warning("No Product for this filter");
         }
       } catch (error) {
@@ -114,25 +120,32 @@ export const InventoryCatelogue = () => {
     setIsPopupOpen(true);
   };
 
+  const handleProductAdded = useCallback((newProduct) => {
+    setStoreProductList(prevList => [newProduct, ...prevList]);
+    setAddProductPopUp(false);
+    setShouldRefetch(true); // Trigger a refetch to ensure data consistency
+  }, []);
+
   return (
     <>
-      <div className="xl:p-8 rounded-lg flex-grow h-full">
+      <div className="xl:p-2 rounded-lg flex-grow h-full">
+        <ToastContainer />
         <div className="flex flex-col xl:flex-row justify-between items-center gap-4">
           <div className="text-xl font-medium">Products</div>
-          <div className="flex flex-col  lg:items-center md:flex-row gap-4 w-full md:w-auto">
+          <div className="flex flex-col lg:items-center md:flex-row gap-4 w-full md:w-auto">
             <ProductFilter onSearchChange={handleSearchChange} />
             <button
-  className="px-2 py-2 border-2 lg:h-fit rounded bg-blue-700 text-white hover:bg-blue-800 transition duration-300 w-full md:w-auto text-sm"
-  onClick={() => setAddProductPopUp(!addProductPopUp)}
->
-  Add Product
-</button>
+              className="px-2 py-2 border-2 lg:h-fit rounded bg-blue-700 text-white hover:bg-blue-800 transition duration-300 w-full md:w-auto text-md"
+              onClick={() => setAddProductPopUp(!addProductPopUp)}
+            >
+              Add Product
+            </button>
           </div>
         </div>
 
         {loading ? (
           <Spinner />
-        ) : storeProductList.length === 0 ? (
+        ) : storeProductList.length === 0 && filteredProducts.length === 0 ? (
           <p className="text-center py-4 text-gray-500 h-92">
             No products listed, add now!
           </p>
@@ -185,77 +198,75 @@ export const InventoryCatelogue = () => {
             </div>
 
             <div className="lg:hidden my-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-  {displayedProducts?.map((item, index) => (
-    <div
-      key={index}
-      className="w-full rounded-lg shadow-md p-4 cursor-pointer hover:shadow-lg transition duration-300 bg-white border border-gray-100"
-    >
-      {/* Product Name and Actions */}
-      <div className="flex justify-between items-start mb-4">
-        <p className="font-semibold text-lg text-blue-700 break-words">
-          {item?.product_name}
-        </p>
-        <div className="flex gap-3">
-          <BiPencil
-            className="text-green-600 cursor-pointer hover:text-blue-800"
-            onClick={() => handleEditProduct(item._id)}
-          />
-          <MdDelete
-            className="text-red-600 cursor-pointer hover:text-red-800"
-            onClick={() => openDeletePopup(item._id)}
-          />
-          <BsEye
-            className="text-blue-600 cursor-pointer hover:text-red-800"
-            onClick={() => handleProductClick(item._id)}
-          />
-        </div>
-      </div>
-      <div className="space-y-3">
-        <div className="flex justify-between gap-2">
-          <div className="flex flex-col flex-1">
-            <span className="text-sm text-gray-500">MRP</span>
-            <span className="font-medium">₹{item?.product_mrp}</span>
-          </div>
-          <div className="flex flex-col flex-1">
-            <span className="text-sm text-gray-500">Quantity</span>
-            <span className="font-medium">{item?.product_quantity}</span>
-          </div>
-          <div className="flex flex-col flex-1">
-            <span className="text-sm text-gray-500">Total Stock</span>
-            <span className="font-medium">{item?.total_stock}</span>
-          </div>
-        </div>
+              {displayedProducts?.map((item, index) => (
+                <div
+                  key={index}
+                  className="w-full rounded-lg shadow-md p-4 cursor-pointer hover:shadow-lg transition duration-300 bg-white border border-gray-100"
+                >
+                  <div className="flex justify-between items-start mb-4">
+                    <p className="font-semibold text-lg text-blue-700 break-words">
+                      {item?.product_name}
+                    </p>
+                    <div className="flex gap-3">
+                      <BiPencil
+                        className="text-green-600 cursor-pointer hover:text-blue-800"
+                        onClick={() => handleEditProduct(item._id)}
+                      />
+                      <MdDelete
+                        className="text-red-600 cursor-pointer hover:text-red-800"
+                        onClick={() => openDeletePopup(item._id)}
+                      />
+                      <BsEye
+                        className="text-blue-600 cursor-pointer hover:text-red-800"
+                        onClick={() => handleProductClick(item._id)}
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="flex justify-between gap-2">
+                      <div className="flex flex-col flex-1">
+                        <span className="text-sm text-gray-500">MRP</span>
+                        <span className="font-medium">₹{item?.product_mrp}</span>
+                      </div>
+                      <div className="flex flex-col flex-1">
+                        <span className="text-sm text-gray-500">Quantity</span>
+                        <span className="font-medium">{item?.product_quantity}</span>
+                      </div>
+                      <div className="flex flex-col flex-1">
+                        <span className="text-sm text-gray-500">Total Stock</span>
+                        <span className="font-medium">{item?.total_stock}</span>
+                      </div>
+                    </div>
 
-        {/* Second Row: 2 Details */}
-        <div className="flex justify-between gap-2">
-          <div className="flex flex-col flex-1">
-            <span className="text-sm text-gray-500">Category</span>
-            <span className="font-medium">{item?.product_category?.name}</span>
-          </div>
-          <div className="flex flex-col flex-1">
-            <span className="text-sm text-gray-500">Availability</span>
-            <span
-              className={`font-medium ${
-                item?.total_stock > item?.threshold_stock
-                  ? "text-green-600"
-                  : "text-red-600"
-              }`}
-            >
-              {item?.total_stock > item?.threshold_stock
-                ? "In-Stock"
-                : "Out of stock"}
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
-  ))}
-</div>
+                    <div className="flex justify-between gap-2">
+                      <div className="flex flex-col flex-1">
+                        <span className="text-sm text-gray-500">Category</span>
+                        <span className="font-medium">{item?.product_category?.name}</span>
+                      </div>
+                      <div className="flex flex-col flex-1">
+                        <span className="text-sm text-gray-500">Availability</span>
+                        <span
+                          className={`font-medium ${
+                            item?.total_stock > item?.threshold_stock
+                              ? "text-green-600"
+                              : "text-red-600"
+                          }`}
+                        >
+                          {item?.total_stock > item?.threshold_stock
+                            ? "In-Stock"
+                            : "Out of stock"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
 
             <div className="flex justify-between items-center">
               <button
                 className="border-2 border-gray-400 rounded py-2 px-4 hover:bg-gray-100 transition duration-300"
-                disabled={currentPage === 1 || storeProductList.length === 0}
+                disabled={currentPage === 1 || displayedProducts.length === 0}
                 onClick={() => setCurrentPage(currentPage - 1)}
               >
                 Previous
@@ -265,7 +276,7 @@ export const InventoryCatelogue = () => {
               </p>
               <button
                 className="border-2 border-gray-400 rounded py-2 px-4 hover:bg-gray-100 transition duration-300"
-                disabled={currentPage === totalPages || storeProductList.length === 0}
+                disabled={currentPage === totalPages || displayedProducts.length === 0}
                 onClick={() => setCurrentPage(currentPage + 1)}
               >
                 Next
@@ -284,16 +295,7 @@ export const InventoryCatelogue = () => {
             >
               Close
             </button>
-            <ListProduct
-              setStoreProductList={setStoreProductList}
-              setAddProductPopUp={setAddProductPopUp}
-              onProductAdded={(prevList) => {
-                setStoreProductList((prevList) =>
-                  prevList.filter((product) => product._id !== selectedProductId)
-                );
-                setAddProductPopUp(false);
-              }}
-            />
+            <ListProduct onProductAdded={handleProductAdded} />
           </div>
         </div>
       )}
@@ -304,7 +306,6 @@ export const InventoryCatelogue = () => {
         onConfirm={handleDeleteProduct}
         onCancel={() => setIsPopupOpen(false)}
       />
-      <ToastContainer />
     </>
   );
 };

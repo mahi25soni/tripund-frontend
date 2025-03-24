@@ -3,13 +3,13 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import Input from "../../atoms/Input";
 import axios from "../../../axios";
 import Spinner from "../../components/Spinner";
-import { toast, ToastContainer } from "react-toastify"; // Import ToastContainer
-import "react-toastify/dist/ReactToastify.css"; // Import Toast CSS
+import { toast, ToastContainer } from "react-toastify"; 
+import "react-toastify/dist/ReactToastify.css"; 
 import { BiSolidImageAdd, BiX } from "react-icons/bi";
 import { FaSearch } from "react-icons/fa";
 import { BsInfoCircle } from "react-icons/bs";
 
-export const ListProduct = ({ props, onProductAdded }) => {
+export const ListProduct = ({ onProductAdded }) => {
   const [images, setImages] = useState([null, null, null, null]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -17,8 +17,6 @@ export const ListProduct = ({ props, onProductAdded }) => {
   const [suggestions, setSuggestions] = useState([]);
   const isEditMode = location.pathname.includes("edit");
   const { id } = useParams();
-
-  // States for form fields
   const [editData, setEditData] = useState("");
   const [productName, setProductName] = useState("");
   const [selectedCategory, setSelectedCategory] = useState([]);
@@ -30,9 +28,9 @@ export const ListProduct = ({ props, onProductAdded }) => {
   const [totalStock, setTotalStock] = useState("");
   const [thresholdStock, setThresholdStock] = useState("");
   const [showCategoryPopup, setShowCategoryPopup] = useState(false);
-
   const UserToken = localStorage.getItem("token");
   const navigate = useNavigate();
+  
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -54,6 +52,7 @@ export const ListProduct = ({ props, onProductAdded }) => {
 
     fetchCategories();
   }, [UserToken]);
+
 
   useEffect(() => {
     const fetchSuggestions = async () => {
@@ -134,19 +133,18 @@ export const ListProduct = ({ props, onProductAdded }) => {
   const addProductHandle = async (event) => {
     event.preventDefault();
     setLoading(true);
-
     const formData = new FormData();
-
-    // Append existing images (keeping the previous logic)
     const existingImages = images.filter((image) => typeof image === "string");
     formData.append("existing_images", JSON.stringify(existingImages));
 
-    // Append new images (only files, not URLs)
     images.forEach((image) => {
       if (typeof image !== "string") {
         formData.append("product_img", image);
       }
     });
+
+    console.log("Received onProductAdded:", onProductAdded);
+    
 
     formData.append("product_name", productName);
     formData.append("brand_name", brandName);
@@ -181,7 +179,8 @@ export const ListProduct = ({ props, onProductAdded }) => {
         );
         toast.success("Product added successfully!");
         onProductAdded(data?.data?.data);
-        resetForm(); // Reset the form after successful submission
+        resetForm(); 
+        navigate("/inventory/view-all");
       }
     } catch (error) {
       console.error("Error Updating product:", error);
@@ -383,11 +382,17 @@ export const ListProduct = ({ props, onProductAdded }) => {
             <div className="w-full">
               <div className="mb-4">
                 <label>GST</label>
-                <Input
+                <select
                   name="gst"
                   value={gst}
                   onChange={(e) => setGst(e.target.value)}
-                />
+                  className="w-full p-2 border border-gray-300 rounded"
+                >
+                  <option value="0">0%</option>
+                  <option value="12">12%</option>
+                  <option value="18">18%</option>
+                  <option value="28">28%</option>
+                </select>
               </div>
             </div>
           </div>

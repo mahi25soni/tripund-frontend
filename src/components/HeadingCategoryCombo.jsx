@@ -298,6 +298,12 @@ const HeadingCategoryCombo = () => {
             )}
 
             <div className="flex justify-end gap-2 mt-10">
+            <button
+                onClick={handleCancel}
+                className="px-4 py-2 bg-gray-300 text-white rounded hover:bg-gray-400 transition duration-300"
+              >
+                Cancel
+              </button>
               <button
                 onClick={handleSubmit}
                 className={`px-4 py-2 ${
@@ -308,13 +314,6 @@ const HeadingCategoryCombo = () => {
                 }
               >
                 {loading ? "Saving..." : "Save Combination"}
-              </button>
-
-              <button
-                onClick={handleCancel}
-                className="px-4 py-2 bg-gray-300 text-white rounded hover:bg-gray-400 transition duration-300"
-              >
-                Cancel
               </button>
             </div>
           </div>

@@ -22,10 +22,10 @@ const Settings = () => {
     deliveryTiming: "" 
   });
   const [editingField, setEditingField] = useState(null);
-  const [logoPreview, setLogoPreview] = useState(null); // For image preview
-  const [selectedFile, setSelectedFile] = useState(null); // For image file
+  const [logoPreview, setLogoPreview] = useState(null); 
+  const [selectedFile, setSelectedFile] = useState(null); 
   const [deliveryDuration, setDeliveryDuration] = useState(null);
-  const [isDeliveryTimePopupOpen, setIsDeliveryTimePopupOpen] = useState(false); // State to handle popup open/close
+  const [isDeliveryTimePopupOpen, setIsDeliveryTimePopupOpen] = useState(false); 
   const token = localStorage.getItem("token");
 
   useEffect(() => {
@@ -159,8 +159,6 @@ const Settings = () => {
         <form onSubmit={handleSubmit}>
           {renderField("Store Logo", "logo", storeData.logo, editingField === "logo")}
           {renderField("Store Name", "storeName", storeData.storeName, editingField === "storeName")}
-          {renderField("Location", "location", storeData.address, editingField === "address")}
-          {renderField("Delivery Radius", "deliveryRadius", storeData.deliveryRadius, editingField === "address")}
           {renderField("Email", "email", storeData.email, editingField === "email")}
           {renderField("Phone Number", "phoneNumber", storeData.phoneNumber, editingField === "phoneNumber")}
 
