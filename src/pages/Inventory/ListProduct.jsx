@@ -5,7 +5,7 @@ import axios from "../../../axios";
 import Spinner from "../../components/Spinner";
 import { toast, ToastContainer } from "react-toastify"; 
 import "react-toastify/dist/ReactToastify.css"; 
-import { BiSolidImageAdd, BiX } from "react-icons/bi";
+import { BiSolidImageAdd, BiX, BiArrowBack } from "react-icons/bi";
 import { FaSearch } from "react-icons/fa";
 import { BsInfoCircle } from "react-icons/bs";
 
@@ -239,6 +239,15 @@ export const ListProduct = ({ onProductAdded }) => {
         draggable
         pauseOnHover
       />
+
+      {/* Back Navigation Button */}
+      <button 
+        onClick={() => navigate("/inventory/view-all")}
+        className="flex items-center text-blue-600 hover:text-blue-800 mb-4"
+      >
+        <BiArrowBack className="mr-1" />
+        back to products
+      </button>
 
       {showCategoryPopup && (
         <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
